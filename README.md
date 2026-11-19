@@ -47,17 +47,17 @@ O site está na raiz, então o Pages publica direto:
 > Como é um site de projeto, ele é servido no subcaminho `/endoafetos/`. Todos os
 > caminhos de assets são relativos, então funcionam normalmente nesse subcaminho.
 
-### 🌐 Domínio próprio — www.endoafetos.com.br
+### 🌐 Domínio próprio — endoafetos.com.br
 
-Todo o SEO já aponta para `https://www.endoafetos.com.br/`. Para ativar o domínio
+Todo o SEO já aponta para `https://endoafetos.com.br/`. Para ativar o domínio
 faça **nesta ordem** — não adicione o arquivo `CNAME` antes do DNS, senão o endereço
 `github.io` para de responder até o domínio propagar:
 
 1. **DNS** (painel do registrador do `.com.br`):
    - `CNAME`  `www`  →  `outcast2020.github.io`
    - Apex (`endoafetos.com.br`, sem www): 4 registros `A` → `185.199.108.153`,
-     `185.199.109.153`, `185.199.110.153`, `185.199.111.153` (o GitHub redireciona o apex para o `www`).
-2. **GitHub → Settings → Pages → Custom domain**: digite `www.endoafetos.com.br` e salve
+     `185.199.109.153`, `185.199.110.153`, `185.199.111.153` (o GitHub redireciona o `www` para o apex).
+2. **GitHub → Settings → Pages → Custom domain**: digite `endoafetos.com.br` e salve
    (isso cria o arquivo `CNAME` na raiz). Marque **Enforce HTTPS** quando ficar disponível.
 3. Aguarde a propagação do DNS e a emissão do certificado (minutos a algumas horas).
 
@@ -75,7 +75,7 @@ faça **nesta ordem** — não adicione o arquivo `CNAME` antes do DNS, senão o
 
 ## 🔎 SEO & aparecer no Google
 
-Já configurado no `index.html` (tudo apontando para `https://www.endoafetos.com.br/`):
+Já configurado no `index.html` (tudo apontando para `https://endoafetos.com.br/`):
 `title` e `meta description` otimizados (com "endometriose" e "Salvador"), `canonical`,
 Open Graph / Twitter Card, meta tags de geolocalização (**Salvador → Bahia → Brasil**),
 `robots.txt`, `sitemap.xml` e dados estruturados JSON-LD (`Organization`/`MedicalOrganization`,
@@ -86,7 +86,7 @@ oculto da página. Para o site ser indexado (só acontece depois de o domínio e
 
 1. **Google Search Console** (search.google.com/search-console): adicione a propriedade
    do tipo **Domínio** (`endoafetos.com.br`) e verifique pelo **registro DNS TXT** fornecido.
-2. Em **Sitemaps**, envie `https://www.endoafetos.com.br/sitemap.xml`.
+2. Em **Sitemaps**, envie `https://endoafetos.com.br/sitemap.xml`.
 3. Em **Inspeção de URL**, teste a home e clique em **Solicitar indexação**.
 4. A indexação costuma levar de alguns dias a ~2 semanas.
 
