@@ -1,0 +1,1163 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- remover quando o conteúdo for assinado -->
+<meta name="robots" content="noindex">
+<title>Quiz EndoAfetos — Conhecer para cuidar</title>
+<meta name="theme-color" content="#b3427a">
+<link rel="icon" type="image/png" href="../assets/logo.png">
+<style>
+/* Paleta e tipografia do site EndoAfetos, sem carregar fontes de fora */
+:root {
+  --cream: #f8f4f2;
+  --cream-2: #efe8ec;
+  --surface: #ffffff;
+  --rose: #b3427a;
+  --rose-dark: #8c2f5f;
+  --rose-mist: #f9eef3;
+  --gold-soft: #e7e0f6;
+  --lavender: #8a62a3;
+  --lavender-soft: #e4dbef;
+  --ink: #494f83;
+  --ink-soft: #6c6b88;
+  --line: #e6dde3;
+  --certo: #1e6b4a;
+  --certo-soft: #e3f1ea;
+  --serif: 'Fraunces', Georgia, 'Times New Roman', serif;
+  --sans: 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --radius: 20px;
+  --radius-sm: 12px;
+  --shadow: 0 18px 45px -22px rgba(73, 79, 131, 0.40);
+  --shadow-sm: 0 8px 22px -14px rgba(73, 79, 131, 0.38);
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: var(--sans);
+  font-size: 1.0625rem;
+  line-height: 1.6;
+  color: var(--ink);
+  overflow-wrap: break-word;
+  -webkit-font-smoothing: antialiased;
+  background:
+    radial-gradient(1200px 600px at 50% -10%, var(--gold-soft) 0%, transparent 55%),
+    linear-gradient(180deg, var(--cream) 0%, var(--cream-2) 100%);
+}
+img { max-width: 100%; }
+p { margin: 0 0 1em; }
+:focus-visible { outline: 3px solid var(--rose-dark); outline-offset: 3px; border-radius: 4px; }
+main:focus { outline: none; }
+
+.pular {
+  position: absolute; left: 1rem; top: -5rem; z-index: 10;
+  display: inline-flex; align-items: center; min-height: 44px;
+  padding: .6rem 1rem;
+  background: var(--surface); color: var(--rose-dark);
+  font-weight: 700;
+  border: 2px solid var(--rose-dark); border-radius: var(--radius-sm);
+}
+.pular:focus { top: 1rem; }
+
+.topo { display: flex; justify-content: center; padding: 1rem 1rem .25rem; }
+/* Espaço por margem, não por gap em flex: o Safari do iOS anterior ao 14.5 ignora o gap */
+.topo__marca { display: inline-flex; align-items: center; margin: 0; }
+.topo__logo { width: 46px; height: auto; margin-right: .55rem; }
+.topo__nome { font-family: var(--serif); font-size: 1.4rem; font-weight: 600; color: var(--ink); }
+.topo__nome em { font-style: normal; color: var(--rose-dark); }
+
+main { padding: .75rem 1rem 1.5rem; }
+.cartao {
+  max-width: 640px;
+  margin: 0 auto;
+  /* Valor de reserva antes de cada clamp(): o iOS anterior ao 13.4 descarta a declaração com clamp */
+  padding: 1.15rem;
+  padding: clamp(1.15rem, 5vw, 2.25rem);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+}
+
+.titulo {
+  margin: 0 0 .6em;
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: 1.5rem;
+  font-size: clamp(1.5rem, 6vw, 2.1rem);
+  line-height: 1.2;
+  color: var(--ink);
+}
+.titulo--pergunta { font-size: 1.3rem; font-size: clamp(1.3rem, 5.2vw, 1.75rem); }
+.titulo__nome, .titulo__sub, .progresso, .enunciado { display: block; }
+.titulo__sub { font-size: .8em; font-style: italic; color: var(--rose-dark); }
+.progresso {
+  margin-bottom: .5rem;
+  font-family: var(--sans);
+  font-size: .8rem;
+  font-weight: 800;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--rose-dark);
+}
+
+.barra { height: 8px; margin-bottom: 1.1rem; border-radius: 999px; background: var(--lavender-soft); overflow: hidden; }
+.barra span { display: block; height: 100%; border-radius: 999px; background: linear-gradient(90deg, var(--rose), var(--lavender)); }
+
+.aviso {
+  margin: 1rem 0 1.25rem;
+  padding: .85rem 1rem;
+  border-left: 6px solid var(--rose);
+  border-radius: var(--radius-sm);
+  background: var(--rose-mist);
+  font-weight: 600;
+}
+
+.campo { margin-bottom: 1.25rem; }
+.campo label { display: block; margin-bottom: .35rem; font-weight: 700; }
+.campo input {
+  width: 100%;
+  min-height: 48px;
+  padding: .7rem .9rem;
+  font: inherit;
+  color: var(--ink);
+  background: var(--surface);
+  border: 2px solid var(--ink-soft);
+  border-radius: var(--radius-sm);
+}
+.dica { margin: .35rem 0 0; font-size: .92rem; color: var(--ink-soft); }
+
+.btn {
+  display: flex; align-items: center; justify-content: center;
+  width: 100%;
+  min-height: 48px;
+  padding: .8rem 1.5rem;
+  font: inherit;
+  font-weight: 700;
+  color: #fff;
+  background: linear-gradient(135deg, var(--rose) 0%, var(--rose-dark) 100%);
+  border: 2px solid transparent;
+  border-radius: 999px;
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+.btn:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
+.btn--contorno { color: var(--rose-dark); background: var(--surface); border-color: var(--rose-dark); box-shadow: none; }
+.btn[aria-disabled="true"] { opacity: .65; cursor: default; transform: none; }
+
+.alternativas { display: grid; gap: .75rem; }
+.alt {
+  display: block;
+  width: 100%;
+  min-height: 56px;
+  padding: .85rem 1rem;
+  font: inherit;
+  text-align: left;
+  color: var(--ink);
+  background: var(--surface);
+  border: 2px solid var(--lavender);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+.alt:hover { background: var(--lavender-soft); }
+.alt[aria-disabled="true"] { cursor: default; }
+.alt[aria-disabled="true"]:hover { background: var(--surface); }
+.alt__texto, .alt__marca { display: block; }
+.alt__marca { margin-top: .35rem; font-size: .92rem; font-weight: 800; }
+/* Certo e errado: rótulo em texto, sinal gráfico e traço da borda, além da cor */
+.alt--correta, .alt--correta[aria-disabled="true"]:hover { border: 3px solid var(--certo); background: var(--certo-soft); }
+.alt--correta .alt__marca { color: var(--certo); }
+.alt--errada, .alt--errada[aria-disabled="true"]:hover { border: 3px dashed var(--rose-dark); background: var(--rose-mist); }
+.alt--errada .alt__marca { color: var(--rose-dark); }
+
+.retorno__caixa { margin-top: 1.25rem; padding: 1rem 1.1rem; border-radius: var(--radius-sm); }
+.retorno__caixa p:last-child { margin-bottom: 0; }
+.retorno__caixa--acerto { border: 3px solid var(--certo); background: var(--certo-soft); }
+.retorno__caixa--erro { border: 3px dashed var(--rose-dark); background: var(--rose-mist); }
+.retorno__resultado { margin-bottom: .5rem; font-size: 1.12rem; font-weight: 800; }
+.retorno__caixa--acerto .retorno__resultado { color: var(--certo); }
+.retorno__caixa--erro .retorno__resultado { color: var(--rose-dark); }
+.retorno__correta { margin-bottom: .5rem; font-weight: 700; }
+
+#acoes { margin-top: 1.25rem; }
+#acoes:empty { display: none; }
+
+.placar {
+  margin-bottom: .75rem;
+  font-family: var(--serif);
+  font-size: 1.25rem;
+  font-size: clamp(1.25rem, 5vw, 1.6rem);
+  line-height: 1.3;
+  color: var(--rose-dark);
+  overflow-wrap: anywhere;
+}
+
+.canais {
+  margin: 1.5rem 0 1.25rem;
+  padding: 1rem 1.1rem;
+  background: var(--cream);
+  border: 2px solid var(--lavender);
+  border-radius: var(--radius-sm);
+}
+.canais h2, .coleta h2 { margin: 0 0 .5rem; font-family: var(--serif); font-weight: 500; font-size: 1.25rem; line-height: 1.25; color: var(--ink); }
+.canais ul { display: flex; flex-wrap: wrap; margin: 0; padding: 0; list-style: none; }
+.canais li { margin: 0 1.5rem .25rem 0; }
+.canal, .convite a, .coleta a {
+  display: inline-flex; align-items: center;
+  min-height: 44px; min-width: 44px;
+  font-weight: 800;
+  color: var(--rose-dark);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.canal__descricao { display: block; }
+
+.brinde { margin: 0 0 1.25rem; padding: .85rem 1rem; border-radius: var(--radius-sm); background: var(--gold-soft); font-weight: 700; }
+.convite { margin-bottom: 1.5rem; }
+.convite span { display: block; }
+
+.coleta { margin: 0 0 1.5rem; padding-top: 1.25rem; border-top: 1px solid var(--line); }
+.caixa { display: flex; align-items: flex-start; min-height: 44px; padding: .55rem 0; cursor: pointer; }
+.caixa input { flex: none; width: 24px; height: 24px; margin: .1rem .75rem 0 0; accent-color: var(--rose-dark); }
+.coleta__desafio { max-width: 100%; margin: .75rem 0; }
+.coleta__status { min-height: 1.6em; font-weight: 700; color: var(--rose-dark); }
+
+.rodape { padding: 0 1rem 2rem; text-align: center; font-size: .92rem; color: var(--ink); }
+.rodape p { margin: 0; }
+
+@media (min-width: 520px) {
+  .btn { display: inline-flex; width: auto; min-width: 13rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+  .btn:hover { transform: none; }
+}
+</style>
+</head>
+<body>
+<a class="pular" href="#principal">Pular para o conteúdo</a>
+
+<header class="topo">
+  <p class="topo__marca">
+    <img class="topo__logo" src="../assets/logo.png" alt="Logotipo EndoAfetos" width="46" height="34" onerror="this.hidden=true">
+    <span class="topo__nome">Endo<em>Afetos</em></span>
+  </p>
+</header>
+
+<main id="principal" tabindex="-1">
+  <div class="cartao">
+    <div id="palco">
+      <noscript><p>Este quiz precisa de JavaScript ativado no navegador.</p></noscript>
+    </div>
+    <div id="retorno" role="status" aria-live="polite" aria-atomic="true"></div>
+    <div id="acoes"></div>
+  </div>
+</main>
+
+<footer class="rodape">
+  <p>EndoAfetos | Conhecer para cuidar.</p>
+</footer>
+
+<script>
+/* ==== DADOS:INICIO ==== */
+const VERSAO_QUIZ = "provisorio-2026-11-19";
+
+const CONFIG = {
+  coleta: false,
+  api: "",
+  turnstile_sitekey: "",
+  turnstile_script: "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit",
+  politica_url: "",
+  link_convite: "../",
+  nome_max: 40,
+  email_max: 254,
+  tentativas_envio: 3,
+  espera_entre_tentativas_ms: 1500,
+  espera_resposta_ms: 10000,
+  espera_script_ms: 10000,
+  espera_turnstile_ms: 30000,
+  guarda_toque_ms: 500
+};
+
+// PROVISORIO: todos os textos abaixo aguardam aprovacao da equipe.
+const TEXTOS = {
+  provisorio: true,
+  versao: "provisorio-2026-11-19",
+  titulo: "Quiz EndoAfetos",
+  subtitulo: "Conhecer para cuidar",
+  abertura: "São {total} perguntas rápidas sobre endometriose. Depois de cada resposta, você vê a explicação.",
+  aviso: "Este quiz é educativo. Isto não é diagnóstico e não substitui uma consulta com profissional de saúde.",
+  nome_rotulo: "Como podemos te chamar?",
+  nome_dica: "Opcional. Seu nome aparece só na tela final.",
+  nome_dica_coleta: "Opcional. Seu nome aparece na tela final. Ele só segue para a equipe se você enviar seu e-mail no fim do quiz.",
+  botao_comecar: "Começar",
+  progresso: "Pergunta {n} de {total}",
+  marca_correta: "Resposta correta",
+  marca_sua_certa: "Sua resposta: correta",
+  marca_sua_errada: "Sua resposta: incorreta",
+  retorno_acerto: "Você acertou.",
+  retorno_erro: "Não foi desta vez.",
+  retorno_correta: "Resposta correta: {texto}",
+  botao_proxima: "Próxima pergunta",
+  botao_resultado: "Ver meu resultado",
+  final_titulo: "Seu resultado",
+  final_placar: "Você acertou {acertos} de {total} perguntas.",
+  final_placar_nome: "{nome}, você acertou {acertos} de {total} perguntas.",
+  encerramento: "Agradecemos a sua participação.",
+  canais_titulo: "Canais de ajuda",
+  brinde: "Passe no estande e retire seu brinde.",
+  convite: "Quer conhecer a EndoAfetos? Converse com a equipe no estande.",
+  convite_link: "Ir para a página inicial da EndoAfetos",
+  botao_de_novo: "Jogar de novo",
+  coleta: {
+    titulo: "Quer receber seu resultado por e-mail?",
+    intro: "É opcional. Seu resultado já está nesta tela e não depende do envio.",
+    email_rotulo: "E-mail (opcional)",
+    caixa_resultado: "Quero receber meu resultado neste e-mail",
+    caixa_convite: "Aceito receber convites e novidades; posso sair quando quiser",
+    caixa_maior: "Tenho 18 anos ou mais",
+    o_que_segue: "Ao enviar, seguem para a equipe da EndoAfetos: seu e-mail, seu total de acertos e o nome que você informou, se houver.",
+    politica: "Política de privacidade",
+    botao: "Enviar",
+    tentar: "Tentar de novo",
+    enviando: "Enviando: tentativa {n} de {total}.",
+    sucesso: "Recebemos seu envio. Agradecemos!",
+    falha: "Não foi possível enviar agora. Seu resultado continua nesta tela.",
+    erros: {
+      falta_email: "Para enviar, informe um e-mail.",
+      email_invalido: "Confira o e-mail digitado.",
+      falta_aceite: "Para enviar, marque ao menos uma das duas primeiras opções.",
+      falta_maior: "Para enviar, confirme que você tem 18 anos ou mais."
+    }
+  }
+};
+
+// Numeros: lista do PONTO-DE-RETOMADA. Nomes: como aparecem no Banco de Conhecimento v1.0.
+// null = a fonte nao traz; so preencher com a lista de canais assinada.
+const CANAIS = [
+  { numero: "192", nome: "SAMU", descricao: null },
+  { numero: "190", nome: null, descricao: null },
+  { numero: "180", nome: "Ligue 180", descricao: null },
+  { numero: "100", nome: "Disque 100", descricao: null },
+  { numero: "188", nome: "CVV", descricao: null }
+];
+
+// Copia literal de Quiz_EndoAfetos_Conhecer_para_cuidar. base_ids vazio: a fonte nao liga pergunta a item ENDO.
+const PERGUNTAS = [
+  {
+    id: "q01",
+    enunciado: "Sentir cólicas menstruais muito fortes é normal?",
+    alternativas: [
+      { texto: "Sim, toda mulher precisa aprender a conviver com a dor.", correta: false },
+      { texto: "Não. Cólicas que prejudicam as atividades diárias merecem investigação.", correta: true },
+      { texto: "Somente quando a dor acontece fora da menstruação.", correta: false }
+    ],
+    explicacao: "A menstruação pode provocar desconforto, mas dores intensas que impedem a mulher de estudar, trabalhar ou realizar suas atividades não devem ser normalizadas. A endometriose é uma das possíveis causas.",
+    base_ids: []
+  },
+  {
+    id: "q02",
+    enunciado: "A endometriose afeta apenas o útero?",
+    alternativas: [
+      { texto: "Sim, é uma doença exclusiva do útero.", correta: false },
+      { texto: "Não. Pode comprometer ovários, peritônio, intestino e bexiga, entre outras estruturas.", correta: true },
+      { texto: "Afeta somente os ovários.", correta: false }
+    ],
+    explicacao: "A endometriose é uma doença inflamatória crônica caracterizada pela presença de tecido semelhante ao endométrio fora do útero. Pode atingir diferentes órgãos e provocar sintomas variados.",
+    base_ids: []
+  },
+  {
+    id: "q03",
+    enunciado: "Uma mulher com endometriose pode engravidar naturalmente?",
+    alternativas: [
+      { texto: "Não, todas precisam de fertilização in vitro.", correta: false },
+      { texto: "Sim, muitas mulheres com endometriose engravidam espontaneamente.", correta: true },
+      { texto: "Somente depois de uma cirurgia.", correta: false }
+    ],
+    explicacao: "A endometriose pode comprometer a fertilidade, mas não significa infertilidade obrigatória. Muitas mulheres conseguem engravidar naturalmente. O prognóstico depende de fatores como idade, reserva ovariana e extensão da doença.",
+    base_ids: []
+  },
+  {
+    id: "q04",
+    enunciado: "É possível ter endometriose mesmo sem sentir cólicas intensas?",
+    alternativas: [
+      { texto: "Sim. Algumas mulheres apresentam poucos sintomas ou são assintomáticas.", correta: true },
+      { texto: "Não. Toda mulher com endometriose sente dor intensa.", correta: false },
+      { texto: "Somente depois dos 40 anos.", correta: false }
+    ],
+    explicacao: "A intensidade da dor nem sempre corresponde à extensão da doença. Algumas mulheres descobrem a endometriose durante a investigação de infertilidade, mesmo sem sintomas importantes.",
+    base_ids: []
+  },
+  {
+    id: "q05",
+    enunciado: "O diagnóstico da endometriose exige obrigatoriamente uma cirurgia?",
+    alternativas: [
+      { texto: "Sim, somente a laparoscopia permite o diagnóstico.", correta: false },
+      { texto: "Não. A avaliação clínica e os exames de imagem podem permitir o diagnóstico sem cirurgia.", correta: true },
+      { texto: "Basta realizar um exame de sangue.", correta: false }
+    ],
+    explicacao: "A história clínica, o exame ginecológico e exames de imagem, especialmente ultrassonografia transvaginal especializada e ressonância magnética, podem fundamentar o diagnóstico. A cirurgia não é obrigatória em todos os casos.",
+    base_ids: []
+  },
+  {
+    id: "q06",
+    enunciado: "A endometriose pode afetar a saúde emocional?",
+    alternativas: [
+      { texto: "Não, é uma doença exclusivamente física.", correta: false },
+      { texto: "Sim. Dor crônica, dificuldades sexuais e incertezas sobre a fertilidade podem afetar o bem-estar emocional.", correta: true },
+      { texto: "Apenas nas mulheres com infertilidade.", correta: false }
+    ],
+    explicacao: "A endometriose pode repercutir na autoestima, nos relacionamentos, na sexualidade e na saúde mental. O acompanhamento psicológico pode integrar o cuidado multidisciplinar.",
+    base_ids: []
+  },
+  {
+    id: "q07",
+    enunciado: "Toda mulher com endometriose precisa operar?",
+    alternativas: [
+      { texto: "Sim, a cirurgia é sempre o primeiro tratamento.", correta: false },
+      { texto: "Não. O tratamento deve ser individualizado conforme sintomas, características da doença e objetivos reprodutivos.", correta: true },
+      { texto: "Quando deseja engravidar, sempre é necessário.", correta: false }
+    ],
+    explicacao: "Existem diferentes abordagens terapêuticas, incluindo tratamento medicamentoso e cirurgia em situações selecionadas. Nem toda paciente precisa ser operada.",
+    base_ids: []
+  },
+  {
+    id: "q08",
+    enunciado: "A endometriose pode provocar dor durante as relações sexuais?",
+    alternativas: [
+      { texto: "Não, a dor durante a relação não tem relação com endometriose.", correta: false },
+      { texto: "Sim, especialmente dor profunda durante a penetração.", correta: true },
+      { texto: "Apenas quando há comprometimento dos ovários.", correta: false }
+    ],
+    explicacao: "A dor durante a relação sexual, especialmente a dor profunda, pode estar associada à endometriose. Esse sintoma merece investigação e acolhimento, sem julgamentos.",
+    base_ids: []
+  }
+];
+/* ==== DADOS:FIM ==== */
+
+/* ==== PURAS:INICIO ==== */
+function embaralhar(lista, aleatorio) {
+  const sorteio = typeof aleatorio === "function" ? aleatorio : Math.random;
+  const copia = lista.slice();
+  for (let i = copia.length - 1; i > 0; i--) {
+    const j = Math.floor(sorteio() * (i + 1));
+    const troca = copia[i];
+    copia[i] = copia[j];
+    copia[j] = troca;
+  }
+  return copia;
+}
+
+function prepararPartida(perguntas, aleatorio) {
+  return perguntas.map(function (pergunta) {
+    return {
+      id: pergunta.id,
+      enunciado: pergunta.enunciado,
+      alternativas: embaralhar(pergunta.alternativas, aleatorio).map(function (alternativa) {
+        return { texto: alternativa.texto, correta: alternativa.correta === true };
+      }),
+      explicacao: pergunta.explicacao,
+      base_ids: pergunta.base_ids.slice()
+    };
+  });
+}
+
+function contarAcertos(respostas) {
+  return respostas.filter(function (resposta) {
+    return Boolean(resposta) && resposta.acertou === true;
+  }).length;
+}
+
+function limparNome(texto, maximo) {
+  const limpo = String(texto == null ? "" : texto)
+    .replace(/[\u0000-\u001F\u007F-\u009F]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+  let saida = "";
+  // Percorre por caractere inteiro, para nao cortar um emoji ao meio.
+  for (const letra of limpo) {
+    if (saida.length + letra.length > maximo) break;
+    saida += letra;
+  }
+  return saida.trim();
+}
+
+// Uma passada so: o que entra no lugar de {chave} nao e lido de novo.
+function preencher(modelo, valores) {
+  return String(modelo).replace(/\{(\w+)\}/g, function (trecho, chave) {
+    return Object.prototype.hasOwnProperty.call(valores, chave) ? String(valores[chave]) : trecho;
+  });
+}
+
+function rotuloCanal(canal) {
+  if (!canal.nome) return canal.numero;
+  return canal.nome.indexOf(canal.numero) !== -1 ? canal.nome : canal.nome + " " + canal.numero;
+}
+
+function emailValido(texto, maximo) {
+  const email = String(texto == null ? "" : texto).trim();
+  return email.length > 0 && email.length <= (maximo || 254) && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+function coletaAtiva(config) {
+  return config.coleta === true &&
+    /^https:\/\/./.test(String(config.api)) &&
+    typeof config.turnstile_sitekey === "string" && config.turnstile_sitekey !== "";
+}
+
+function enderecoEnvio(config) {
+  return String(config.api).replace(/\/+$/, "") + "/api/quiz";
+}
+
+// Devolve a chave do erro em TEXTOS.coleta.erros, ou null quando pode enviar.
+function validarColeta(campos, maximoEmail) {
+  const email = String(campos.email == null ? "" : campos.email).trim();
+  if (email === "") return "falta_email";
+  if (!emailValido(email, maximoEmail)) return "email_invalido";
+  if (campos.resultado !== true && campos.convite !== true) return "falta_aceite";
+  if (campos.maior_de_18 !== true) return "falta_maior";
+  return null;
+}
+
+// UUID versao 4 a partir de 16 bytes aleatorios, para navegador sem crypto.randomUUID.
+function uuidDeBytes(bytes) {
+  const b = Array.prototype.slice.call(bytes, 0, 16);
+  b[6] = (b[6] & 0x0f) | 0x40;
+  b[8] = (b[8] & 0x3f) | 0x80;
+  const hex = b.map(function (n) { return (n + 256).toString(16).slice(1); }).join("");
+  return [hex.slice(0, 8), hex.slice(8, 12), hex.slice(12, 16), hex.slice(16, 20), hex.slice(20)].join("-");
+}
+
+// Dentro da guarda, o toque ainda pode ser o segundo de um toque duplo na tela anterior.
+function dentroDaGuarda(agora, mudouEm, guarda) {
+  const passou = agora - mudouEm;
+  return passou >= 0 && passou < guarda;
+}
+
+function montarEnvio(dados) {
+  return {
+    id_envio: String(dados.id_envio),
+    nome: limparNome(dados.nome, dados.nome_max),
+    email: String(dados.email).trim(),
+    acertos: dados.acertos,
+    versao_quiz: dados.versao_quiz,
+    aceites: {
+      resultado: dados.resultado === true,
+      convite: dados.convite === true,
+      maior_de_18: dados.maior_de_18 === true,
+      versao_textos: dados.versao_textos
+    },
+    turnstile: String(dados.turnstile)
+  };
+}
+/* ==== PURAS:FIM ==== */
+
+/* ==== PAGINA:INICIO ==== */
+(function () {
+  "use strict";
+  if (typeof document === "undefined") return;
+
+  const palco = document.getElementById("palco");
+  const retorno = document.getElementById("retorno");
+  const acoes = document.getElementById("acoes");
+  const movimentoReduzido = Boolean(window.matchMedia) &&
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  // Estado so em memoria: some ao fechar ou recarregar a pagina.
+  const estado = { nome: "", partida: [], indice: 0, respostas: [], respondida: false, aoSair: null, mudouEm: 0 };
+
+  let cargaTurnstile = null;
+
+  function agora() {
+    return window.performance && typeof window.performance.now === "function"
+      ? window.performance.now()
+      : Date.now();
+  }
+
+  // Toque duplo: logo depois de a tela mudar, o cartao ignora cliques por um instante.
+  // Na captura, vale para botoes, ligacoes e caixas de marcar de uma vez.
+  palco.parentNode.addEventListener("click", function (evento) {
+    if (!dentroDaGuarda(agora(), estado.mudouEm, CONFIG.guarda_toque_ms)) return;
+    evento.preventDefault();
+    evento.stopPropagation();
+  }, true);
+
+  // Todo texto entra por textContent.
+  function no(etiqueta, classe, texto) {
+    const elemento = document.createElement(etiqueta);
+    if (classe) elemento.className = classe;
+    if (texto !== undefined && texto !== null) elemento.textContent = texto;
+    return elemento;
+  }
+
+  function esvaziar(elemento) {
+    while (elemento.firstChild) elemento.removeChild(elemento.firstChild);
+  }
+
+  function mostrar(blocos, titulo, focar) {
+    if (estado.aoSair) {
+      const sair = estado.aoSair;
+      estado.aoSair = null;
+      sair();
+    }
+    esvaziar(palco);
+    esvaziar(retorno);
+    esvaziar(acoes);
+    blocos.forEach(function (bloco) { palco.appendChild(bloco); });
+    estado.mudouEm = agora();
+    if (focar) {
+      window.scrollTo(0, 0);
+      titulo.focus({ preventScroll: true });
+    }
+  }
+
+  function tituloDaTela(classe, texto) {
+    const titulo = no("h1", classe, texto);
+    titulo.id = "titulo-tela";
+    titulo.tabIndex = -1;
+    return titulo;
+  }
+
+  function telaInicial(focar) {
+    const titulo = tituloDaTela("titulo");
+    titulo.appendChild(no("span", "titulo__nome", TEXTOS.titulo));
+    titulo.appendChild(document.createTextNode(" "));
+    titulo.appendChild(no("span", "titulo__sub", TEXTOS.subtitulo));
+
+    const abertura = no("p", "abertura", preencher(TEXTOS.abertura, { total: PERGUNTAS.length }));
+    const aviso = no("p", "aviso", TEXTOS.aviso);
+    aviso.setAttribute("role", "note");
+
+    const formulario = no("form", "inicio");
+    formulario.noValidate = true;
+    const campo = no("div", "campo");
+    const rotulo = no("label", null, TEXTOS.nome_rotulo);
+    rotulo.htmlFor = "campo-nome";
+    const entrada = no("input");
+    entrada.type = "text";
+    entrada.id = "campo-nome";
+    entrada.maxLength = CONFIG.nome_max;
+    entrada.setAttribute("autocomplete", "off");
+    entrada.setAttribute("autocapitalize", "words");
+    entrada.setAttribute("spellcheck", "false");
+    entrada.setAttribute("aria-describedby", "dica-nome");
+    // Com a coleta ligada, o nome pode seguir no envio: a dica diz isso antes de a pessoa digitar.
+    const dica = no("p", "dica", coletaDisponivel() ? TEXTOS.nome_dica_coleta : TEXTOS.nome_dica);
+    dica.id = "dica-nome";
+    campo.appendChild(rotulo);
+    campo.appendChild(entrada);
+    campo.appendChild(dica);
+    const botao = no("button", "btn", TEXTOS.botao_comecar);
+    botao.type = "submit";
+    formulario.appendChild(campo);
+    formulario.appendChild(botao);
+    formulario.addEventListener("submit", function (evento) {
+      evento.preventDefault();
+      estado.nome = limparNome(entrada.value, CONFIG.nome_max);
+      estado.partida = prepararPartida(PERGUNTAS);
+      estado.indice = 0;
+      estado.respostas = [];
+      telaPergunta();
+    });
+
+    mostrar([titulo, abertura, aviso, formulario], titulo, focar);
+  }
+
+  function telaPergunta() {
+    const pergunta = estado.partida[estado.indice];
+    const total = estado.partida.length;
+    estado.respondida = false;
+
+    const barra = no("div", "barra");
+    barra.setAttribute("aria-hidden", "true");
+    const cheio = no("span");
+    cheio.style.width = ((estado.indice + 1) / total * 100) + "%";
+    barra.appendChild(cheio);
+
+    const titulo = tituloDaTela("titulo titulo--pergunta");
+    titulo.appendChild(no("span", "progresso", preencher(TEXTOS.progresso, { n: estado.indice + 1, total: total })));
+    titulo.appendChild(document.createTextNode(" "));
+    const enunciado = no("span", "enunciado", pergunta.enunciado);
+    enunciado.id = "enunciado";
+    titulo.appendChild(enunciado);
+
+    const grupo = no("div", "alternativas");
+    grupo.setAttribute("role", "group");
+    grupo.setAttribute("aria-labelledby", "enunciado");
+    const botoes = pergunta.alternativas.map(function (alternativa, posicao) {
+      const botao = no("button", "alt");
+      botao.type = "button";
+      botao.appendChild(no("span", "alt__texto", alternativa.texto));
+      botao.addEventListener("click", function () { escolher(posicao, botoes); });
+      grupo.appendChild(botao);
+      return botao;
+    });
+
+    mostrar([barra, titulo, grupo], titulo, true);
+  }
+
+  function marca(sinal, texto) {
+    const linha = no("span", "alt__marca");
+    const desenho = no("span", null, sinal + " ");
+    desenho.setAttribute("aria-hidden", "true");
+    linha.appendChild(desenho);
+    linha.appendChild(document.createTextNode(texto));
+    return linha;
+  }
+
+  function escolher(posicao, botoes) {
+    if (estado.respondida) return;
+    estado.respondida = true;
+    const pergunta = estado.partida[estado.indice];
+    const acertou = pergunta.alternativas[posicao].correta === true;
+    estado.respostas.push({ id: pergunta.id, acertou: acertou });
+
+    let textoCorreta = "";
+    pergunta.alternativas.forEach(function (alternativa, i) {
+      const botao = botoes[i];
+      // aria-disabled em vez de disabled: o foco continua no botao escolhido.
+      botao.setAttribute("aria-disabled", "true");
+      if (alternativa.correta) {
+        textoCorreta = alternativa.texto;
+        botao.classList.add("alt--correta");
+        botao.appendChild(marca("✓", i === posicao ? TEXTOS.marca_sua_certa : TEXTOS.marca_correta));
+      } else if (i === posicao) {
+        botao.classList.add("alt--errada");
+        botao.appendChild(marca("✗", TEXTOS.marca_sua_errada));
+      }
+    });
+
+    const caixa = no("div", "retorno__caixa " + (acertou ? "retorno__caixa--acerto" : "retorno__caixa--erro"));
+    const resultado = no("p", "retorno__resultado");
+    const sinal = no("span", null, (acertou ? "✓" : "✗") + " ");
+    sinal.setAttribute("aria-hidden", "true");
+    resultado.appendChild(sinal);
+    resultado.appendChild(document.createTextNode(acertou ? TEXTOS.retorno_acerto : TEXTOS.retorno_erro));
+    caixa.appendChild(resultado);
+    if (!acertou) {
+      caixa.appendChild(no("p", "retorno__correta", preencher(TEXTOS.retorno_correta, { texto: textoCorreta })));
+    }
+    caixa.appendChild(no("p", "retorno__explicacao", pergunta.explicacao));
+    esvaziar(retorno);
+    retorno.appendChild(caixa);
+
+    const ultima = estado.indice === estado.partida.length - 1;
+    const seguir = no("button", "btn", ultima ? TEXTOS.botao_resultado : TEXTOS.botao_proxima);
+    seguir.type = "button";
+    seguir.addEventListener("click", function () {
+      if (ultima) {
+        telaFinal();
+      } else {
+        estado.indice += 1;
+        telaPergunta();
+      }
+    });
+    esvaziar(acoes);
+    acoes.appendChild(seguir);
+    // O botao de seguir surge e a pagina rola: mesma guarda da troca de tela.
+    estado.mudouEm = agora();
+    try {
+      acoes.scrollIntoView({ block: "nearest", behavior: movimentoReduzido ? "auto" : "smooth" });
+    } catch (falha) {
+      acoes.scrollIntoView(false);
+    }
+  }
+
+  function blocoCanais() {
+    const secao = no("section", "canais");
+    secao.setAttribute("aria-labelledby", "titulo-canais");
+    const titulo = no("h2", null, TEXTOS.canais_titulo);
+    titulo.id = "titulo-canais";
+    const lista = no("ul");
+    CANAIS.forEach(function (canal) {
+      const item = no("li");
+      const ligacao = no("a", "canal", rotuloCanal(canal));
+      ligacao.href = "tel:" + canal.numero;
+      item.appendChild(ligacao);
+      if (canal.descricao) item.appendChild(no("span", "canal__descricao", canal.descricao));
+      lista.appendChild(item);
+    });
+    secao.appendChild(titulo);
+    secao.appendChild(lista);
+    return secao;
+  }
+
+  function blocoConvite() {
+    const convite = no("p", "convite");
+    convite.appendChild(no("span", null, TEXTOS.convite));
+    if (CONFIG.link_convite) {
+      const ligacao = no("a", null, TEXTOS.convite_link);
+      ligacao.href = CONFIG.link_convite;
+      convite.appendChild(ligacao);
+    }
+    return convite;
+  }
+
+  function telaFinal() {
+    const total = estado.partida.length;
+    const acertos = contarAcertos(estado.respostas);
+    const titulo = tituloDaTela("titulo", TEXTOS.final_titulo);
+    const placar = no("p", "placar", estado.nome
+      ? preencher(TEXTOS.final_placar_nome, { nome: estado.nome, acertos: acertos, total: total })
+      : preencher(TEXTOS.final_placar, { acertos: acertos, total: total }));
+    const blocos = [
+      titulo,
+      placar,
+      no("p", "encerramento", TEXTOS.encerramento),
+      blocoCanais(),
+      no("p", "brinde", TEXTOS.brinde),
+      blocoConvite()
+    ];
+    // Com a coleta desligada, o formulario nem chega a existir.
+    const coleta = coletaDisponivel() ? blocoColeta(acertos) : null;
+    if (coleta) blocos.push(coleta.secao);
+
+    const deNovo = no("button", "btn btn--contorno", TEXTOS.botao_de_novo);
+    deNovo.type = "button";
+    deNovo.addEventListener("click", function () {
+      estado.nome = "";
+      estado.partida = [];
+      estado.indice = 0;
+      estado.respostas = [];
+      telaInicial(true);
+    });
+    blocos.push(deNovo);
+
+    mostrar(blocos, titulo, true);
+    if (coleta) estado.aoSair = coleta.encerrar;
+  }
+
+  /* ---- Coleta: so roda com CONFIG.coleta ligada ---- */
+
+  function coletaDisponivel() {
+    const cripto = window.crypto;
+    return coletaAtiva(CONFIG) &&
+      typeof window.fetch === "function" &&
+      Boolean(cripto) &&
+      (typeof cripto.randomUUID === "function" || typeof cripto.getRandomValues === "function");
+  }
+
+  // O Safari so tem crypto.randomUUID a partir do iOS 15.4; antes disso, getRandomValues.
+  function novoIdEnvio() {
+    const cripto = window.crypto;
+    if (typeof cripto.randomUUID === "function") return cripto.randomUUID();
+    return uuidDeBytes(cripto.getRandomValues(new Uint8Array(16)));
+  }
+
+  function esperar(milissegundos) {
+    return new Promise(function (resolver) { setTimeout(resolver, milissegundos); });
+  }
+
+  function comPrazo(promessa, milissegundos) {
+    return new Promise(function (resolver, rejeitar) {
+      const prazo = setTimeout(function () { rejeitar(new Error("prazo")); }, milissegundos);
+      promessa.then(
+        function (valor) { clearTimeout(prazo); resolver(valor); },
+        function (falha) { clearTimeout(prazo); rejeitar(falha); }
+      );
+    });
+  }
+
+  function carregarTurnstile() {
+    if (window.turnstile) return Promise.resolve();
+    if (!cargaTurnstile) {
+      cargaTurnstile = new Promise(function (resolver, rejeitar) {
+        const script = document.createElement("script");
+        script.src = CONFIG.turnstile_script;
+        script.async = true;
+        script.onload = function () { resolver(); };
+        script.onerror = function () {
+          cargaTurnstile = null;
+          if (script.parentNode) script.parentNode.removeChild(script);
+          rejeitar(new Error("turnstile"));
+        };
+        document.head.appendChild(script);
+      });
+    }
+    return cargaTurnstile;
+  }
+
+  function criarDesafio(caixa) {
+    const desafio = { id: null, ficha: "", usada: false, falhou: false, espera: null, desistir: null };
+
+    desafio.preparar = function () {
+      // O prazo vale para esta espera; o pedido do script segue e a proxima tentativa o aproveita.
+      return comPrazo(carregarTurnstile(), CONFIG.espera_script_ms).then(function () {
+        if (desafio.id !== null) return;
+        desafio.id = window.turnstile.render(caixa, {
+          sitekey: CONFIG.turnstile_sitekey,
+          size: caixa.clientWidth < 300 ? "compact" : "flexible",
+          language: "pt-br",
+          callback: function (ficha) {
+            desafio.ficha = ficha;
+            desafio.usada = false;
+            desafio.falhou = false;
+            if (desafio.espera) desafio.espera();
+          },
+          "expired-callback": function () { desafio.ficha = ""; },
+          // Erro do Turnstile encerra a espera na hora, sem aguardar o prazo inteiro.
+          "error-callback": function () {
+            desafio.ficha = "";
+            desafio.falhou = true;
+            if (desafio.desistir) desafio.desistir();
+            return true;
+          }
+        });
+      });
+    };
+
+    // A ficha do Turnstile vale uma vez: cada tentativa pede uma nova.
+    desafio.pedirFicha = function () {
+      return desafio.preparar().then(function () {
+        function entregar() {
+          const ficha = desafio.ficha;
+          desafio.ficha = "";
+          desafio.usada = true;
+          return ficha;
+        }
+        if (desafio.ficha) return entregar();
+        return new Promise(function (resolver, rejeitar) {
+          function encerrar() {
+            clearTimeout(prazo);
+            desafio.espera = null;
+            desafio.desistir = null;
+          }
+          const prazo = setTimeout(function () {
+            encerrar();
+            rejeitar(new Error("turnstile"));
+          }, CONFIG.espera_turnstile_ms);
+          desafio.espera = function () {
+            encerrar();
+            resolver(entregar());
+          };
+          desafio.desistir = function () {
+            encerrar();
+            rejeitar(new Error("turnstile"));
+          };
+          // Ficha ja usada ou erro anterior: pede um desafio novo.
+          if (desafio.usada || desafio.falhou) {
+            desafio.usada = false;
+            desafio.falhou = false;
+            window.turnstile.reset(desafio.id);
+          }
+        });
+      });
+    };
+
+    desafio.remover = function () {
+      desafio.espera = null;
+      desafio.desistir = null;
+      if (desafio.id !== null && window.turnstile) {
+        try { window.turnstile.remove(desafio.id); } catch (falha) { /* sem efeito */ }
+      }
+    };
+
+    return desafio;
+  }
+
+  function postar(corpo, envio) {
+    const controle = typeof AbortController === "function" ? new AbortController() : null;
+    envio.controle = controle;
+    const prazo = controle
+      ? setTimeout(function () { controle.abort(); }, CONFIG.espera_resposta_ms)
+      : null;
+    return window.fetch(enderecoEnvio(CONFIG), {
+      method: "POST",
+      mode: "cors",
+      credentials: "omit",
+      cache: "no-store",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(corpo),
+      signal: controle ? controle.signal : undefined
+    }).then(
+      function (resposta) { return resposta.ok === true; },
+      function () { return false; }
+    ).then(function (deuCerto) {
+      if (prazo) clearTimeout(prazo);
+      envio.controle = null;
+      return deuCerto;
+    });
+  }
+
+  function caixaDeMarcar(identificador, texto) {
+    const rotulo = no("label", "caixa");
+    const entrada = no("input");
+    entrada.type = "checkbox";
+    entrada.id = identificador;
+    entrada.checked = false;
+    rotulo.appendChild(entrada);
+    rotulo.appendChild(no("span", null, texto));
+    return { rotulo: rotulo, entrada: entrada };
+  }
+
+  function blocoColeta(acertos) {
+    const textos = TEXTOS.coleta;
+    // O id nasce no primeiro envio e muda quando os dados mudam (ver enviar).
+    const envio = { id: null, dados: null, situacao: "parado", controle: null, ativo: true };
+
+    const secao = no("section", "coleta");
+    secao.setAttribute("aria-labelledby", "titulo-coleta");
+    const titulo = no("h2", null, textos.titulo);
+    titulo.id = "titulo-coleta";
+    const intro = no("p", null, textos.intro);
+
+    const formulario = no("form");
+    formulario.noValidate = true;
+    const campo = no("div", "campo");
+    const rotuloEmail = no("label", null, textos.email_rotulo);
+    rotuloEmail.htmlFor = "campo-email";
+    const email = no("input");
+    email.type = "email";
+    email.id = "campo-email";
+    email.maxLength = CONFIG.email_max;
+    email.setAttribute("inputmode", "email");
+    email.setAttribute("autocomplete", "off");
+    email.setAttribute("autocapitalize", "none");
+    email.setAttribute("spellcheck", "false");
+    email.setAttribute("aria-describedby", "status-envio");
+    campo.appendChild(rotuloEmail);
+    campo.appendChild(email);
+
+    const querResultado = caixaDeMarcar("caixa-resultado", textos.caixa_resultado);
+    const querConvite = caixaDeMarcar("caixa-convite", textos.caixa_convite);
+    const maior = caixaDeMarcar("caixa-maior", textos.caixa_maior);
+    const oQueSegue = no("p", "dica", textos.o_que_segue);
+
+    const caixaDesafio = no("div", "coleta__desafio");
+    const desafio = criarDesafio(caixaDesafio);
+    const status = no("p", "coleta__status");
+    status.id = "status-envio";
+    status.setAttribute("role", "status");
+    status.setAttribute("aria-live", "polite");
+    const botao = no("button", "btn", textos.botao);
+    botao.type = "submit";
+
+    formulario.appendChild(campo);
+    formulario.appendChild(querResultado.rotulo);
+    formulario.appendChild(querConvite.rotulo);
+    formulario.appendChild(maior.rotulo);
+    formulario.appendChild(oQueSegue);
+    if (CONFIG.politica_url) {
+      const politica = no("a", null, textos.politica);
+      politica.href = CONFIG.politica_url;
+      formulario.appendChild(politica);
+    }
+    formulario.appendChild(caixaDesafio);
+    formulario.appendChild(status);
+    formulario.appendChild(botao);
+
+    secao.appendChild(titulo);
+    secao.appendChild(intro);
+    secao.appendChild(formulario);
+
+    const controles = [email, querResultado.entrada, querConvite.entrada, maior.entrada];
+
+    function travar(travado) {
+      controles.forEach(function (controle) { controle.disabled = travado; });
+      if (travado) botao.setAttribute("aria-disabled", "true");
+      else botao.removeAttribute("aria-disabled");
+    }
+
+    async function enviar() {
+      if (envio.situacao === "enviando" || envio.situacao === "enviado") return;
+      const campos = {
+        email: email.value,
+        resultado: querResultado.entrada.checked === true,
+        convite: querConvite.entrada.checked === true,
+        maior_de_18: maior.entrada.checked === true
+      };
+      const erro = validarColeta(campos, CONFIG.email_max);
+      if (erro) {
+        status.textContent = textos.erros[erro];
+        if (erro === "falta_aceite") querResultado.entrada.focus();
+        else if (erro === "falta_maior") maior.entrada.focus();
+        else email.focus();
+        return;
+      }
+
+      // Mesmos dados, mesmo id: repetir nao duplica. E-mail ou aceite corrigido conta como
+      // outro envio, com id novo, para o servidor nao descartar a correcao como repeticao.
+      const dados = JSON.stringify([campos.email.trim(), campos.resultado, campos.convite, campos.maior_de_18]);
+      if (envio.id === null || dados !== envio.dados) {
+        envio.id = novoIdEnvio();
+        envio.dados = dados;
+      }
+
+      envio.situacao = "enviando";
+      travar(true);
+      let deuCerto = false;
+      for (let tentativa = 1; tentativa <= CONFIG.tentativas_envio && !deuCerto; tentativa++) {
+        status.textContent = preencher(textos.enviando, { n: tentativa, total: CONFIG.tentativas_envio });
+        try {
+          const ficha = await desafio.pedirFicha();
+          if (!envio.ativo) return;
+          deuCerto = await postar(montarEnvio({
+            id_envio: envio.id,
+            nome: estado.nome,
+            nome_max: CONFIG.nome_max,
+            email: campos.email,
+            acertos: acertos,
+            versao_quiz: VERSAO_QUIZ,
+            resultado: campos.resultado,
+            convite: campos.convite,
+            maior_de_18: campos.maior_de_18,
+            versao_textos: TEXTOS.versao,
+            turnstile: ficha
+          }), envio);
+        } catch (falha) {
+          deuCerto = false;
+        }
+        if (!envio.ativo) return;
+        if (!deuCerto && tentativa < CONFIG.tentativas_envio) {
+          await esperar(CONFIG.espera_entre_tentativas_ms * tentativa);
+          if (!envio.ativo) return;
+        }
+      }
+
+      if (deuCerto) {
+        envio.situacao = "enviado";
+        desafio.remover();
+        esvaziar(secao);
+        const sucesso = no("p", "coleta__status", textos.sucesso);
+        sucesso.tabIndex = -1;
+        secao.appendChild(sucesso);
+        sucesso.focus();
+      } else {
+        envio.situacao = "falhou";
+        travar(false);
+        botao.textContent = textos.tentar;
+        status.textContent = textos.falha;
+      }
+    }
+
+    // O script do Turnstile so e pedido quando a pessoa entra no formulario.
+    formulario.addEventListener("focusin", function () {
+      desafio.preparar().catch(function () { /* o envio tenta de novo */ });
+    }, { once: true });
+    formulario.addEventListener("submit", function (evento) {
+      evento.preventDefault();
+      enviar();
+    });
+
+    return {
+      secao: secao,
+      encerrar: function () {
+        envio.ativo = false;
+        if (envio.controle) envio.controle.abort();
+        desafio.remover();
+      }
+    };
+  }
+
+  telaInicial(false);
+})();
+/* ==== PAGINA:FIM ==== */
+</script>
+</body>
+</html>
