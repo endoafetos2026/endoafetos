@@ -14,3 +14,24 @@ desktop.ini
 
 # Logs e temporários
 *.log
+
+# Segredos e credenciais — nunca versionar (o repositório é público)
+Secrets/
+**/Secrets/
+.env
+.env.*
+!.env.example
+.dev.vars
+.dev.vars.*
+.wrangler/
+*.pem
+*.key
+
+# Material interno de trabalho da assistente (auditoria, personalidade,
+# respostas de formulário, transcrições). O que for para produção sai
+# daqui para pastas próprias, arquivo por arquivo.
+assistente-virtual/
+
+# Dependências e saídas de build
+node_modules/
+dist/
