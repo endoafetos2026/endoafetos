@@ -228,7 +228,7 @@ main { padding: 1rem 1rem 1.5rem; }
 }
 .msg > :last-child { margin-bottom: 0; }
 .msg__autor { margin: 0 0 .25rem; font-size: .8rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--rose-dark); }
-.msg__texto, .msg__extra, .msg__apoio { white-space: pre-wrap; word-break: break-word; }
+.msg__texto, .msg__apoio { white-space: pre-wrap; word-break: break-word; }
 .msg__texto { margin-bottom: .6em; }
 .msg--pessoa { margin-left: 1.5rem; background: var(--lavender-soft); border-color: var(--lavender); }
 .msg--pessoa .msg__autor { color: var(--ink); }
@@ -237,19 +237,16 @@ main { padding: 1rem 1rem 1.5rem; }
 .msg--seguranca { margin-right: 0; background: var(--cream); border: 3px solid var(--ink); border-left-width: 10px; }
 .msg--limite, .msg--recusa, .msg--falha { border-style: dashed; border-color: var(--ink-soft); }
 .msg--aviso { background: var(--cream); border-style: dashed; border-color: var(--ink-soft); font-weight: 600; }
-.msg__contexto { margin-bottom: .35em; font-size: .92rem; font-weight: 700; }
-.msg__marca { margin: 0 0 .15rem; font-weight: 800; }
-.msg__frase { margin-bottom: .35em; font-style: italic; }
-.msg__frase::before { content: "\201C"; }
-.msg__frase::after { content: "\201D"; }
-.msg__rotulo, .opcao__rotulo { font-size: .78rem; font-weight: 800; letter-spacing: .06em; color: var(--rose-dark); }
-.msg__rotulo { margin-bottom: .6em; }
-.msg__subtitulo { margin: .75rem 0 .15rem; font-weight: 800; }
-.msg__extra { margin-bottom: .4em; }
 .msg__apoio { margin-top: .75rem; padding-top: .75rem; border-top: 2px solid var(--ink-soft); font-weight: 700; }
+/* Linha de apoio sozinha no balão (nome da acolhida com sinal ambíguo): sem o traço que a separa da resposta */
+.msg__autor + .msg__apoio { margin-top: 0; padding-top: 0; border-top: 0; }
 .msg__tecnico { margin: .5rem 0 0; font-family: Consolas, Menlo, monospace; font-size: .8rem; color: var(--ink-soft); }
 .msg__acoes { display: flex; flex-wrap: wrap; margin-top: .65rem; }
 .msg__acoes:empty { display: none; }
+/* Acolhida: os controles ficam dentro do balão da pergunta e saem dele quando a pessoa responde */
+.acolhida__controles { margin-top: .75rem; }
+.acolhida__controles .campo { margin-bottom: .65rem; }
+.acolhida__controles .btn { margin-bottom: .5rem; }
 
 .espera { margin: 0 0 .85rem; font-weight: 700; color: var(--rose-dark); }
 .espera:empty { margin: 0; }
@@ -276,25 +273,64 @@ main { padding: 1rem 1rem 1.5rem; }
   cursor: pointer;
 }
 .opcao:hover { background: var(--lavender-soft); }
-.opcao__texto, .opcao__rotulo { display: block; }
-.opcao__rotulo { margin-top: .3rem; }
+.opcao__texto, .opcao__chamada { display: block; }
+.opcao--tema .opcao__texto { font-weight: 700; }
+.opcao__chamada { margin-top: .25rem; font-size: .95rem; }
+
+/* Tema aberto: síntese, quando procurar atendimento, perguntas para a consulta e as dúvidas */
+.tema__sintese > :last-child { margin-bottom: 0; }
+.temas__subtitulo { margin: 1.1rem 0 .35rem; font-size: 1rem; font-weight: 800; line-height: 1.3; color: var(--ink); }
+.tema__lista { margin: 0 0 .75rem; padding-left: 1.25rem; }
+.tema__lista li { margin-bottom: .35rem; }
+.tema__acoes { display: flex; flex-wrap: wrap; margin: .5rem 0 0; }
+.tema__acoes:empty { display: none; }
+.tema__duvidas { margin-top: 1.1rem; }
 
 .marcacao { margin-top: .75rem; }
 .marcacao:empty { display: none; }
 .marcacao__ok { font-weight: 700; }
 
+/* Cartão de conversão: o padrão visual da tela final do quiz (conheça, ofertas, brinde) */
 .cartao-convite {
   margin: 0 0 1rem;
   padding: 1rem 1.1rem;
-  background: var(--gold-soft);
+  background: var(--surface);
   border: 2px solid var(--lavender);
   border-radius: var(--radius-sm);
 }
-.cartao-convite__texto { font-weight: 600; }
-/* Sobre o lilás claro do cartão, o cinza das dicas não chega ao contraste AA */
+/* As dicas do formulário de contato usam a cor principal: o cinza delas não chega ao AA sobre o lilás dos blocos */
 .cartao-convite .dica { color: var(--ink); }
-.cartao-convite__canais { margin-top: .5rem; }
-.cartao-convite__canais:empty { display: none; }
+.conversao__titulo {
+  margin: 0 0 .6rem;
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: 1.4rem;
+  line-height: 1.2;
+  color: var(--ink);
+}
+.conversao__cuidado { font-weight: 700; }
+.conversao__conheca { margin: 1.25rem 0; padding: 1rem 1rem 1.1rem; border-radius: var(--radius-sm); background: var(--rose-mist); }
+.conversao__conheca h3, .conversao__presente h3 {
+  margin: 0 0 .5rem;
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: 1.2rem;
+  line-height: 1.25;
+  color: var(--ink);
+}
+.conversao__conheca p { margin: 0 0 1rem; }
+.conversao__ofertas { margin: 0 0 1.1rem; padding: 0; list-style: none; }
+.conversao__oferta { margin: 0 0 .75rem; padding: .8rem .9rem; border-radius: var(--radius-sm); background: var(--surface); border: 1px solid var(--line); }
+.conversao__oferta-titulo { display: block; font-weight: 800; color: var(--rose-dark); }
+.conversao__oferta-texto { display: block; }
+a.btn { text-decoration: none; }
+.btn--conheca { text-transform: uppercase; letter-spacing: .03em; }
+/* No botao em flex, o espaco no comeco do span da seta some: a distancia vem da margem */
+.btn__seta { margin-left: .4em; }
+.conversao__separador { height: 1px; margin: 1.25rem 0; border: 0; background: var(--line); }
+.conversao__presente { margin: 0 0 1.25rem; padding: .95rem 1rem; border-radius: var(--radius-sm); background: var(--gold-soft); }
+.conversao__presente p { margin: 0; }
+.conversao__presente .conversao__destaque { margin-bottom: .25rem; font-weight: 800; }
 
 /* Pré-lançamento: blocos à parte do cartão de convite */
 .pre-inscricao, .exemplo-diario {
@@ -339,18 +375,30 @@ main { padding: 1rem 1rem 1.5rem; }
   border: 2px solid var(--lavender);
   border-radius: var(--radius-sm);
 }
-.canais__emergencia { margin: 0 0 .35rem; font-weight: 800; }
-.canais ul { display: flex; flex-wrap: wrap; margin: 0; padding: 0; list-style: none; }
-.canais li { margin: 0 1.5rem .25rem 0; }
-.canal, .ligacao {
-  display: inline-flex; align-items: center;
-  min-height: 44px; min-width: 44px;
-  font-weight: 800;
-  color: var(--rose-dark);
-  text-decoration: underline;
-  text-underline-offset: 3px;
+.canais__emergencia { margin: 0 0 .5rem; font-weight: 800; }
+/* Canais ilustrados como no quiz: lista vertical, ícone em SVG embutido (data:) separado do texto por margem */
+.canais ul { margin: 0; padding: 0; list-style: none; }
+.canais li { margin: 0 0 .5rem; }
+.canais li:last-child { margin-bottom: 0; }
+.canal { display: flex; align-items: center; min-height: 48px; color: var(--ink); text-decoration: none; }
+.canal__icone {
+  flex: none;
+  width: 40px; height: 40px;
+  margin-right: .75rem;
+  border-radius: 50%;
+  background-color: var(--lavender-soft);
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 22px 22px;
 }
-.ligacao { display: flex; }
+.canal__icone--cruz { background-image: url("data:image/svg+xml,%3Csvg xmlns='http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg' viewBox='0 0 24 24'%3E%3Cpath d='M9 3h6v6h6v6h-6v6H9v-6H3V9h6z' fill='%238c2f5f'/%3E%3C/svg%3E"); }
+.canal__icone--escudo { background-image: url("data:image/svg+xml,%3Csvg xmlns='http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2 4 5v6c0 5 3.4 9.3 8 11 4.6-1.7 8-6 8-11V5z' fill='none' stroke='%238c2f5f' stroke-width='2' stroke-linejoin='round'/%3E%3C/svg%3E"); }
+.canal__icone--mulher { background-image: url("data:image/svg+xml,%3Csvg xmlns='http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='9' r='5' fill='none' stroke='%238c2f5f' stroke-width='2'/%3E%3Cpath d='M12 14v8M8.5 18.5h7' stroke='%238c2f5f' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E"); }
+.canal__icone--pessoas { background-image: url("data:image/svg+xml,%3Csvg xmlns='http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg' viewBox='0 0 24 24'%3E%3Ccircle cx='8' cy='8' r='3' fill='%238c2f5f'/%3E%3Ccircle cx='16.5' cy='9.5' r='2.5' fill='%238c2f5f'/%3E%3Cpath d='M2.5 20c0-3.6 2.5-6 5.5-6s5.5 2.4 5.5 6zM13.5 20c.3-2.9 1.6-5 3.5-5 2.3 0 4.5 2 4.5 5z' fill='%238c2f5f'/%3E%3C/svg%3E"); }
+.canal__icone--conversa { background-image: url("data:image/svg+xml,%3Csvg xmlns='http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg' viewBox='0 0 24 24'%3E%3Cpath d='M4 4h16v11H9l-5 4z' fill='none' stroke='%238c2f5f' stroke-width='2' stroke-linejoin='round'/%3E%3Cpath d='M12 13s-3.5-2.1-3.5-4.2A1.9 1.9 0 0 1 12 8a1.9 1.9 0 0 1 3.5.8c0 2.1-3.5 4.2-3.5 4.2z' fill='%238c2f5f'/%3E%3C/svg%3E"); }
+.canal__texto { display: block; }
+.canal__rotulo { display: block; font-weight: 800; color: var(--rose-dark); text-decoration: underline; text-underline-offset: 3px; }
+.canal__descricao { display: block; font-size: .92rem; color: var(--ink); }
 
 .rodape { padding: 0 1rem 2rem; text-align: center; font-size: .92rem; color: var(--ink); }
 .rodape p { margin: 0; }
@@ -398,7 +446,7 @@ main { padding: 1rem 1rem 1.5rem; }
 // CONFIG.api: endereco https do Worker, sem caminho. CONFIG.turnstile_sitekey: chave publica do widget do Turnstile.
 // Com os dois preenchidos, nada mais precisa mudar. Com CONFIG.api vazio, a pagina fica em demonstracao e nada sai dela.
 /* ==== DADOS:INICIO ==== */
-const VERSAO_PAGINA = "provisorio-2026-11-19";
+const VERSAO_PAGINA = "provisorio-2026-11-20";
 
 // api vazio = modo demonstracao sem servidor: nenhuma requisicao sai da pagina.
 const CONFIG = {
@@ -407,9 +455,10 @@ const CONFIG = {
   turnstile_script: "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit",
   // Precisa ser igual a versao de aceite configurada no Worker.
   versao_aceite: "provisorio-2026-11-19",
-  link_site: "../#contato",
-  // { rotulo, endereco }: so preencher com os canais da organizacao assinados pela equipe.
-  canais_organizacao: [],
+  // Botao "Conhecer a EndoAfetos" do cartao de conversao: caminho do proprio site.
+  link_conhecer: "../#contato",
+  // Mostra no cartao de conversao o bloco do brinde do estande (BTX Salvador).
+  evento_btx: true,
   // Blocos de pre-lancamento, desligados por padrao. A pre-inscricao so aparece com coleta true em /api/saude.
   pre_inscricao: false,
   exemplo_diario: false,
@@ -420,11 +469,16 @@ const CONFIG = {
   historico_max_caracteres: 4000,
   corpo_chat_max_bytes: 16000,
   nome_max: 40,
+  // Como a pessoa quer ser chamada, na acolhida: o mesmo teto do Worker, so na limpeza do nome. O campo aceita
+  // ate mensagem_max, para a regra de risco ver a frase inteira.
+  como_chamar_max: 30,
   email_max: 254,
   convite_max: 64,
   // Validade maior que esta em expira_em e tratada como relogio errado e ignorada.
   sessao_validade_max_ms: 86400000,
   espera_resposta_ms: 15000,
+  // Com a sessao aberta, o campo de escrita espera a acolhida de /api/guiado so ate aqui; depois entra sem ela.
+  espera_acolhida_ms: 4000,
   espera_chat_ms: 60000,
   espera_script_ms: 10000,
   espera_turnstile_ms: 30000,
@@ -482,18 +536,16 @@ const TEXTOS = {
   temas_titulo: "Temas",
   temas_carregando: "Carregando os temas.",
   temas_vazio: "Os temas ainda estão em revisão.",
-  duvidas_intro: "Frases que circulam sobre este tema. Nem toda frase é verdadeira: toque em uma para ver a resposta.",
   voltar_temas: "Voltar aos temas",
-  frase_contexto: "Frase que circula sobre este tema. Nem toda frase é verdadeira.",
-  resposta_rotulo: "Resposta",
   quando_procurar: "Quando procurar atendimento",
-  pergunta_consulta: "Pergunta para levar à consulta",
+  // Leva 4: textos do enunciado da peça, exatamente como vieram, em curadoria.
+  para_consulta: "Para levar à consulta",
+  perguntar_do_meu_jeito: "Perguntar do meu jeito",
   ouvir: "Ouvir",
   parar: "Parar",
   marcar_problema: "Marcar problema",
   tecnico_tipo: "tipo: {tipo}",
   tecnico_base: "base: {ids}",
-  tecnico_item: "item: {id}",
   tecnico_local: "sem resposta do servidor",
   marcacao: {
     legenda: "O que há de errado nesta resposta?",
@@ -518,15 +570,30 @@ const TEXTOS = {
     sim: "Sim, encerrar",
     nao: "Continuar a conversa"
   },
+  // Cartao de conversao ao fim das perguntas. Leva 5: textos do enunciado, exatamente como vieram, provisorios.
+  // Os emojis e a seta ficam escondidos do leitor de tela.
   cartao: {
     rotulo: "Convite da EndoAfetos",
-    texto: "Por hoje, fico por aqui. Quer ser parte da nossa rede? Apoiamos quem convive com a endometriose e quem está por perto. Deixe nome e e-mail para a equipe te procurar, ou guarde nossos canais e chame quando quiser. Não é canal de urgência.",
+    titulo: "Você chegou até aqui. Que bom!",
+    titulo_emoji: "💜",
+    cuidado: "Seu interesse também é uma forma de cuidado.",
+    encerramento: "Obrigada por participar dessa conversa sobre endometriose. Informação, escuta e acolhimento fazem diferença nessa jornada.",
+    conheca_titulo: "Conheça a EndoAfetos!",
+    conheca_texto: "Um espaço de informação, acolhimento e conexão. Venha conhecer nossa proposta, conversar com nossa equipe e descobrir como podemos caminhar juntas.",
+    ofertas_intro: "Em breve, a MarIA Flor pode acompanhar você de dois jeitos:",
+    ofertas: [
+      { titulo: "Apoio educativo no dia a dia", texto: "Para tirar dúvidas sobre endometriose quando você precisar, com informação revisada por profissionais de saúde." },
+      { titulo: "Diário e relatório para a consulta", texto: "Para registrar como você está no dia a dia e gerar um relatório que ajuda na consulta médica ou no atendimento profissional." }
+    ],
+    conheca_botao: "Conhecer a EndoAfetos",
+    conheca_seta: "→",
+    evento_titulo: "Está na BTX Salvador?",
+    brinde_destaque: "Tem um presente esperando por você!",
+    brinde_emoji: "🎁",
+    brinde: "Passe no nosso estande e retire seu brinde.",
     quero: "Quero que me procurem",
-    procuro: "Eu procuro",
     agora_nao: "Agora não",
-    dispensado: "Tudo bem. Os botões de tema continuam por aqui.",
-    canais_titulo: "Canais da EndoAfetos",
-    link_site: "Ver os canais na página da EndoAfetos"
+    dispensado: "Tudo bem. Os botões de tema continuam por aqui."
   },
   contato: {
     titulo: "Quero que me procurem",
@@ -574,6 +641,18 @@ const CANAIS_DEMONSTRACAO = [
   { numero: "188", nome: "CVV" }
 ];
 
+// PROVISORIO: nome, descricao e icone de cada canal de ajuda, pelo numero. Os numeros vem do servidor (/api/guiado);
+// esta tabela so da nome e descricao a eles. Copia da lista do quiz (pedida pelo Carlos em 20/11/2026), provisoria
+// ate a lista de canais assinada pela equipe. icone: classe CSS canal__icone--<icone>.
+// Numero fora da tabela aparece com o nome que vier do servidor, sem descricao nem icone.
+const CANAIS_DESCRITOS = {
+  "192": { nome: "SAMU", descricao: "Emergência médica", icone: "cruz" },
+  "190": { nome: "Polícia", descricao: "Perigo imediato ou violência acontecendo agora", icone: "escudo" },
+  "180": { nome: "Ligue 180", descricao: "Violência contra a mulher: orientação e denúncia", icone: "mulher" },
+  "100": { nome: "Disque 100", descricao: "Direitos humanos: violência contra crianças, adolescentes, pessoas idosas e outros grupos", icone: "pessoas" },
+  "188": { nome: "CVV", descricao: "Apoio emocional e prevenção do suicídio, 24 horas", icone: "conversa" }
+};
+
 // PROVISORIO (estado em_curadoria): exemplo ficticio da folha do diario, para a equipe revisar.
 // Dados inventados. Sem nome de pessoa, diagnostico, remedio, conselho nem interpretacao.
 const EXEMPLO_DIARIO = {
@@ -601,6 +680,25 @@ const EXEMPLO_DIARIO = {
 const TIPOS_DE_RESPOSTA = ["resposta", "seguranca", "limite", "recusa", "falha"];
 const ESTADOS_DO_AVATAR = ["acolhimento", "escuta", "informacao", "orientacao"];
 const MODOS = ["fechado", "demonstracao", "publico"];
+
+// Acolhida (contrato da API, versao 1): valores fechados, iguais aos do Worker.
+const CHAVES_DA_ABERTURA = ["sim", "suspeitas", "duvidas", "outra_pessoa", "sem_resposta"];
+const DIAGNOSTICOS = ["sim", "nao", "nao_informado"];
+const MOTIVOS = ["suspeitas", "duvidas", "outra_pessoa"];
+
+// Voz feminina de preferencia. O navegador nao informa o genero da voz: a pagina le pelo nome,
+// em minusculas e sem acento, palavra por palavra.
+const VOZES = {
+  femininas: ["luciana", "maria", "francisca", "thalita", "brenda", "elza", "giovanna", "leila", "leticia", "manuela", "yara"],
+  masculinas: ["daniel", "antonio", "felipe", "fabio", "donato", "humberto", "julio", "nicolau", "valerio"],
+  // A voz remota do Chrome no computador: feminina, sem nome proprio.
+  feminina_pelo_nome: "google portugues do brasil"
+};
+// Ordem de escolha: no aparelho (localService true) antes de remota, porque na voz remota o texto vai ao
+// servidor do fornecedor da voz. A masculina fica por ultimo.
+const ORDEM_DAS_VOZES = [
+  ["feminina", true], ["indefinida", true], ["feminina", false], ["indefinida", false], ["masculina", true], ["masculina", false]
+];
 /* ==== DADOS:FIM ==== */
 
 /* ==== PURAS:INICIO ==== */
@@ -699,36 +797,199 @@ function montarSessao(dados) {
   };
 }
 
+// Texto que pode ir para a tela: preenchido e sem identificador da base. O Worker ja garante; a pagina confere de novo.
+function textoPublico(valor) {
+  return typeof valor === "string" && valor.trim() !== "" && valor.indexOf("ENDO-") === -1 ? valor : null;
+}
+
+function textosPublicos(lista) {
+  return (Array.isArray(lista) ? lista : []).filter(function (texto) { return textoPublico(texto) !== null; });
+}
+
+// A sintese vem inteira, com as quebras de paragrafo: cada bloco separado por linha em branco vira um paragrafo.
+function paragrafosDe(texto) {
+  return String(texto == null ? "" : texto).split(/\n[ \t]*\n/).map(function (paragrafo) {
+    return paragrafo.trim();
+  }).filter(function (paragrafo) { return paragrafo !== ""; });
+}
+
+// So as opcoes de id conhecido, sem repetir, na ordem recebida.
+function opcoesValidas(lista, permitidas) {
+  const vistas = [];
+  const saida = [];
+  (Array.isArray(lista) ? lista : []).forEach(function (opcao) {
+    if (!opcao || permitidas.indexOf(opcao.id) === -1 || vistas.indexOf(opcao.id) !== -1) return;
+    const rotulo = textoPublico(opcao.rotulo);
+    if (!rotulo) return;
+    vistas.push(opcao.id);
+    saida.push({ id: opcao.id, rotulo: rotulo });
+  });
+  return saida;
+}
+
+// As cinco aberturas; sem nome, nenhuma pode trazer marcador (trocar {nome} por vazio quebra a frase).
+function aberturasValidas(aberturas, semNome) {
+  if (!aberturas || typeof aberturas !== "object") return null;
+  const saida = {};
+  for (let i = 0; i < CHAVES_DA_ABERTURA.length; i++) {
+    const texto = textoPublico(aberturas[CHAVES_DA_ABERTURA[i]]);
+    if (!texto || (semNome && /[{}]/.test(texto))) return null;
+    saida[CHAVES_DA_ABERTURA[i]] = texto;
+  }
+  return saida;
+}
+
+// Acolhida de /api/guiado. Fora do contrato vira null, e a pagina vai direto a conversa, como sem acolhida.
+function lerAcolhida(dados) {
+  if (!dados || typeof dados !== "object") return null;
+  const campos = ["apresentacao", "pergunta_nome", "rotulo_pular", "pergunta_diagnostico", "rotulo_sem_resposta",
+    "pergunta_motivo", "aviso_sem_registro", "aviso_teste"];
+  const acolhida = {};
+  for (let i = 0; i < campos.length; i++) {
+    const texto = textoPublico(dados[campos[i]]);
+    if (!texto) return null;
+    acolhida[campos[i]] = texto;
+  }
+  acolhida.opcoes_diagnostico = opcoesValidas(dados.opcoes_diagnostico, ["sim", "nao"]);
+  acolhida.opcoes_motivo = opcoesValidas(dados.opcoes_motivo, MOTIVOS);
+  acolhida.abertura = aberturasValidas(dados.abertura, false);
+  acolhida.abertura_sem_nome = aberturasValidas(dados.abertura_sem_nome, true);
+  if (acolhida.opcoes_diagnostico.length !== 2 || acolhida.opcoes_motivo.length === 0) return null;
+  if (!acolhida.abertura || !acolhida.abertura_sem_nome) return null;
+  return acolhida;
+}
+
+// GET /api/guiado, versao 1. Tema sem titulo ou sem sintese fica de fora; duvida sem resposta servivel tambem.
+// O identificador da duvida ("B-3") fica guardado, mas nunca vai para a tela.
 function lerGuiado(dados) {
   if (!dados || !Array.isArray(dados.temas)) return null;
   const temas = [];
   dados.temas.forEach(function (tema) {
-    if (!tema || !textoOuNulo(tema.titulo) || !Array.isArray(tema.itens)) return;
-    const itens = [];
-    tema.itens.forEach(function (item) {
-      if (!item || !textoOuNulo(item.enunciado) || !textoOuNulo(item.resposta)) return;
-      itens.push({
-        id: textoOuNulo(item.id),
-        enunciado: item.enunciado,
-        rotulo_classificacao: textoOuNulo(item.rotulo_classificacao),
-        resposta: item.resposta,
-        quando_procurar: textoOuNulo(item.quando_procurar),
-        pergunta_para_consulta: textoOuNulo(item.pergunta_para_consulta)
-      });
+    if (!tema) return;
+    const titulo = textoPublico(tema.titulo);
+    const sintese = textoPublico(tema.sintese);
+    if (!titulo || !sintese) return;
+    const duvidas = [];
+    (Array.isArray(tema.duvidas) ? tema.duvidas : []).forEach(function (duvida) {
+      if (!duvida || !textoPublico(duvida.pergunta)) return;
+      const respostas = textosPublicos(duvida.respostas);
+      if (respostas.length > 0) duvidas.push({ id: textoOuNulo(duvida.id), pergunta: duvida.pergunta, respostas: respostas });
     });
-    if (itens.length > 0) temas.push({ id: textoOuNulo(tema.id), titulo: tema.titulo, itens: itens });
+    temas.push({
+      id: textoOuNulo(tema.id),
+      titulo: titulo,
+      chamada: textoPublico(tema.chamada),
+      paragrafos: paragrafosDe(sintese),
+      quando_procurar: textoPublico(tema.quando_procurar),
+      para_a_consulta: textosPublicos(tema.para_a_consulta),
+      duvidas: duvidas
+    });
   });
   const canais = [];
   (Array.isArray(dados.canais) ? dados.canais : []).forEach(function (canal) {
     if (!canal || typeof canal.numero !== "string" || telefoneDoCanal(canal.numero) === "") return;
     canais.push({ numero: canal.numero.trim(), nome: textoOuNulo(canal.nome) });
   });
-  return { temas: temas, canais: canais };
+  return { acolhida: lerAcolhida(dados.acolhida), temas: temas, canais: canais };
+}
+
+// Mesma regra do Worker (limparComoChamar, em contexto.mjs): aparado, espacos simples, ate 30 caracteres, so letras
+// latinas (com acento), espaco, hifen e apostrofo, com pelo menos uma letra. Qualquer outra coisa vira null.
+const NOME_DE_CHAMAR = (function () {
+  try {
+    return {
+      permitido: new RegExp("^(?:(?=\\p{L})\\p{Script=Latin}|[ '\\u2019-])+$", "u"),
+      letra: new RegExp("\\p{L}", "u")
+    };
+  } catch (falha) {
+    // Navegador sem classes Unicode em expressao regular: so as letras latinas de uso comum.
+    return {
+      permitido: /^[A-Za-zªºÀ-ÖØ-öø-ɏḀ-ỿ '’-]+$/,
+      letra: /[A-Za-zªºÀ-ÖØ-öø-ɏḀ-ỿ]/
+    };
+  }
+})();
+
+function limparComoChamar(valor, maximo) {
+  if (typeof valor !== "string" || valor.length > 200) return null;
+  const composto = typeof valor.normalize === "function" ? valor.normalize("NFC") : valor;
+  const nome = composto.trim().replace(/ {2,}/g, " ");
+  if (nome === "" || Array.from(nome).length > maximo) return null;
+  return NOME_DE_CHAMAR.permitido.test(nome) && NOME_DE_CHAMAR.letra.test(nome) ? nome : null;
+}
+
+// O que vai no campo "contexto" de todo POST /api/chat, e de nenhum outro pedido. Mesma limpeza do Worker
+// (limparContexto): o motivo so vale quando o diagnostico e "nao".
+function montarContexto(respostas, maximo) {
+  const dados = respostas || {};
+  const diagnostico = DIAGNOSTICOS.indexOf(dados.diagnostico) !== -1 ? dados.diagnostico : null;
+  const motivo = diagnostico === "nao" && MOTIVOS.indexOf(dados.motivo) !== -1 ? dados.motivo : null;
+  return { como_chamar: limparComoChamar(dados.como_chamar, maximo), diagnostico: diagnostico, motivo: motivo };
+}
+
+// "Prefiro nao responder", no diagnostico ou no motivo, leva a abertura sem_resposta.
+function chaveDaAbertura(respostas) {
+  if (respostas.diagnostico === "sim") return "sim";
+  if (respostas.diagnostico === "nao" && MOTIVOS.indexOf(respostas.motivo) !== -1) return respostas.motivo;
+  return "sem_resposta";
+}
+
+// Com nome, {nome} da abertura vira o nome; sem nome, a abertura pronta sem ele.
+function textoDaAbertura(acolhida, respostas) {
+  const chave = chaveDaAbertura(respostas);
+  return respostas.como_chamar
+    ? preencher(acolhida.abertura[chave], { nome: respostas.como_chamar })
+    : acolhida.abertura_sem_nome[chave];
+}
+
+// Um aviso so: o de gravacao na sessao de teste, o de nada guardado nas outras.
+function avisoDaAcolhida(acolhida, tipoDaSessao) {
+  return tipoDaSessao === "teste" ? acolhida.aviso_teste : acolhida.aviso_sem_registro;
+}
+
+// POST /api/acolhida/nome. O nome so vale depois da regra de risco do Worker:
+// - "nome" sem linha de apoio: o nome limpo que ele devolveu (limpo de novo aqui) ou null;
+// - "nome" com linha de apoio (sinal ambiguo): sem nome, a linha para mostrar e a marca para o historico;
+// - "seguranca" (sinal explicito): sem nome, a mensagem de seguranca e a marca para o historico.
+// A marca e a fala da assistente assinada pelo Worker com a marca de risco da sessao: texto_marca (ambiguo) ou a
+// mensagem de seguranca, letra por letra. Fora do contrato vira null: a pagina segue sem nome, como numa falha.
+function lerNomeConferido(dados, maximo) {
+  if (!dados || typeof dados !== "object") return null;
+  const assinatura = textoOuNulo(dados.assinatura);
+  const marcaDe = function (texto) {
+    return texto && assinatura ? { papel: "assistente", texto: texto, assinatura: assinatura } : null;
+  };
+  if (dados.tipo === "seguranca") {
+    const texto = textoOuNulo(dados.texto);
+    if (!texto) return null;
+    return {
+      tipo: "seguranca", risco: true, como_chamar: null, texto: texto, estado: estadoValido(dados.estado),
+      linha_apoio: textoOuNulo(dados.linha_apoio), marca: marcaDe(texto)
+    };
+  }
+  if (dados.tipo !== "nome") return null;
+  const linha = textoOuNulo(dados.linha_apoio);
+  const marca = marcaDe(textoOuNulo(dados.texto_marca));
+  const risco = Boolean(linha) || Boolean(marca);
+  return {
+    tipo: "nome", risco: risco, como_chamar: risco ? null : limparComoChamar(dados.como_chamar, maximo), texto: null,
+    estado: "acolhimento", linha_apoio: linha, marca: marca
+  };
 }
 
 function rotuloCanal(canal) {
   if (!canal.nome) return canal.numero;
   return canal.nome.indexOf(canal.numero) !== -1 ? canal.nome : canal.nome + " " + canal.numero;
+}
+
+// O numero vem do servidor; nome, descricao e icone, da tabela da pagina. Numero fora dela: o nome do servidor, so.
+function canalDescrito(canal) {
+  const numero = String(canal && canal.numero != null ? canal.numero : "").trim();
+  if (Object.prototype.hasOwnProperty.call(CANAIS_DESCRITOS, numero)) {
+    const descrito = CANAIS_DESCRITOS[numero];
+    return { numero: numero, nome: descrito.nome, descricao: descrito.descricao, icone: descrito.icone };
+  }
+  return { numero: numero, nome: canal ? textoOuNulo(canal.nome) : null, descricao: null, icone: null };
 }
 
 // So algarismos (e o + inicial) entram na ligacao tel:.
@@ -785,13 +1046,22 @@ function prepararHistorico(turnos, maxTurnos, maxCaracteres) {
   return aceitos;
 }
 
-function montarCorpoChat(mensagem, turnos, limites) {
+// O contexto da acolhida, quando entregue, segue no corpo e conta no teto de bytes.
+// marca (opcional): a fala assinada com a marca de risco que a rota do nome devolveu. Vai sempre como primeiro item
+// do historico, na frente da janela dos ultimos turnos e fora da conta dela; o Worker a le, ve que ja houve sinal de
+// risco na sessao e a tira antes do modelo (a janela dele comeca por fala da pessoa). Conta no teto de bytes.
+function montarCorpoChat(mensagem, turnos, limites, contexto, marca) {
+  function corpoCom(historico) {
+    const corpo = { mensagem: mensagem, historico: marca ? [marca].concat(historico) : historico };
+    if (contexto !== undefined) corpo.contexto = contexto;
+    return corpo;
+  }
   let historico = prepararHistorico(turnos, limites.max_turnos, limites.max_caracteres);
-  let corpo = { mensagem: mensagem, historico: historico };
+  let corpo = corpoCom(historico);
   while (historico.length > 0 && tamanhoEmBytes(JSON.stringify(corpo)) > limites.max_bytes) {
     historico = historico.slice(1);
     while (historico.length > 0 && historico[0].papel === "assistente") historico = historico.slice(1);
-    corpo = { mensagem: mensagem, historico: historico };
+    corpo = corpoCom(historico);
   }
   return corpo;
 }
@@ -846,10 +1116,37 @@ function textoFalado(texto) {
   return String(texto).replace(/MarIA/g, "Maria");
 }
 
+function semAcentos(texto) {
+  const separado = typeof texto.normalize === "function" ? texto.normalize("NFD") : texto;
+  return separado.replace(/[̀-ͯ]/g, "");
+}
+
+// "feminina", "masculina" ou "indefinida", pelo nome da voz: nome proprio da lista como palavra inteira,
+// ou as palavras female, male, feminin(a/o) e masculin(a/o). Sinal feminino vence.
+function classificarVoz(voz) {
+  const nome = semAcentos(String(voz && voz.name != null ? voz.name : "").toLowerCase());
+  const palavras = nome.split(/[^a-z0-9]+/).filter(function (palavra) { return palavra !== ""; });
+  const temPalavra = function (lista) {
+    return palavras.some(function (palavra) { return lista.indexOf(palavra) !== -1; });
+  };
+  const temMarca = function (expressao) {
+    return palavras.some(function (palavra) { return expressao.test(palavra); });
+  };
+  if (nome.indexOf(VOZES.feminina_pelo_nome) !== -1 || temPalavra(VOZES.femininas) || temMarca(/^(?:female\d*|feminin\w*)$/)) return "feminina";
+  if (temPalavra(VOZES.masculinas) || temMarca(/^(?:male\d*|masculin\w*)$/)) return "masculina";
+  return "indefinida";
+}
+
+// Voz pt-BR, feminina de preferencia, na ordem de ORDEM_DAS_VOZES; na mesma classe, a primeira da lista do navegador.
 function vozPtBr(vozes) {
-  const lista = Array.prototype.slice.call(vozes || []);
-  for (let i = 0; i < lista.length; i++) {
-    if (lista[i] && /^pt[-_]br$/i.test(String(lista[i].lang))) return lista[i];
+  const lista = Array.prototype.slice.call(vozes || []).filter(function (voz) {
+    return Boolean(voz) && /^pt[-_]br$/i.test(String(voz.lang));
+  });
+  for (let i = 0; i < ORDEM_DAS_VOZES.length; i++) {
+    for (let j = 0; j < lista.length; j++) {
+      const local = lista[j].localService === true;
+      if (classificarVoz(lista[j]) === ORDEM_DAS_VOZES[i][0] && local === ORDEM_DAS_VOZES[i][1]) return lista[j];
+    }
   }
   return null;
 }
@@ -868,9 +1165,21 @@ function limparNome(texto, maximo) {
   return saida.trim();
 }
 
+// Mesma regra do Worker (normalizarEmail, em validacao.mjs): endereco que a pagina aceita, o Worker tambem aceita.
+const EMAIL_PARTE_LOCAL = /^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*$/;
+const EMAIL_ROTULO = /^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/;
+const EMAIL_TERMINACAO = /^[a-z]{2,24}$/;
+
 function emailValido(texto, maximo) {
-  const email = String(texto == null ? "" : texto).trim();
-  return email.length > 0 && email.length <= (maximo || 254) && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  const email = String(texto == null ? "" : texto).trim().toLowerCase();
+  if (email.length === 0 || email.length > (maximo || 254)) return false;
+  const arroba = email.indexOf("@");
+  if (arroba < 1 || arroba !== email.lastIndexOf("@")) return false;
+  const local = email.slice(0, arroba);
+  const rotulos = email.slice(arroba + 1).split(".");
+  return local.length <= 64 && EMAIL_PARTE_LOCAL.test(local) && rotulos.length >= 2 &&
+    rotulos.every(function (rotulo) { return EMAIL_ROTULO.test(rotulo); }) &&
+    EMAIL_TERMINACAO.test(rotulos[rotulos.length - 1]);
 }
 
 // Devolve a chave do erro em TEXTOS.contato.erros, ou null quando pode enviar.
@@ -956,16 +1265,27 @@ function montarFeedback(dados) {
   const movimentoReduzido = Boolean(window.matchMedia) &&
     window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
+  // Respostas da acolhida: so em memoria, so para a conversa aceita. Voltam ao vazio a cada tela de aceite
+  // (sessao que terminou ou "Encerrar conversa"): quem concorda de novo pode ser outra pessoa no mesmo aparelho.
+  function acolhidaVazia() {
+    return { feita: false, como_chamar: null, diagnostico: null, motivo: null };
+  }
+
   // Estado so em memoria: some ao fechar ou recarregar a pagina.
   const estado = {
     saude: null,
     sessao: null,
     turnos: [],
+    // A acolhida vale para uma conversa aceita: depois de um novo aceite, ela se repete e as respostas de antes nao seguem.
+    acolhida: acolhidaVazia(),
+    // Nome da acolhida com sinal de risco: { token, fala } com a fala assinada pelo Worker com a marca de risco da
+    // sessao. Segue na frente do historico de todo chat da mesma sessao; sai junto com a acolhida.
+    marcaDeRisco: null,
     // Sinal de risco na sessao: nenhum convite ate o fim dela.
     houveRisco: false,
-    // Sinal de risco nesta visita: os blocos de pre-lancamento nao voltam, nem em sessao nova,
-    // ate a conversa ser encerrada para a pessoa seguinte.
-    semOfertas: false,
+    // Sinal de risco nesta visita: nem o cartao de convite nem os blocos de pre-lancamento voltam,
+    // nem em sessao nova, ate a conversa ser encerrada para a pessoa seguinte.
+    riscoNaVisita: false,
     enviando: false,
     // Canais de ajuda recebidos de /api/guiado: seguem visiveis se a sessao terminar.
     canais: [],
@@ -1319,9 +1639,12 @@ function montarFeedback(dados) {
     });
   }
 
+  // Devolve o item, para quem precisa saber depois se a leitura em curso e dele.
   function registrarOuvivel(acoes, texto) {
-    ouviveis.push({ acoes: acoes, texto: texto, botao: null });
+    const item = { acoes: acoes, texto: texto, botao: null };
+    ouviveis.push(item);
     atualizarOuvir();
+    return item;
   }
 
   function calarAoSair() {
@@ -1348,12 +1671,24 @@ function montarFeedback(dados) {
 
   /* ---- Canais de ajuda ---- */
 
+  // Como no quiz: icone escondido do leitor de tela, nome com o numero e a descricao. A ligacao le "SAMU 192
+  // Emergencia medica". O numero vem do servidor; nome e descricao, da tabela CANAIS_DESCRITOS.
   function listaDeCanais(canais) {
     const lista = no("ul");
     canais.forEach(function (canal) {
+      const descrito = canalDescrito(canal);
       const item = no("li");
-      const ligacao = no("a", "canal", rotuloCanal(canal));
+      const ligacao = no("a", "canal");
       ligacao.href = "tel:" + telefoneDoCanal(canal.numero);
+      if (descrito.icone) {
+        const icone = no("span", "canal__icone canal__icone--" + descrito.icone);
+        icone.setAttribute("aria-hidden", "true");
+        ligacao.appendChild(icone);
+      }
+      const texto = no("span", "canal__texto");
+      texto.appendChild(no("span", "canal__rotulo", rotuloCanal(descrito)));
+      if (descrito.descricao) texto.appendChild(no("span", "canal__descricao", descrito.descricao));
+      ligacao.appendChild(texto);
       item.appendChild(ligacao);
       lista.appendChild(item);
     });
@@ -1422,6 +1757,10 @@ function montarFeedback(dados) {
     estado.turnos = [];
     estado.houveRisco = false;
     estado.enviando = false;
+    // As respostas da acolhida nao aparecem nesta tela e nao podem seguir, sem ninguem ver, para quem concordar agora.
+    // A marca de risco do nome era da sessao que terminou: sai junto.
+    estado.acolhida = acolhidaVazia();
+    estado.marcaDeRisco = null;
     definirAvatar("acolhimento");
 
     const titulo = tituloDaTela(TEXTOS.aceite_titulo);
@@ -1575,10 +1914,19 @@ function montarFeedback(dados) {
     const titulo = tituloDaTela(TEXTOS.conversa_titulo);
     const intro = no("p", "intro", comEscrita ? TEXTOS.conversa_intro : TEXTOS.conversa_intro_guiado);
     const blocos = [titulo, intro];
-    if (emTeste) {
+    // Um aviso de gravacao so, por tela. Enquanto a acolhida ainda pode vir de /api/guiado, ele espera:
+    // com acolhida, vale o aviso dela; sem acolhida, este, no lugar de sempre ("topo" ou "conversa").
+    const lugarDoAviso = no("div", "lugar-aviso");
+    blocos.push(lugarDoAviso);
+    let avisoPendente = null;
+    function avisoDeGravacaoNoTopo() {
       const notaTeste = no("p", "aviso", TEXTOS.aviso_teste);
       notaTeste.setAttribute("role", "note");
-      blocos.push(notaTeste);
+      lugarDoAviso.appendChild(notaTeste);
+    }
+    if (emTeste) {
+      if (comEscrita && !estado.acolhida.feita) avisoPendente = "topo";
+      else avisoDeGravacaoNoTopo();
     }
 
     const registro = no("div", "registro");
@@ -1608,6 +1956,16 @@ function montarFeedback(dados) {
     // Pergunta enviada e ainda sem resposta: se a sessao terminar nesse meio, ela nao se perde.
     let mensagemEmEnvio = null;
     const limpezas = [];
+    // Quem acabou de abrir a sessao nesta tela recebe o foco no campo de escrita quando ele entrar.
+    let focarAoLiberar = false;
+    // O que /api/guiado trouxe por ultimo nesta tela, se ha pedido a caminho e se a acolhida esta em curso.
+    let temasRecebidos = null;
+    let acolhidaRecebida = null;
+    let guiadoPendente = false;
+    let emAcolhida = false;
+    // Prazo da espera pela acolhida, enquanto /api/guiado nao responde.
+    let prazoDaAcolhida = null;
+    limpezas.push(function () { pararPrazoDaAcolhida(); });
 
     // Sessao vencida ou recusada: de volta ao aceite, sem perder a pergunta nem os canais de ajuda.
     function sessaoTerminou(aviso, pergunta) {
@@ -1665,33 +2023,251 @@ function montarFeedback(dados) {
       respostaDoChat(lerChat({ tipo: "falha", texto: TEXTOS.falha }), true);
     }
 
-    // Texto literal do item: enunciado, classificacao e resposta, sem resumo nem reescrita.
-    // O enunciado pode ser um mito: texto de verdade (nao so italico e aspas do CSS) separa a frase
-    // escolhida da resposta, para a assistente nao parecer afirmar a frase.
-    function respostaGuiada(item) {
+    // Duvida do tema: a pergunta escolhida, como fala da pessoa, e as respostas aprovadas, literais e na ordem, como
+    // fala da MarIA Flor. Sem modelo, sem pedido ao servidor e sem gastar pergunta escrita. Nada de identificador.
+    function respostaDaDuvida(duvida) {
       pararFala();
+      falaDaPessoa(duvida.pergunta);
       const caixa = bolha("msg--assistente msg--guiada", TEXTOS.autor_assistente);
-      caixa.appendChild(no("p", "msg__contexto", TEXTOS.frase_contexto));
-      caixa.appendChild(no("p", "msg__frase", item.enunciado));
-      if (item.rotulo_classificacao) caixa.appendChild(no("p", "msg__rotulo", item.rotulo_classificacao));
-      caixa.appendChild(no("p", "msg__marca", TEXTOS.resposta_rotulo));
-      caixa.appendChild(no("p", "msg__texto", item.resposta));
-      let falado = item.resposta;
-      [
-        [item.quando_procurar, TEXTOS.quando_procurar],
-        [item.pergunta_para_consulta, TEXTOS.pergunta_consulta]
-      ].forEach(function (par) {
-        if (!par[0]) return;
-        caixa.appendChild(no("p", "msg__subtitulo", par[1]));
-        caixa.appendChild(no("p", "msg__extra", par[0]));
-        falado += "\n" + par[1] + ": " + par[0];
+      duvida.respostas.forEach(function (resposta) {
+        caixa.appendChild(no("p", "msg__texto", resposta));
       });
-      if (emTeste && item.id) caixa.appendChild(no("p", "msg__tecnico", preencher(TEXTOS.tecnico_item, { id: item.id })));
       const acoes = no("div", "msg__acoes");
       caixa.appendChild(acoes);
-      registrarOuvivel(acoes, falado);
+      registrarOuvivel(acoes, duvida.respostas.join("\n\n"));
+      // "Perguntar do meu jeito" so existe com o campo de escrita na tela: leva o foco ate ele.
+      if (escrita) {
+        const seguir = no("div", "msg__acoes");
+        const perguntar = no("button", "btn-mini", TEXTOS.perguntar_do_meu_jeito);
+        perguntar.type = "button";
+        perguntar.addEventListener("click", function () {
+          if (!escrita) return;
+          trocou();
+          rolarAte(escrita.formulario);
+          escrita.campo.focus();
+        });
+        seguir.appendChild(perguntar);
+        caixa.appendChild(seguir);
+      }
       definirAvatar("informacao");
       acrescentar(caixa);
+      // A conversa cresceu acima dos temas: o segundo toque de um toque duplo nao cai em outro botao.
+      trocou();
+    }
+
+    /* -- Acolhida: da pagina, em forma de conversa, so com os textos de /api/guiado. Nao gasta pergunta escrita.
+          O unico pedido e o do nome escrito (POST /api/acolhida/nome), que passa pela regra de risco antes de virar
+          nome; pular nao pede nada. As respostas ficam em estado.acolhida, so em memoria -- */
+
+    function falaDaAcolhida(texto) {
+      const caixa = bolha("msg--assistente msg--acolhida", TEXTOS.autor_assistente);
+      const paragrafo = no("p", "msg__texto", texto);
+      paragrafo.id = novoId("fala");
+      caixa.appendChild(paragrafo);
+      const acoes = no("div", "msg__acoes");
+      caixa.appendChild(acoes);
+      registrarOuvivel(acoes, texto);
+      acrescentar(caixa);
+      return { caixa: caixa, texto: paragrafo };
+    }
+
+    // Linha de apoio sem resposta antes dela (nome da acolhida com sinal ambiguo): fala da MarIA Flor, com o texto
+    // que o Worker mandar, no mesmo destaque da linha de apoio do chat.
+    function linhaDeApoioSozinha(texto) {
+      const caixa = bolha("msg--assistente msg--apoio", TEXTOS.autor_assistente);
+      caixa.appendChild(no("p", "msg__apoio", texto));
+      const acoes = no("div", "msg__acoes");
+      caixa.appendChild(acoes);
+      registrarOuvivel(acoes, texto);
+      return acrescentar(caixa);
+    }
+
+    function comecarAcolhida() {
+      const acolhida = acolhidaRecebida;
+      const respostas = { como_chamar: null, diagnostico: null, motivo: null };
+      emAcolhida = true;
+      // O foco vai para a abertura, no fim, e nao para o campo de escrita.
+      focarAoLiberar = false;
+      // Vale o aviso da acolhida: o de gravacao de sempre nao entra nesta tela.
+      avisoPendente = null;
+      // Os temas e o campo de escrita entram depois da abertura. A leitura de um tema aberto sai com o painel escondido.
+      pararPrazoDaAcolhida();
+      pararFalaDoPainel();
+      secaoTemas.hidden = true;
+      definirAvatar("acolhimento");
+
+      // Respondida a pergunta, os controles saem do balao e a resposta aparece como fala da pessoa.
+      function responder(fala, controles, texto) {
+        pararFala();
+        fala.caixa.removeChild(controles);
+        falaDaPessoa(texto);
+        trocou();
+      }
+
+      function perguntarNome() {
+        const fala = falaDaAcolhida(acolhida.pergunta_nome);
+        const formulario = no("form", "acolhida__controles");
+        formulario.noValidate = true;
+        const campo = no("div", "campo");
+        const entrada = no("input");
+        entrada.type = "text";
+        entrada.id = "campo-como-chamar";
+        // O campo aceita a frase inteira, ate o teto da mensagem: a regra de risco do Worker precisa ver tudo o que
+        // foi escrito, inclusive o que passa do 30o caractere. O teto do nome (como_chamar_max) vale so na limpeza.
+        entrada.maxLength = CONFIG.mensagem_max;
+        entrada.setAttribute("autocomplete", "off");
+        entrada.setAttribute("autocapitalize", "words");
+        entrada.setAttribute("spellcheck", "false");
+        // O campo leva o nome da propria pergunta, sem rotulo a mais.
+        entrada.setAttribute("aria-labelledby", fala.texto.id);
+        campo.appendChild(entrada);
+        const enviar = no("button", "btn", TEXTOS.botao_enviar);
+        enviar.type = "submit";
+        const pular = no("button", "btn btn--contorno", acolhida.rotulo_pular);
+        pular.type = "button";
+        let respondida = false;
+        formulario.addEventListener("submit", function (evento) {
+          evento.preventDefault();
+          if (respondida) return;
+          const bruto = valorDe(entrada);
+          // A fala da pessoa mostra o que ela escreveu, inteiro; o nome, se houver, e o que o Worker devolver.
+          const escrito = limparNome(bruto, CONFIG.mensagem_max);
+          // Campo vazio: nada muda, e o foco volta ao campo. Para seguir sem nome, ha o botao de pular.
+          if (escrito === "") {
+            entrada.focus();
+            return;
+          }
+          // Um envio so: os controles saem do balao e o que foi escrito aparece como fala da pessoa. O texto so vira
+          // nome depois da regra de risco do Worker; ate a resposta, nada dele vai para a abertura.
+          respondida = true;
+          respostas.como_chamar = null;
+          responder(fala, formulario, escrito);
+          conferirNome(bruto, function (conferido) {
+            respostas.como_chamar = conferido.como_chamar;
+            perguntarDiagnostico(!conferido.foco);
+            if (conferido.foco) conferido.foco.focus();
+          });
+        });
+        pular.addEventListener("click", function () {
+          if (respondida) return;
+          respondida = true;
+          respostas.como_chamar = null;
+          responder(fala, formulario, acolhida.rotulo_pular);
+          perguntarDiagnostico();
+        });
+        formulario.appendChild(campo);
+        formulario.appendChild(enviar);
+        formulario.appendChild(pular);
+        fala.caixa.appendChild(formulario);
+      }
+
+      // POST /api/acolhida/nome com o texto como foi escrito: o Worker roda a regra de risco nele antes de limpar.
+      // Sem sinal, vale o nome que ele devolveu. Com sinal explicito, a mensagem de seguranca como fala da MarIA Flor,
+      // com o destaque dela; com sinal ambiguo, a linha de apoio. Nos dois, sem nome, risco na visita (nada de
+      // convite nem de oferta) e a fala assinada guardada para seguir na frente do historico de todo chat da sessao.
+      // Falha ou resposta fora do contrato: segue sem nome. Sem resposta legivel do Worker (rede, prazo, resposta que
+      // nao e JSON), a pagina nao sabe se o texto trazia sinal de risco: vale como se trouxesse, como no chat.
+      // seguir({ como_chamar, foco }): foco e a fala que deve receber o foco antes da pergunta seguinte, ou null.
+      function conferirNome(bruto, seguir) {
+        const serie = estado.serie;
+        const token = sessao ? sessao.token : null;
+        espera.textContent = TEXTOS.espera;
+        definirAvatar("escuta");
+        pedir("/api/acolhida/nome", {
+          corpo: { como_chamar: bruto.slice(0, CONFIG.mensagem_max) },
+          token: token
+        }).then(function (resposta) {
+          if (serie !== estado.serie) return;
+          espera.textContent = "";
+          const conferido = resposta.ok ? lerNomeConferido(resposta.dados, CONFIG.como_chamar_max) : null;
+          let foco = null;
+          if (!conferido) {
+            if (resposta.ok || !resposta.mensagem) marcarRisco();
+            definirAvatar("acolhimento");
+          } else {
+            if (conferido.risco) {
+              marcarRisco();
+              if (conferido.marca && token) estado.marcaDeRisco = { token: token, fala: conferido.marca };
+            }
+            definirAvatar(conferido.estado);
+            if (conferido.tipo === "seguranca") {
+              foco = respostaDoChat(lerChat({
+                tipo: "seguranca", texto: conferido.texto, estado: conferido.estado, linha_apoio: conferido.linha_apoio
+              }), false);
+            } else if (conferido.linha_apoio) {
+              foco = linhaDeApoioSozinha(conferido.linha_apoio);
+            }
+          }
+          if (foco) foco.tabIndex = -1;
+          // Os controles da pergunta seguinte surgem agora: o toque que chegar junto nao cai neles.
+          trocou();
+          seguir({ como_chamar: conferido ? conferido.como_chamar : null, foco: foco });
+        });
+      }
+
+      // Pergunta com botoes de resposta: um toque escolhe, e so o primeiro vale.
+      function perguntarComOpcoes(pergunta, opcoes, aoEscolher, focar) {
+        const fala = falaDaAcolhida(pergunta);
+        const grupo = no("div", "acolhida__controles");
+        grupo.setAttribute("role", "group");
+        grupo.setAttribute("aria-labelledby", fala.texto.id);
+        let escolhida = false;
+        const botoes = opcoes.map(function (opcao) {
+          const botao = no("button", "btn btn--contorno", opcao.rotulo);
+          botao.type = "button";
+          botao.addEventListener("click", function () {
+            if (escolhida) return;
+            escolhida = true;
+            responder(fala, grupo, opcao.rotulo);
+            aoEscolher(opcao.valor);
+          });
+          grupo.appendChild(botao);
+          return botao;
+        });
+        fala.caixa.appendChild(grupo);
+        if (focar !== false) botoes[0].focus();
+      }
+
+      // focar false: o foco fica onde esta (na mensagem de seguranca ou na linha de apoio, que precisa ser lida antes).
+      function perguntarDiagnostico(focar) {
+        const opcoes = acolhida.opcoes_diagnostico.map(function (opcao) {
+          return { valor: opcao.id, rotulo: opcao.rotulo };
+        }).concat([{ valor: "nao_informado", rotulo: acolhida.rotulo_sem_resposta }]);
+        perguntarComOpcoes(acolhida.pergunta_diagnostico, opcoes, function (valor) {
+          respostas.diagnostico = valor;
+          if (valor === "nao") perguntarMotivo();
+          else concluir();
+        }, focar);
+      }
+
+      // So depois de "nao". "Prefiro nao responder" tambem vale aqui e leva a abertura sem_resposta.
+      function perguntarMotivo() {
+        const opcoes = acolhida.opcoes_motivo.map(function (opcao) {
+          return { valor: opcao.id, rotulo: opcao.rotulo };
+        }).concat([{ valor: null, rotulo: acolhida.rotulo_sem_resposta }]);
+        perguntarComOpcoes(acolhida.pergunta_motivo, opcoes, function (valor) {
+          respostas.motivo = valor;
+          concluir();
+        });
+      }
+
+      // A frase de abertura certa e, entao, os temas e o campo de escrita.
+      function concluir() {
+        estado.acolhida = { feita: true, como_chamar: respostas.como_chamar, diagnostico: respostas.diagnostico, motivo: respostas.motivo };
+        const abertura = falaDaAcolhida(textoDaAbertura(acolhida, respostas));
+        emAcolhida = false;
+        secaoTemas.hidden = false;
+        painelDeTemas(temasRecebidos || [], false);
+        liberarEscrita();
+        trocou();
+        abertura.texto.tabIndex = -1;
+        abertura.texto.focus();
+      }
+
+      falaDaAcolhida(acolhida.apresentacao);
+      avisoNaConversa(avisoDaAcolhida(acolhida, sessao.tipo));
+      perguntarNome();
+      trocou();
     }
 
     /* -- Sessao de teste: marcar problema -- */
@@ -1843,40 +2419,84 @@ function montarFeedback(dados) {
       trocou();
     }
 
+    // Emoji depois do texto, escondido do leitor de tela.
+    function comEmoji(elemento, emoji) {
+      if (!emoji) return elemento;
+      elemento.appendChild(document.createTextNode(" "));
+      const marca = no("span", null, emoji);
+      marca.setAttribute("aria-hidden", "true");
+      elemento.appendChild(marca);
+      return elemento;
+    }
+
+    function separadorDoCartao() {
+      const linha = no("hr", "conversao__separador");
+      linha.setAttribute("aria-hidden", "true");
+      return linha;
+    }
+
+    // "Conheca a EndoAfetos!": texto, as duas ofertas da MarIA Flor e o botao para o site.
+    function blocoConheca(textos) {
+      const secao = no("section", "conversao__conheca");
+      const titulo = no("h3", null, textos.conheca_titulo);
+      titulo.id = novoId("titulo-conheca");
+      secao.setAttribute("aria-labelledby", titulo.id);
+      secao.appendChild(titulo);
+      secao.appendChild(no("p", null, textos.conheca_texto));
+      secao.appendChild(no("p", null, textos.ofertas_intro));
+      const lista = no("ul", "conversao__ofertas");
+      textos.ofertas.forEach(function (oferta) {
+        const item = no("li", "conversao__oferta");
+        item.appendChild(no("span", "conversao__oferta-titulo", oferta.titulo));
+        item.appendChild(no("span", "conversao__oferta-texto", oferta.texto));
+        lista.appendChild(item);
+      });
+      secao.appendChild(lista);
+      const endereco = enderecoSeguro(CONFIG.link_conhecer);
+      if (endereco) {
+        const botao = no("a", "btn btn--conheca", textos.conheca_botao);
+        botao.href = endereco;
+        // Em outra aba: a conversa fica so em memoria e some se esta pagina for trocada.
+        botao.target = "_blank";
+        botao.rel = "noopener noreferrer";
+        const seta = no("span", "btn__seta", " " + textos.conheca_seta);
+        seta.setAttribute("aria-hidden", "true");
+        botao.appendChild(seta);
+        secao.appendChild(botao);
+      }
+      return secao;
+    }
+
+    // Brinde do estande, so com CONFIG.evento_btx.
+    function blocoPresente(textos) {
+      const secao = no("section", "conversao__presente");
+      const titulo = no("h3", null, textos.evento_titulo);
+      titulo.id = novoId("titulo-presente");
+      secao.setAttribute("aria-labelledby", titulo.id);
+      secao.appendChild(titulo);
+      secao.appendChild(comEmoji(no("p", "conversao__destaque", textos.brinde_destaque), textos.brinde_emoji));
+      secao.appendChild(no("p", "conversao__brinde", textos.brinde));
+      return secao;
+    }
+
+    // Cartao de conversao, no padrao da tela final do quiz. "Quero que me procurem" so com a coleta ligada.
     function cartaoInicial() {
       const textos = TEXTOS.cartao;
       esvaziar(cartao);
-      cartao.appendChild(no("p", "cartao-convite__texto", textos.texto));
-      const canais = no("div", "cartao-convite__canais");
+      cartao.appendChild(comEmoji(no("h2", "conversao__titulo", textos.titulo), textos.titulo_emoji));
+      cartao.appendChild(no("p", "conversao__cuidado", textos.cuidado));
+      cartao.appendChild(no("p", "conversao__encerramento", textos.encerramento));
+      cartao.appendChild(blocoConheca(textos));
+      if (CONFIG.evento_btx === true) {
+        cartao.appendChild(separadorDoCartao());
+        cartao.appendChild(blocoPresente(textos));
+      }
       if (estado.saude.coleta === true) {
         const quero = no("button", "btn", textos.quero);
         quero.type = "button";
         quero.addEventListener("click", cartaoContato);
         cartao.appendChild(quero);
       }
-      const procuro = no("button", "btn btn--contorno", textos.procuro);
-      procuro.type = "button";
-      procuro.setAttribute("aria-expanded", "false");
-      procuro.addEventListener("click", function () {
-        if (canais.firstChild) return;
-        procuro.setAttribute("aria-expanded", "true");
-        const tituloCanais = no("h3", "cartao-convite__titulo", textos.canais_titulo);
-        tituloCanais.tabIndex = -1;
-        canais.appendChild(tituloCanais);
-        const ligacoes = [{ rotulo: textos.link_site, endereco: CONFIG.link_site }].concat(CONFIG.canais_organizacao);
-        ligacoes.forEach(function (canal) {
-          const endereco = canal ? enderecoSeguro(canal.endereco) : null;
-          if (!endereco || !textoOuNulo(canal.rotulo)) return;
-          const ligacao = no("a", "ligacao", canal.rotulo);
-          ligacao.href = endereco;
-          // Em outra aba: a conversa fica so em memoria e some se esta pagina for trocada.
-          ligacao.target = "_blank";
-          ligacao.rel = "noopener noreferrer";
-          canais.appendChild(ligacao);
-        });
-        trocou();
-        tituloCanais.focus();
-      });
       const agoraNao = no("button", "btn btn--contorno", textos.agora_nao);
       agoraNao.type = "button";
       agoraNao.addEventListener("click", function () {
@@ -1889,9 +2509,7 @@ function montarFeedback(dados) {
         trocou();
         dispensado.focus();
       });
-      cartao.appendChild(procuro);
       cartao.appendChild(agoraNao);
-      cartao.appendChild(canais);
     }
 
     function cartaoContato() {
@@ -1901,12 +2519,13 @@ function montarFeedback(dados) {
       tituloContato.tabIndex = -1;
       const formulario = no("form", "contato");
       formulario.noValidate = true;
+      // Aparelho que pode ser de varias pessoas (estande): o navegador nao deve guardar nem sugerir nome e e-mail.
       const nome = campoDeTexto("campo-nome", textos.nome_rotulo, "text", CONFIG.nome_max);
-      nome.entrada.setAttribute("autocomplete", "name");
+      nome.entrada.setAttribute("autocomplete", "off");
       nome.entrada.setAttribute("autocapitalize", "words");
       const email = campoDeTexto("campo-email", textos.email_rotulo, "email", CONFIG.email_max);
       email.entrada.setAttribute("inputmode", "email");
-      email.entrada.setAttribute("autocomplete", "email");
+      email.entrada.setAttribute("autocomplete", "off");
       email.entrada.setAttribute("autocapitalize", "none");
       const aceita = caixaDeMarcar("caixa-contato", textos.caixa_contato);
       const maior = caixaDeMarcar("caixa-maior", textos.caixa_maior);
@@ -2041,16 +2660,20 @@ function montarFeedback(dados) {
         contador.textContent = preencher(TEXTOS.contador, { n: valorDe(campo).length, max: CONFIG.mensagem_max });
       }
 
-      // Antes da primeira mensagem, a sessao livre avisa quantas perguntas responde.
+      // Antes da primeira mensagem, a sessao avisa quantas perguntas responde: o limite que veio dela, na versao
+      // gratuita e tambem no teste (o ambiente de teste tem 3 interacoes, como a gratuita). Depois, quantas restam.
+      // Sessao sem limite informado nao mostra aviso.
       function mostrarRestantes() {
         const restantes = sessao.restantes !== null ? sessao.restantes : sessao.limite;
-        if (sessao.tipo !== "livre" || restantes === null) {
+        const doLimite = sessao.limite !== null ? sessao.limite : sessao.restantes;
+        const numero = jaEnviou ? restantes : doLimite;
+        if (numero === null) {
           limite.textContent = "";
           return;
         }
         limite.textContent = jaEnviou
-          ? preencher(TEXTOS.restantes, { n: restantes })
-          : avisoDeLimite(TEXTOS, restantes);
+          ? preencher(TEXTOS.restantes, { n: numero })
+          : avisoDeLimite(TEXTOS, numero);
       }
 
       // O campo fica no fluxo da pagina; ao abrir o teclado, a pagina rola ate ele.
@@ -2092,20 +2715,20 @@ function montarFeedback(dados) {
         }
         const mensagem = valorDe(campo).trim();
         pararFala();
-        // Sessao ja vencida pelo expira_em: nem envia, para a pergunta nao sumir num 401.
-        if (sessaoVenceu(sessao.vence_em, Date.now())) {
-          sessaoTerminou(null, mensagem);
-          return;
-        }
+        // Segue mesmo com a sessao vencida pelo relogio deste aparelho: com sinal de risco, o Worker ainda
+        // responde (mensagem de seguranca ou linha de apoio); sem sinal, o 401 leva ao aceite com a pergunta guardada.
         status.textContent = "";
         estado.enviando = true;
         travarBotao(botao, true);
         estado.turnos = semFalaRepetida(estado.turnos, mensagem);
+        // As respostas da acolhida seguem em todo pedido de conversa, e so nele. A marca de risco do nome, quando
+        // houve, vai na frente do historico, so na sessao em que o Worker a assinou.
+        const marca = estado.marcaDeRisco && estado.marcaDeRisco.token === estado.sessao.token ? estado.marcaDeRisco.fala : null;
         const corpo = montarCorpoChat(mensagem, estado.turnos, {
           max_turnos: CONFIG.historico_max_turnos,
           max_caracteres: CONFIG.historico_max_caracteres,
           max_bytes: CONFIG.corpo_chat_max_bytes
-        });
+        }, montarContexto(estado.acolhida, CONFIG.como_chamar_max), marca);
         // A fala da pessoa entra no historico mesmo se a resposta falhar:
         // o Worker confere sinal de risco tambem nas falas anteriores.
         guardarTurno({ papel: "pessoa", texto: mensagem, assinatura: null });
@@ -2153,19 +2776,122 @@ function montarFeedback(dados) {
       return { formulario: formulario, campo: campo };
     }
 
-    // Sem sessao no modo fechado: quem tem codigo volta ao aceite para informar.
+    // A pessoa ja concordou nesta tela: a sessao e pedida daqui, com ficha nova do Turnstile,
+    // sem recarregar a pagina e sem novo aceite.
+    function pedirSessaoAqui(desafio, codigo) {
+      return desafio.pedirFicha().then(function (ficha) {
+        return pedir("/api/sessao", {
+          corpo: montarSessao({
+            turnstile: ficha,
+            aceite_versao: CONFIG.versao_aceite,
+            convite: codigo,
+            convite_max: CONFIG.convite_max
+          })
+        });
+      }).then(null, function () {
+        return lerRespostaApi(0, null);
+      });
+    }
+
+    // Sessao aberta com a conversa na tela: nada do que esta na tela e apagado. Se a sessao for de teste, os temas
+    // (e a acolhida) sao pedidos de novo com o token. Com o texto livre ligado, vem a acolhida, se ainda nao foi
+    // feita nesta conversa e /api/guiado a trouxer; sem ela, o campo de escrita, com o foco.
+    function sessaoAbriuAqui(nova) {
+      estado.sessao = nova;
+      sessao = nova;
+      esvaziar(lugarDaEscrita);
+      const comTexto = estado.saude.texto_livre === true;
+      const esperaAcolhida = comTexto && !estado.acolhida.feita;
+      if (comTexto) {
+        intro.textContent = TEXTOS.conversa_intro;
+        focarAoLiberar = true;
+      }
+      if (nova.tipo === "teste") {
+        emTeste = true;
+        if (esperaAcolhida) avisoPendente = "conversa";
+        else avisoNaConversa(TEXTOS.aviso_teste);
+      }
+      trocou();
+      if (nova.tipo === "teste") {
+        if (!esperaAcolhida) liberarEscrita();
+        carregarGuiado(false);
+        if (esperaAcolhida) esperarAcolhida();
+      } else if (!guiadoPendente) {
+        // Sessao livre: os temas da tela ja sao os dela, e a acolhida que veio com eles vale a partir de agora.
+        seguirSemPedido();
+      } else if (esperaAcolhida) {
+        esperarAcolhida();
+      }
+      if (escrita) return;
+      // Sem campo de escrita (ainda), o foco fica na conversa ou, sem texto livre, nos temas que o codigo liberou.
+      if (comTexto) titulo.focus();
+      else tituloTemas.focus();
+    }
+
+    // Sem sessao no modo fechado: o codigo de convite e informado aqui mesmo, sem voltar ao aceite.
+    // Vale tambem com o texto livre desligado, porque o codigo libera os temas em revisao. A dica fala
+    // de escrever perguntas, entao so aparece quando o texto livre esta ligado.
     function montarSemCodigo() {
-      const bloco = no("div", "reabrir");
-      bloco.appendChild(no("p", "dica", TEXTOS.sem_codigo));
+      const formulario = no("form", "reabrir");
+      formulario.noValidate = true;
+      const comDica = estado.saude.texto_livre === true;
+      const dica = comDica ? no("p", "dica", TEXTOS.sem_codigo) : null;
+      if (dica) dica.id = "dica-sem-codigo";
+      const convite = campoDeTexto("campo-convite", TEXTOS.convite_rotulo, "text", CONFIG.convite_max);
+      convite.entrada.setAttribute("autocomplete", "off");
+      convite.entrada.setAttribute("autocapitalize", "none");
+      convite.entrada.setAttribute("aria-describedby", comDica ? "dica-sem-codigo status-reabrir" : "status-reabrir");
+      const caixaDesafio = no("div", "desafio");
+      const status = linhaDeStatus("status-reabrir");
       const botao = no("button", "btn btn--contorno", TEXTOS.informar_codigo);
-      botao.type = "button";
-      botao.addEventListener("click", function () { telaAceite(null, true); });
-      bloco.appendChild(botao);
-      return bloco;
+      botao.type = "submit";
+      const desafio = criarDesafio(caixaDesafio);
+      limpezas.push(function () { desafio.remover(); });
+      let abrindo = false;
+
+      function travar(travado) {
+        convite.entrada.disabled = travado;
+        travarBotao(botao, travado);
+      }
+
+      formulario.addEventListener("submit", function (evento) {
+        evento.preventDefault();
+        if (abrindo) return;
+        const codigo = limparCodigo(valorDe(convite.entrada), CONFIG.convite_max);
+        // Campo vazio: o foco vai para ele, e a dica ligada ao campo diz o que falta.
+        if (codigo === "") {
+          convite.entrada.focus();
+          return;
+        }
+        abrindo = true;
+        travar(true);
+        status.textContent = TEXTOS.abrindo;
+        const serie = estado.serie;
+        pedirSessaoAqui(desafio, codigo).then(function (resposta) {
+          if (serie !== estado.serie) return;
+          abrindo = false;
+          const nova = resposta.ok ? lerSessao(resposta.dados, Date.now(), CONFIG.sessao_validade_max_ms) : null;
+          if (!nova) {
+            // Codigo recusado ou falha: a pessoa corrige e tenta de novo, sem sair da conversa.
+            travar(false);
+            status.textContent = resposta.mensagem || TEXTOS.falha_abrir;
+            return;
+          }
+          desafio.remover();
+          sessaoAbriuAqui(nova);
+        });
+      });
+
+      if (dica) formulario.appendChild(dica);
+      formulario.appendChild(convite.campo);
+      formulario.appendChild(caixaDesafio);
+      formulario.appendChild(status);
+      formulario.appendChild(botao);
+      return formulario;
     }
 
     // Sessao que nao abriu fora do modo fechado (rede lenta, Turnstile, muitas tentativas):
-    // a pessoa ja concordou nesta tela, entao tenta de novo daqui, sem recarregar a pagina.
+    // a pessoa tenta de novo daqui. Sem codigo, a sessao que abre e livre.
     function montarReabertura() {
       const bloco = no("div", "reabrir");
       const caixaDesafio = no("div", "desafio");
@@ -2181,18 +2907,7 @@ function montarFeedback(dados) {
         travarBotao(botao, true);
         status.textContent = TEXTOS.abrindo;
         const serie = estado.serie;
-        desafio.pedirFicha().then(function (ficha) {
-          return pedir("/api/sessao", {
-            corpo: montarSessao({
-              turnstile: ficha,
-              aceite_versao: CONFIG.versao_aceite,
-              convite: "",
-              convite_max: CONFIG.convite_max
-            })
-          });
-        }).then(null, function () {
-          return lerRespostaApi(0, null);
-        }).then(function (resposta) {
+        pedirSessaoAqui(desafio, "").then(function (resposta) {
           if (serie !== estado.serie) return;
           abrindo = false;
           const nova = resposta.ok ? lerSessao(resposta.dados, Date.now(), CONFIG.sessao_validade_max_ms) : null;
@@ -2202,21 +2917,7 @@ function montarFeedback(dados) {
             return;
           }
           desafio.remover();
-          estado.sessao = nova;
-          sessao = nova;
-          intro.textContent = TEXTOS.conversa_intro;
-          escrita = montarEscrita();
-          esvaziar(lugarDaEscrita);
-          lugarDaEscrita.appendChild(escrita.formulario);
-          // Sem codigo a sessao e livre. Se vier de teste, a conversa que ja esta na tela fica:
-          // entram o aviso de gravacao e os temas, pedidos de novo com o token.
-          if (nova.tipo === "teste") {
-            emTeste = true;
-            avisoNaConversa(TEXTOS.aviso_teste);
-            carregarGuiado(false);
-          }
-          trocou();
-          escrita.campo.focus();
+          sessaoAbriuAqui(nova);
         });
       });
       bloco.appendChild(no("p", "dica", TEXTOS.reabrir_dica));
@@ -2226,11 +2927,29 @@ function montarFeedback(dados) {
       return bloco;
     }
 
-    if (comEscrita) {
+    // O campo de escrita entra uma vez por tela, com sessao aberta e texto livre ligado.
+    function liberarEscrita() {
+      if (escrita || !sessao || estado.saude.texto_livre !== true) return;
       escrita = montarEscrita();
+      esvaziar(lugarDaEscrita);
       lugarDaEscrita.appendChild(escrita.formulario);
+      if (focarAoLiberar) {
+        focarAoLiberar = false;
+        trocou();
+        escrita.campo.focus();
+      }
+    }
+
+    // Com a sessao aberta e a acolhida ainda por fazer, o campo espera a resposta de /api/guiado: com acolhida,
+    // ela vem antes; sem acolhida, o campo entra logo que a resposta chega. A espera tem prazo (esperarAcolhida).
+    // Feita a acolhida, entra ja.
+    if (comEscrita) {
+      if (estado.acolhida.feita) liberarEscrita();
+      else esperarAcolhida();
+    } else if (!sessao && estado.saude.modo === "fechado") {
+      lugarDaEscrita.appendChild(montarSemCodigo());
     } else if (!sessao && estado.saude.texto_livre === true) {
-      lugarDaEscrita.appendChild(estado.saude.modo === "fechado" ? montarSemCodigo() : montarReabertura());
+      lugarDaEscrita.appendChild(montarReabertura());
     }
 
     function guardarTurno(turno) {
@@ -2238,7 +2957,15 @@ function montarFeedback(dados) {
       estado.turnos = prepararHistorico(estado.turnos, CONFIG.historico_max_turnos, CONFIG.historico_max_caracteres);
     }
 
+    // Sinal de risco: nenhum convite nem oferta ate o fim da sessao, e as ofertas nao voltam nesta visita.
+    function marcarRisco() {
+      estado.houveRisco = true;
+      retirarCartao();
+      retirarOfertas();
+    }
+
     // Devolve true quando a pergunta ficou sem resposta (falha ou erro do contrato).
+    // Sem resposta legivel do Worker, a pagina nao sabe se a pergunta trazia sinal de risco: vale como se trouxesse.
     function tratarChat(resposta, mensagem) {
       if (!resposta.ok) {
         // Token expirado ou invalido: de volta ao aceite, com a pergunta guardada.
@@ -2251,25 +2978,23 @@ function montarFeedback(dados) {
           definirAvatar("acolhimento");
           avisoNaConversa(resposta.mensagem);
         } else {
+          marcarRisco();
           falhaLocal();
         }
         return true;
       }
       const chat = lerChat(resposta.dados);
       if (!chat) {
+        marcarRisco();
         falhaLocal();
         return true;
       }
-      if (sinalDeRisco(chat)) {
-        estado.houveRisco = true;
-        retirarCartao();
-        retirarOfertas();
-      }
+      if (sinalDeRisco(chat)) marcarRisco();
       if (chat.assinatura) guardarTurno({ papel: "assistente", texto: chat.texto, assinatura: chat.assinatura });
       if (chat.restantes !== null) estado.sessao.restantes = Math.max(0, Math.floor(chat.restantes));
       definirAvatar(chat.estado);
       respostaDoChat(chat, false);
-      if (podeConvidar(chat, estado.houveRisco)) mostrarCartao();
+      if (podeConvidar(chat, estado.houveRisco || estado.riscoNaVisita)) mostrarCartao();
       return chat.tipo === "falha";
     }
 
@@ -2286,6 +3011,18 @@ function montarFeedback(dados) {
     const canais = blocoCanais();
     blocos.push(secaoTemas);
 
+    // A leitura de um tema aberto tem o botao Parar dentro do painel: quando o painel e trocado ou escondido, sem trocar
+    // de tela, a leitura para junto, para nao seguir sem controle. A leitura de uma fala da conversa continua.
+    function pararFalaDoPainel() {
+      if (fala && fala.item.doPainel === true) pararFala();
+    }
+
+    function esvaziarPainel() {
+      pararFalaDoPainel();
+      ouviveis = ouviveis.filter(function (item) { return item.doPainel !== true; });
+      esvaziar(painel);
+    }
+
     /* -- Pre-lancamento: exemplo ficticio do diario e pre-inscricao. Blocos a parte, fora do cartao
           de convite. No primeiro sinal de risco saem da tela e nao voltam nesta visita -- */
 
@@ -2294,10 +3031,13 @@ function montarFeedback(dados) {
     blocos.push(ofertas);
 
     function retirarOfertas() {
-      estado.semOfertas = true;
+      estado.riscoNaVisita = true;
       if (desafioDaPreInscricao) desafioDaPreInscricao.remover();
       desafioDaPreInscricao = null;
+      if (!ofertas.firstChild) return;
       esvaziar(ofertas);
+      // O que vinha abaixo sobe na tela: um toque a caminho dos blocos nao aciona outro controle.
+      trocou();
     }
 
     // Bloco estatico: so texto de EXEMPLO_DIARIO, sem botao, sem campo e sem pedido.
@@ -2337,12 +3077,13 @@ function montarFeedback(dados) {
       texto.id = "texto-pre-inscricao";
       const formulario = no("form", "pre-inscricao__formulario");
       formulario.noValidate = true;
+      // Como no formulario de contato: nada para o navegador guardar e sugerir a pessoa seguinte.
       const nome = campoDeTexto("campo-pre-nome", textos.nome_rotulo, "text", CONFIG.nome_max);
-      nome.entrada.setAttribute("autocomplete", "name");
+      nome.entrada.setAttribute("autocomplete", "off");
       nome.entrada.setAttribute("autocapitalize", "words");
       const email = campoDeTexto("campo-pre-email", doContato.email_rotulo, "email", CONFIG.email_max);
       email.entrada.setAttribute("inputmode", "email");
-      email.entrada.setAttribute("autocomplete", "email");
+      email.entrada.setAttribute("autocomplete", "off");
       email.entrada.setAttribute("autocapitalize", "none");
       email.entrada.setAttribute("aria-describedby", "status-pre-inscricao");
       const grupo = no("fieldset", "grupo");
@@ -2455,7 +3196,7 @@ function montarFeedback(dados) {
       return secao;
     }
 
-    if (!estado.semOfertas) {
+    if (!estado.riscoNaVisita) {
       if (CONFIG.exemplo_diario === true) ofertas.appendChild(blocoExemploDiario());
       if (CONFIG.pre_inscricao === true && estado.saude.coleta === true) ofertas.appendChild(blocoPreInscricao());
     }
@@ -2475,7 +3216,8 @@ function montarFeedback(dados) {
         sim.type = "button";
         sim.addEventListener("click", function () {
           estado.rascunho = "";
-          estado.semOfertas = false;
+          estado.riscoNaVisita = false;
+          estado.acolhida = acolhidaVazia();
           telaAceite(null, true);
         });
         const nao = no("button", "btn btn--contorno", TEXTOS.encerrar.nao);
@@ -2498,16 +3240,19 @@ function montarFeedback(dados) {
     blocos.push(encerramento);
     blocos.push(canais.secao);
 
+    // Cada tema mostra o titulo e a chamada.
     function painelDeTemas(temas, focar) {
-      esvaziar(painel);
+      esvaziarPainel();
       if (temas.length === 0) {
         painel.appendChild(no("p", "dica", TEXTOS.temas_vazio));
         return;
       }
       temas.forEach(function (tema) {
-        const botao = no("button", "opcao opcao--tema", tema.titulo);
+        const botao = no("button", "opcao opcao--tema");
         botao.type = "button";
-        botao.addEventListener("click", function () { painelDeDuvidas(tema, temas); });
+        botao.appendChild(no("span", "opcao__texto", tema.titulo));
+        if (tema.chamada) botao.appendChild(no("span", "opcao__chamada", tema.chamada));
+        botao.addEventListener("click", function () { painelDoTema(tema, temas); });
         painel.appendChild(botao);
       });
       if (focar) {
@@ -2516,21 +3261,43 @@ function montarFeedback(dados) {
       }
     }
 
-    function painelDeDuvidas(tema, temas) {
-      esvaziar(painel);
+    // Tema aberto: a sintese em paragrafos, quando procurar atendimento, o que levar a consulta e as duvidas do tema.
+    // Tudo literal, como veio de /api/guiado; nenhum enunciado de mito, rotulo de classificacao ou identificador.
+    function painelDoTema(tema, temas) {
+      esvaziarPainel();
       const nome = no("h3", "temas__nome", tema.titulo);
       nome.tabIndex = -1;
       painel.appendChild(nome);
-      // O enunciado pode ser um mito: a classificacao vai junto e a resposta e o que se serve.
-      painel.appendChild(no("p", "dica", TEXTOS.duvidas_intro));
-      tema.itens.forEach(function (item) {
-        const botao = no("button", "opcao opcao--duvida");
-        botao.type = "button";
-        botao.appendChild(no("span", "opcao__texto", item.enunciado));
-        if (item.rotulo_classificacao) botao.appendChild(no("span", "opcao__rotulo", item.rotulo_classificacao));
-        botao.addEventListener("click", function () { respostaGuiada(item); });
-        painel.appendChild(botao);
-      });
+      const sintese = no("div", "tema__sintese");
+      tema.paragrafos.forEach(function (paragrafo) { sintese.appendChild(no("p", null, paragrafo)); });
+      painel.appendChild(sintese);
+      let falado = tema.paragrafos.join("\n\n");
+      if (tema.quando_procurar) {
+        painel.appendChild(no("h4", "temas__subtitulo", TEXTOS.quando_procurar));
+        painel.appendChild(no("p", null, tema.quando_procurar));
+        falado += "\n" + TEXTOS.quando_procurar + ": " + tema.quando_procurar;
+      }
+      if (tema.para_a_consulta.length > 0) {
+        painel.appendChild(no("h4", "temas__subtitulo", TEXTOS.para_consulta));
+        const lista = no("ul", "tema__lista");
+        tema.para_a_consulta.forEach(function (pergunta) { lista.appendChild(no("li", null, pergunta)); });
+        painel.appendChild(lista);
+        falado += "\n" + TEXTOS.para_consulta + ": " + tema.para_a_consulta.join(" ");
+      }
+      const acoes = no("div", "tema__acoes");
+      painel.appendChild(acoes);
+      registrarOuvivel(acoes, falado).doPainel = true;
+      if (tema.duvidas.length > 0) {
+        const duvidas = no("div", "tema__duvidas");
+        tema.duvidas.forEach(function (duvida) {
+          const botao = no("button", "opcao opcao--duvida");
+          botao.type = "button";
+          botao.appendChild(no("span", "opcao__texto", duvida.pergunta));
+          botao.addEventListener("click", function () { respostaDaDuvida(duvida); });
+          duvidas.appendChild(botao);
+        });
+        painel.appendChild(duvidas);
+      }
       const voltar = no("button", "btn btn--contorno", TEXTOS.voltar_temas);
       voltar.type = "button";
       voltar.addEventListener("click", function () { painelDeTemas(temas, true); });
@@ -2544,35 +3311,96 @@ function montarFeedback(dados) {
     let pedidoDeTemas = 0;
     let canaisNaTela = false;
 
-    // So mexe no painel de temas e nos canais; a conversa da tela fica como esta.
+    // A acolhida so vem com sessao aberta e texto livre (as respostas servem ao pedido de conversa), uma vez por
+    // conversa aceita, e nunca depois de o campo de escrita ja estar na tela.
+    function podeComecarAcolhida() {
+      return Boolean(acolhidaRecebida) && !estado.acolhida.feita && !emAcolhida && !escrita &&
+        Boolean(sessao) && estado.saude.texto_livre === true;
+    }
+
+    // Sem acolhida nesta tela: o aviso de gravacao de sempre, no lugar em que ele ia aparecer.
+    function resolverAviso() {
+      if (avisoPendente === "topo") avisoDeGravacaoNoTopo();
+      else if (avisoPendente === "conversa") avisoNaConversa(TEXTOS.aviso_teste);
+      avisoPendente = null;
+    }
+
+    // Com a sessao aberta e a acolhida por fazer, o campo de escrita espera /api/guiado so ate CONFIG.espera_acolhida_ms.
+    // Com a rede lenta, a pessoa escreve logo (inclusive um pedido de ajuda), e a acolhida, que viria antes do campo,
+    // fica de fora desta tela: a resposta que chegar depois so traz os temas e os canais.
+    function esperarAcolhida() {
+      if (prazoDaAcolhida !== null) return;
+      prazoDaAcolhida = setTimeout(function () {
+        prazoDaAcolhida = null;
+        if (escrita || emAcolhida || !guiadoPendente) return;
+        resolverAviso();
+        liberarEscrita();
+      }, CONFIG.espera_acolhida_ms);
+    }
+
+    function pararPrazoDaAcolhida() {
+      if (prazoDaAcolhida === null) return;
+      clearTimeout(prazoDaAcolhida);
+      prazoDaAcolhida = null;
+    }
+
+    // Sessao aberta aqui sem novo pedido de temas: o que ja chegou decide entre a acolhida e o campo.
+    function seguirSemPedido() {
+      if (podeComecarAcolhida()) {
+        comecarAcolhida();
+        return;
+      }
+      resolverAviso();
+      liberarEscrita();
+    }
+
+    // So mexe no painel de temas e nos canais; a conversa da tela fica como esta. Com a resposta, a acolhida (quando
+    // cabe) ou os temas e o campo de escrita, que nunca depende dos temas.
     function carregarGuiado(focar) {
       const serie = estado.serie;
       pedidoDeTemas += 1;
       const pedido = pedidoDeTemas;
-      esvaziar(painel);
-      painel.appendChild(no("p", "dica", TEXTOS.temas_carregando));
-      if (focar === true) tituloTemas.focus();
+      guiadoPendente = true;
+      if (!emAcolhida) {
+        esvaziarPainel();
+        painel.appendChild(no("p", "dica", TEXTOS.temas_carregando));
+        if (focar === true) tituloTemas.focus();
+      }
       pedir("/api/guiado", { token: tokenDoGuiado(estado.sessao) }).then(function (resposta) {
         if (serie !== estado.serie || pedido !== pedidoDeTemas) return;
+        guiadoPendente = false;
+        pararPrazoDaAcolhida();
         const guiado = resposta.ok ? lerGuiado(resposta.dados) : null;
         if (guiado) {
-          painelDeTemas(guiado.temas, false);
+          temasRecebidos = guiado.temas;
+          acolhidaRecebida = guiado.acolhida;
           canais.preencher(guiado.canais);
           estado.canais = guiado.canais;
           canaisNaTela = true;
-          return;
+          // Acolhida em curso: os temas entram quando ela terminar.
+          if (emAcolhida) return;
+          if (podeComecarAcolhida()) {
+            comecarAcolhida();
+            return;
+          }
+          painelDeTemas(guiado.temas, false);
+        } else if (!emAcolhida) {
+          // API fora do ar: so a mensagem fixa de falha e a frase de emergencia.
+          // Canais ja mostrados nesta tela ficam: a falha ao refazer os temas nao os apaga.
+          esvaziarPainel();
+          painel.appendChild(no("p", "aviso", resposta.mensagem || TEXTOS.falha));
+          const tentar = no("button", "btn btn--contorno", TEXTOS.tentar);
+          tentar.type = "button";
+          tentar.addEventListener("click", function () { carregarGuiado(true); });
+          painel.appendChild(tentar);
+          if (!canaisNaTela) {
+            estado.canais = [];
+            canais.preencher([]);
+          }
         }
-        // API fora do ar: so a mensagem fixa de falha e a frase de emergencia.
-        // Canais ja mostrados nesta tela ficam: a falha ao refazer os temas nao os apaga.
-        esvaziar(painel);
-        painel.appendChild(no("p", "aviso", resposta.mensagem || TEXTOS.falha));
-        const tentar = no("button", "btn btn--contorno", TEXTOS.tentar);
-        tentar.type = "button";
-        tentar.addEventListener("click", function () { carregarGuiado(true); });
-        painel.appendChild(tentar);
-        if (canaisNaTela) return;
-        estado.canais = [];
-        canais.preencher([]);
+        if (emAcolhida) return;
+        resolverAviso();
+        liberarEscrita();
       });
     }
 
