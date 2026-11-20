@@ -198,6 +198,24 @@ main { padding: .75rem 1rem 1.5rem; }
   overflow-wrap: anywhere;
 }
 
+.cuidado { font-weight: 700; }
+.separador { height: 1px; margin: 1.5rem 0; border: 0; background: var(--line); }
+
+.conheca { margin: 1.5rem 0; padding: 1.1rem 1.1rem 1.25rem; border-radius: var(--radius-sm); background: var(--rose-mist); }
+.conheca h2, .presente h2, .canais h2, .coleta h2 { margin: 0 0 .5rem; font-family: var(--serif); font-weight: 500; font-size: 1.25rem; line-height: 1.25; color: var(--ink); }
+.conheca p { margin: 0 0 1rem; }
+.ofertas { margin: 0 0 1.1rem; padding: 0; list-style: none; }
+.oferta { margin: 0 0 .75rem; padding: .8rem .9rem; border-radius: var(--radius-sm); background: var(--surface); border: 1px solid var(--line); }
+.oferta__titulo { display: block; font-weight: 800; color: var(--rose-dark); }
+.oferta__texto { display: block; }
+a.btn { text-decoration: none; }
+.btn--conheca { text-transform: uppercase; letter-spacing: .03em; }
+.ligacao-simples { display: inline-flex; align-items: center; min-height: 44px; margin-top: .5rem; font-weight: 800; color: var(--rose-dark); text-decoration: underline; text-underline-offset: 3px; }
+
+.presente { margin: 0 0 1.25rem; padding: .95rem 1rem; border-radius: var(--radius-sm); background: var(--gold-soft); }
+.presente p { margin: 0; }
+.presente__destaque { margin-bottom: .25rem; font-weight: 800; }
+
 .canais {
   margin: 1.5rem 0 1.25rem;
   padding: 1rem 1.1rem;
@@ -205,10 +223,29 @@ main { padding: .75rem 1rem 1.5rem; }
   border: 2px solid var(--lavender);
   border-radius: var(--radius-sm);
 }
-.canais h2, .coleta h2 { margin: 0 0 .5rem; font-family: var(--serif); font-weight: 500; font-size: 1.25rem; line-height: 1.25; color: var(--ink); }
-.canais ul { display: flex; flex-wrap: wrap; margin: 0; padding: 0; list-style: none; }
-.canais li { margin: 0 1.5rem .25rem 0; }
-.canal, .convite a, .coleta a {
+.canais ul { margin: 0; padding: 0; list-style: none; }
+.canais li { margin: 0 0 .5rem; }
+.canal { display: flex; align-items: center; min-height: 48px; color: var(--ink); text-decoration: none; }
+.canal__icone {
+  flex: none;
+  width: 40px; height: 40px;
+  margin-right: .75rem;
+  border-radius: 50%;
+  background-color: var(--lavender-soft);
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 22px 22px;
+}
+.canal__icone--cruz { background-image: url("data:image/svg+xml,%3Csvg xmlns='http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg' viewBox='0 0 24 24'%3E%3Cpath d='M9 3h6v6h6v6h-6v6H9v-6H3V9h6z' fill='%238c2f5f'/%3E%3C/svg%3E"); }
+.canal__icone--escudo { background-image: url("data:image/svg+xml,%3Csvg xmlns='http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2 4 5v6c0 5 3.4 9.3 8 11 4.6-1.7 8-6 8-11V5z' fill='none' stroke='%238c2f5f' stroke-width='2' stroke-linejoin='round'/%3E%3C/svg%3E"); }
+.canal__icone--mulher { background-image: url("data:image/svg+xml,%3Csvg xmlns='http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='9' r='5' fill='none' stroke='%238c2f5f' stroke-width='2'/%3E%3Cpath d='M12 14v8M8.5 18.5h7' stroke='%238c2f5f' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E"); }
+.canal__icone--pessoas { background-image: url("data:image/svg+xml,%3Csvg xmlns='http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg' viewBox='0 0 24 24'%3E%3Ccircle cx='8' cy='8' r='3' fill='%238c2f5f'/%3E%3Ccircle cx='16.5' cy='9.5' r='2.5' fill='%238c2f5f'/%3E%3Cpath d='M2.5 20c0-3.6 2.5-6 5.5-6s5.5 2.4 5.5 6zM13.5 20c.3-2.9 1.6-5 3.5-5 2.3 0 4.5 2 4.5 5z' fill='%238c2f5f'/%3E%3C/svg%3E"); }
+.canal__icone--conversa { background-image: url("data:image/svg+xml,%3Csvg xmlns='http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg' viewBox='0 0 24 24'%3E%3Cpath d='M4 4h16v11H9l-5 4z' fill='none' stroke='%238c2f5f' stroke-width='2' stroke-linejoin='round'/%3E%3Cpath d='M12 13s-3.5-2.1-3.5-4.2A1.9 1.9 0 0 1 12 8a1.9 1.9 0 0 1 3.5.8c0 2.1-3.5 4.2-3.5 4.2z' fill='%238c2f5f'/%3E%3C/svg%3E"); }
+.canal__texto { display: block; }
+.canal__rotulo { display: block; font-weight: 800; color: var(--rose-dark); text-decoration: underline; text-underline-offset: 3px; }
+.canal__descricao { display: block; font-size: .92rem; color: var(--ink); }
+
+.coleta a {
   display: inline-flex; align-items: center;
   min-height: 44px; min-width: 44px;
   font-weight: 800;
@@ -216,11 +253,6 @@ main { padding: .75rem 1rem 1.5rem; }
   text-decoration: underline;
   text-underline-offset: 3px;
 }
-.canal__descricao { display: block; }
-
-.brinde { margin: 0 0 1.25rem; padding: .85rem 1rem; border-radius: var(--radius-sm); background: var(--gold-soft); font-weight: 700; }
-.convite { margin-bottom: 1.5rem; }
-.convite span { display: block; }
 
 .coleta { margin: 0 0 1.5rem; padding-top: 1.25rem; border-top: 1px solid var(--line); }
 .caixa { display: flex; align-items: flex-start; min-height: 44px; padding: .55rem 0; cursor: pointer; }
@@ -274,7 +306,11 @@ const CONFIG = {
   turnstile_sitekey: "",
   turnstile_script: "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit",
   politica_url: "",
-  link_convite: "../",
+  link_conhecer: "../#contato",
+  // Vazio enquanto a assistente estiver em teste fechado; no BTX: "../assistente/".
+  link_assistente: "",
+  // Mostra o bloco do brinde do estande (BTX Salvador).
+  evento_btx: true,
   nome_max: 40,
   email_max: 254,
   tentativas_envio: 3,
@@ -306,14 +342,26 @@ const TEXTOS = {
   retorno_correta: "Resposta correta: {texto}",
   botao_proxima: "Próxima pergunta",
   botao_resultado: "Ver meu resultado",
-  final_titulo: "Seu resultado",
-  final_placar: "Você acertou {acertos} de {total} perguntas.",
-  final_placar_nome: "{nome}, você acertou {acertos} de {total} perguntas.",
-  encerramento: "Agradecemos a sua participação.",
-  canais_titulo: "Canais de ajuda",
-  brinde: "Passe no estande e retire seu brinde.",
-  convite: "Quer conhecer a EndoAfetos? Converse com a equipe no estande.",
-  convite_link: "Ir para a página inicial da EndoAfetos",
+  final_titulo: "Você chegou até aqui. Que bom!",
+  final_titulo_emoji: "💜",
+  final_placar: "Você acertou {acertos} de {total} perguntas!",
+  final_placar_nome: "{nome}, você acertou {acertos} de {total} perguntas!",
+  cuidado: "Seu interesse também é uma forma de cuidado.",
+  encerramento: "Obrigada por participar dessa conversa sobre endometriose. Informação, escuta e acolhimento fazem diferença nessa jornada.",
+  conheca_titulo: "Conheça a EndoAfetos!",
+  conheca_texto: "Um espaço de informação, acolhimento e conexão. Venha conhecer nossa proposta, conversar com nossa equipe e descobrir como podemos caminhar juntas.",
+  ofertas_intro: "Em breve, a MarIA Flor, nossa assistente virtual, pode acompanhar você de dois jeitos:",
+  ofertas: [
+    { titulo: "Apoio educativo no dia a dia", texto: "Para tirar dúvidas sobre endometriose quando você precisar, com informação revisada por profissionais de saúde." },
+    { titulo: "Diário e relatório para a consulta", texto: "Para registrar como você está no dia a dia e gerar um relatório que ajuda na consulta médica ou no atendimento profissional." }
+  ],
+  conheca_botao: "Conhecer a EndoAfetos",
+  assistente_link: "Conversar agora com a MarIA Flor",
+  evento_titulo: "Está na BTX Salvador?",
+  brinde_emoji: "🎁",
+  brinde_destaque: "Tem um presente esperando por você!",
+  brinde: "Passe no nosso estande, mostre seu resultado e retire seu brinde.",
+  canais_titulo: "Precisa de ajuda?",
   botao_de_novo: "Jogar de novo",
   coleta: {
     titulo: "Quer receber seu resultado por e-mail?",
@@ -338,14 +386,14 @@ const TEXTOS = {
   }
 };
 
-// Numeros: lista do PONTO-DE-RETOMADA. Nomes: como aparecem no Banco de Conhecimento v1.0.
-// null = a fonte nao traz; so preencher com a lista de canais assinada.
+// Numeros: lista do PONTO-DE-RETOMADA. Nomes e descricoes: pedidos pelo Carlos em 20/11/2026,
+// provisorios ate a lista de canais assinada pela equipe. icone: classe CSS canal__icone--<icone>.
 const CANAIS = [
-  { numero: "192", nome: "SAMU", descricao: null },
-  { numero: "190", nome: null, descricao: null },
-  { numero: "180", nome: "Ligue 180", descricao: null },
-  { numero: "100", nome: "Disque 100", descricao: null },
-  { numero: "188", nome: "CVV", descricao: null }
+  { numero: "192", nome: "SAMU", descricao: "Emergência médica", icone: "cruz" },
+  { numero: "190", nome: "Polícia", descricao: "Perigo imediato ou violência acontecendo agora", icone: "escudo" },
+  { numero: "180", nome: "Ligue 180", descricao: "Violência contra a mulher: orientação e denúncia", icone: "mulher" },
+  { numero: "100", nome: "Disque 100", descricao: "Direitos humanos: violência contra crianças, adolescentes, pessoas idosas e outros grupos", icone: "pessoas" },
+  { numero: "188", nome: "CVV", descricao: "Apoio emocional e prevenção do suicídio, 24 horas", icone: "conversa" }
 ];
 
 // Copia literal de Quiz_EndoAfetos_Conhecer_para_cuidar. base_ids vazio: a fonte nao liga pergunta a item ENDO.
@@ -777,10 +825,16 @@ function montarEnvio(dados) {
     const lista = no("ul");
     CANAIS.forEach(function (canal) {
       const item = no("li");
-      const ligacao = no("a", "canal", rotuloCanal(canal));
+      const ligacao = no("a", "canal");
       ligacao.href = "tel:" + canal.numero;
+      const icone = no("span", "canal__icone canal__icone--" + canal.icone);
+      icone.setAttribute("aria-hidden", "true");
+      const texto = no("span", "canal__texto");
+      texto.appendChild(no("span", "canal__rotulo", rotuloCanal(canal)));
+      if (canal.descricao) texto.appendChild(no("span", "canal__descricao", canal.descricao));
+      ligacao.appendChild(icone);
+      ligacao.appendChild(texto);
       item.appendChild(ligacao);
-      if (canal.descricao) item.appendChild(no("span", "canal__descricao", canal.descricao));
       lista.appendChild(item);
     });
     secao.appendChild(titulo);
@@ -788,32 +842,86 @@ function montarEnvio(dados) {
     return secao;
   }
 
-  function blocoConvite() {
-    const convite = no("p", "convite");
-    convite.appendChild(no("span", null, TEXTOS.convite));
-    if (CONFIG.link_convite) {
-      const ligacao = no("a", null, TEXTOS.convite_link);
-      ligacao.href = CONFIG.link_convite;
-      convite.appendChild(ligacao);
+  function comEmoji(elemento, emoji) {
+    if (!emoji) return elemento;
+    elemento.appendChild(document.createTextNode(" "));
+    const marca = no("span", null, emoji);
+    marca.setAttribute("aria-hidden", "true");
+    elemento.appendChild(marca);
+    return elemento;
+  }
+
+  function blocoConheca() {
+    const secao = no("section", "conheca");
+    secao.setAttribute("aria-labelledby", "titulo-conheca");
+    const titulo = no("h2", null, TEXTOS.conheca_titulo);
+    titulo.id = "titulo-conheca";
+    secao.appendChild(titulo);
+    secao.appendChild(no("p", null, TEXTOS.conheca_texto));
+    if (TEXTOS.ofertas && TEXTOS.ofertas.length) {
+      secao.appendChild(no("p", null, TEXTOS.ofertas_intro));
+      const lista = no("ul", "ofertas");
+      TEXTOS.ofertas.forEach(function (oferta) {
+        const item = no("li", "oferta");
+        item.appendChild(no("span", "oferta__titulo", oferta.titulo));
+        item.appendChild(no("span", "oferta__texto", oferta.texto));
+        lista.appendChild(item);
+      });
+      secao.appendChild(lista);
     }
-    return convite;
+    if (CONFIG.link_conhecer) {
+      const botao = no("a", "btn btn--conheca", TEXTOS.conheca_botao);
+      botao.href = CONFIG.link_conhecer;
+      const seta = no("span", null, " →");
+      seta.setAttribute("aria-hidden", "true");
+      botao.appendChild(seta);
+      secao.appendChild(botao);
+    }
+    if (CONFIG.link_assistente) {
+      const ligacao = no("a", "ligacao-simples", TEXTOS.assistente_link);
+      ligacao.href = CONFIG.link_assistente;
+      secao.appendChild(ligacao);
+    }
+    return secao;
+  }
+
+  function blocoPresente() {
+    const secao = no("section", "presente");
+    secao.setAttribute("aria-labelledby", "titulo-presente");
+    const titulo = no("h2", null, TEXTOS.evento_titulo);
+    titulo.id = "titulo-presente";
+    secao.appendChild(titulo);
+    secao.appendChild(comEmoji(no("p", "presente__destaque", TEXTOS.brinde_destaque), TEXTOS.brinde_emoji));
+    secao.appendChild(no("p", "brinde", TEXTOS.brinde));
+    return secao;
+  }
+
+  function separador() {
+    const linha = no("hr", "separador");
+    linha.setAttribute("aria-hidden", "true");
+    return linha;
   }
 
   function telaFinal() {
     const total = estado.partida.length;
     const acertos = contarAcertos(estado.respostas);
-    const titulo = tituloDaTela("titulo", TEXTOS.final_titulo);
+    const titulo = comEmoji(tituloDaTela("titulo", TEXTOS.final_titulo), TEXTOS.final_titulo_emoji);
     const placar = no("p", "placar", estado.nome
       ? preencher(TEXTOS.final_placar_nome, { nome: estado.nome, acertos: acertos, total: total })
       : preencher(TEXTOS.final_placar, { acertos: acertos, total: total }));
     const blocos = [
       titulo,
       placar,
+      no("p", "cuidado", TEXTOS.cuidado),
       no("p", "encerramento", TEXTOS.encerramento),
-      blocoCanais(),
-      no("p", "brinde", TEXTOS.brinde),
-      blocoConvite()
+      blocoConheca()
     ];
+    if (CONFIG.evento_btx) {
+      blocos.push(separador());
+      blocos.push(blocoPresente());
+    }
+    blocos.push(separador());
+    blocos.push(blocoCanais());
     // Com a coleta desligada, o formulario nem chega a existir.
     const coleta = coletaDisponivel() ? blocoColeta(acertos) : null;
     if (coleta) blocos.push(coleta.secao);
