@@ -300,6 +300,8 @@ main { padding: 1rem 1rem 1.5rem; }
 }
 /* As dicas do formulário de contato usam a cor principal: o cinza delas não chega ao AA sobre o lilás dos blocos */
 .cartao-convite .dica { color: var(--ink); }
+.usos-convite { font-weight: 700; color: var(--ink); }
+.usos-convite:empty { margin: 0; }
 .conversao__titulo {
   margin: 0 0 .6rem;
   font-family: var(--serif);
@@ -509,6 +511,11 @@ const TEXTOS = {
   rascunho_apagado: "Pergunta apagada.",
   pergunta_no_campo: "Sua pergunta voltou ao campo. Para mandar de novo, toque em Enviar.",
   sem_codigo: "Para escrever perguntas nesta fase de teste, é preciso um código de convite.",
+  // Convite com limite de usos: cada entrada com o código conta um uso.
+  usos_convite: "Código de teste: uso {n} de {max}. Ainda restam {r} usos.",
+  usos_convite_um: "Código de teste: uso {n} de {max}. Ainda resta 1 uso.",
+  usos_convite_ultimo: "Código de teste: uso {n} de {max}. Este é o último uso do código.",
+  convite_esgotado_dica: "Obrigada por testar! Para continuar, fale com quem enviou o convite.",
   informar_codigo: "Informar código de convite",
   reabrir_dica: "O campo para escrever não abriu. Você pode tentar abrir de novo.",
   reabrir_botao: "Tentar abrir o campo de novo",
@@ -767,7 +774,8 @@ function lerSessao(dados, agoraMs, validadeMaxMs) {
     tipo: dados.tipo,
     limite: numero(dados.limite),
     restantes: numero(dados.restantes),
-    vence_em: vencimentoDaSessao(dados.expira_em, agoraMs, validadeMaxMs)
+    vence_em: vencimentoDaSessao(dados.expira_em, agoraMs, validadeMaxMs),
+    usos: dados.tipo === "teste" ? lerUsosDoConvite(dados.convite_usos) : null
   };
 }
 
@@ -1110,6 +1118,35 @@ function semFalaRepetida(turnos, mensagem) {
 
 function avisoDeLimite(textos, n) {
   return n === 1 ? textos.aviso_limite_um : preencher(textos.aviso_limite, { n: n });
+}
+
+// Contagem de usos de um convite com limite ({usados, limite, restantes}, de /api/sessao). Sem limite, ou com
+// numeros que nao fecham, nao ha contagem: a pagina nao mostra numero errado.
+function lerUsosDoConvite(dados) {
+  if (!dados || typeof dados !== "object") return null;
+  const inteiro = function (valor) {
+    return typeof valor === "number" && isFinite(valor) && Math.floor(valor) === valor ? valor : null;
+  };
+  const usados = inteiro(dados.usados);
+  const limite = inteiro(dados.limite);
+  if (usados === null || limite === null || limite < 1 || usados < 1 || usados > limite) return null;
+  return { usados: usados, limite: limite, restantes: limite - usados };
+}
+
+function textoDosUsos(textos, usos) {
+  if (!usos) return "";
+  const valores = { n: usos.usados, max: usos.limite, r: usos.restantes };
+  if (usos.restantes === 0) return preencher(textos.usos_convite_ultimo, valores);
+  return preencher(usos.restantes === 1 ? textos.usos_convite_um : textos.usos_convite, valores);
+}
+
+// Sessao recusada: a frase do Worker e, com o convite esgotado, o que a pessoa pode fazer.
+function mensagemDaRecusa(textos, resposta, padrao) {
+  const mensagem = resposta && resposta.mensagem ? resposta.mensagem : null;
+  if (resposta && resposta.erro === "convite_esgotado") {
+    return (mensagem ? mensagem + " " : "") + textos.convite_esgotado_dica;
+  }
+  return mensagem || padrao;
 }
 
 function textoFalado(texto) {
@@ -1879,7 +1916,7 @@ function montarFeedback(dados) {
           // Codigo recusado ou falha: a pessoa corrige o codigo, tenta de novo ou entra sem codigo.
           // Esta tela nao tem botoes de tema, entao a mensagem fixa de falha nao serve aqui.
           travar(false);
-          status.textContent = resposta.mensagem || TEXTOS.falha_abrir;
+          status.textContent = mensagemDaRecusa(TEXTOS, resposta, TEXTOS.falha_abrir);
         } else {
           // Fora do teste fechado, os botoes de tema nao dependem da sessao.
           telaConversa(resposta.mensagem || TEXTOS.falha);
@@ -1914,6 +1951,18 @@ function montarFeedback(dados) {
     const titulo = tituloDaTela(TEXTOS.conversa_titulo);
     const intro = no("p", "intro", comEscrita ? TEXTOS.conversa_intro : TEXTOS.conversa_intro_guiado);
     const blocos = [titulo, intro];
+    // Convite com limite: quantos usos do codigo ja foram e quantos restam. Sem limite, a linha fica vazia.
+    // E regiao viva sempre presente (nunca hidden): regiao que nasce oculta nao anuncia o primeiro texto, e a
+    // sessao pode abrir depois, pelo codigo informado dentro da conversa, com o foco longe do alto da tela.
+    const linhaDosUsos = no("p", "dica usos-convite");
+    linhaDosUsos.id = "usos-convite";
+    linhaDosUsos.setAttribute("role", "status");
+    linhaDosUsos.setAttribute("aria-live", "polite");
+    function mostrarUsos() {
+      linhaDosUsos.textContent = textoDosUsos(TEXTOS, sessao ? sessao.usos : null);
+    }
+    mostrarUsos();
+    blocos.push(linhaDosUsos);
     // Um aviso de gravacao so, por tela. Enquanto a acolhida ainda pode vir de /api/guiado, ele espera:
     // com acolhida, vale o aviso dela; sem acolhida, este, no lugar de sempre ("topo" ou "conversa").
     const lugarDoAviso = no("div", "lugar-aviso");
@@ -2799,6 +2848,7 @@ function montarFeedback(dados) {
     function sessaoAbriuAqui(nova) {
       estado.sessao = nova;
       sessao = nova;
+      mostrarUsos();
       esvaziar(lugarDaEscrita);
       const comTexto = estado.saude.texto_livre === true;
       const esperaAcolhida = comTexto && !estado.acolhida.feita;
@@ -2874,7 +2924,7 @@ function montarFeedback(dados) {
           if (!nova) {
             // Codigo recusado ou falha: a pessoa corrige e tenta de novo, sem sair da conversa.
             travar(false);
-            status.textContent = resposta.mensagem || TEXTOS.falha_abrir;
+            status.textContent = mensagemDaRecusa(TEXTOS, resposta, TEXTOS.falha_abrir);
             return;
           }
           desafio.remover();
