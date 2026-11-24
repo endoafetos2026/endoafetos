@@ -106,7 +106,11 @@
   }
 
   function mostrarRestantes(restantes) {
-    if (typeof restantes === "number") document.getElementById("restantes").textContent = "Perguntas escritas que restam hoje: " + restantes;
+    if (typeof restantes !== "number") return;
+    // Plano gratuito: 3 perguntas por semana, que renovam na sexta-feira.
+    document.getElementById("restantes").textContent = C.planoGuardado() === "gratuito"
+      ? "Perguntas escritas que restam nesta semana: " + restantes + ". Elas renovam na sexta-feira."
+      : "Perguntas escritas que restam hoje: " + restantes;
   }
 
   formulario.addEventListener("submit", function (evento) {

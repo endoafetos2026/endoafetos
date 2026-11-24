@@ -31,7 +31,7 @@
 
   <form id="recuperar" class="cartao" novalidate hidden>
     <h2>Criar uma senha nova</h2>
-    <p>Mandamos para o seu e-mail um link para criar uma senha nova, se houver uma assinatura com ele.</p>
+    <p>Mandamos para o seu e-mail um link para criar uma senha nova, se houver uma conta com ele.</p>
     <div class="campo"><label for="re-email">E-mail</label><input id="re-email" type="email" autocomplete="email" maxlength="254"></div>
     <div id="re-desafio"></div>
     <p id="re-status" class="status" role="status" aria-live="polite"></p>
@@ -44,13 +44,18 @@
       <h2 id="nome-do-plano"></h2>
       <dl class="dados">
         <dt>Válida até</dt><dd id="valida-ate"></dd>
-        <dt>Perguntas escritas hoje</dt><dd id="uso-hoje"></dd>
-        <dt>Protocolo</dt><dd id="protocolo"></dd>
+        <dt id="rotulo-uso">Perguntas escritas hoje</dt><dd id="uso-hoje"></dd>
+        <dt id="rotulo-protocolo">Protocolo</dt><dd id="protocolo"></dd>
         <dt id="rotulo-pagamento" hidden>Último pagamento</dt><dd id="pagamento" hidden></dd>
       </dl>
       <a class="btn" href="./conversa/">Conversar com a assistente</a>
     </div>
-    <div class="cartao">
+    <div class="cartao" id="bloco-planos" hidden>
+      <h2>Quer conversar mais?</h2>
+      <p>No plano gratuito são 3 perguntas escritas por semana. Os planos Essencial e Completo têm perguntas todos os dias, e o Completo tem os relatórios para a consulta.</p>
+      <a class="btn btn--contorno" href="../planos/">Conhecer os planos</a>
+    </div>
+    <div class="cartao" id="bloco-bitacora">
       <h2>Bitácora <span class="em-breve">em breve</span></h2>
       <p>Um diário guiado para registrar como você está no dia a dia. Ele chega depois da revisão da equipe de saúde e do jurídico.</p>
       <h2 id="titulo-relatorio">Relatório para a consulta <span class="em-breve">em breve</span></h2>
@@ -81,10 +86,30 @@
   }
 
   function preencherPainel(conta) {
-    document.getElementById("nome-do-plano").textContent = "Plano " + conta.nome_do_plano + (conta.institucional ? " (pela sua instituição)" : "");
-    document.getElementById("valida-ate").textContent = C.data(conta.valida_ate) + " (faltam " + conta.dias_restantes + " dias)";
-    document.getElementById("uso-hoje").textContent = conta.usadas_hoje + " de " + conta.limite_diario + ". Volta a zero à meia-noite.";
+    // 24/11: a conta de admin tem todos os recursos de assinatura; a conta sem assinatura ativa fica no gratuito, com
+    // 3 perguntas por semana que renovam na sexta-feira.
+    var gratuito = conta.tipo === "gratuito";
+    var admin = conta.tipo === "admin";
+    var uso = conta.uso || { janela: "dia", limite: conta.limite_diario, usadas: conta.usadas_hoje, renova_em: null };
+    var nome = gratuito ? "Plano gratuito"
+      : admin ? "Conta de administração (todos os recursos de assinatura)"
+        : "Plano " + conta.nome_do_plano + (conta.institucional ? " (pela sua instituição)" : "");
+    document.getElementById("nome-do-plano").textContent = nome;
+    document.getElementById("valida-ate").textContent = conta.valida_ate
+      ? C.data(conta.valida_ate) + " (faltam " + conta.dias_restantes + " dias)"
+      : "Sem prazo";
+    if (uso.janela === "semana") {
+      document.getElementById("rotulo-uso").textContent = "Perguntas escritas nesta semana";
+      document.getElementById("uso-hoje").textContent = uso.usadas + " de " + uso.limite + ". Renovam na sexta-feira" + (uso.renova_em ? ", " + C.data(uso.renova_em) : "") + ".";
+    } else {
+      document.getElementById("uso-hoje").textContent = uso.usadas + " de " + uso.limite + ". Volta a zero à meia-noite.";
+    }
     document.getElementById("protocolo").textContent = conta.protocolo || "";
+    document.getElementById("rotulo-protocolo").hidden = !conta.protocolo;
+    document.getElementById("protocolo").hidden = !conta.protocolo;
+    document.getElementById("bloco-planos").hidden = !gratuito;
+    document.getElementById("bloco-bitacora").hidden = gratuito;
+    document.getElementById("bloco-pagamento").hidden = gratuito || admin;
     if (conta.relatorios_por_mes === 0) {
       document.getElementById("titulo-relatorio").hidden = true;
       document.getElementById("texto-relatorio").hidden = true;

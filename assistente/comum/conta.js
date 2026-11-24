@@ -10,6 +10,8 @@
     api: "https://endoafetos-api-ensaio.endoafetos.workers.dev",
     turnstile_sitekey: "0x4AAAAAAGI2ABZoxe7E4K2n",
     espera_ms: 15000,
+    // Prazo para o Turnstile entregar a ficha; sem ela, a página avisa e o botão volta, nunca fica parada.
+    espera_turnstile_ms: 30000,
     // Planos e preços para mostrar (os que valem são os do servidor, src/planos.mjs). O anual vale 10 mensalidades.
     planos: {
       essencial: { nome: "Essencial", mensal: 1490, anual: 14900, limite_diario: 10, relatorios: 0 },
@@ -120,16 +122,37 @@
     });
     return promessaDoTurnstile;
   }
+  // Uma ficha nova a cada envio (ela só vale uma vez). Correção de 24/11 (conferência do Carlos): apagar a caixa à mão
+  // deixava o widget anterior vivo dentro do Turnstile ("Cannot find Widget", erro 600010) e a ficha nova nunca
+  // chegava, com a página parada. Agora o widget anterior sai pelo próprio turnstile.remove, e a espera tem prazo.
+  var widgetsPorCaixa = typeof WeakMap === "function" ? new WeakMap() : null;
   function fichaDoTurnstile(caixa) {
     return carregarTurnstile().then(function (turnstile) {
       return new Promise(function (resolver, recusar) {
-        while (caixa.firstChild) caixa.removeChild(caixa.firstChild);
-        turnstile.render(caixa, {
-          sitekey: CONFIG.turnstile_sitekey,
-          callback: resolver,
-          "error-callback": function () { recusar(new Error("turnstile")); },
-          "expired-callback": function () { recusar(new Error("turnstile")); }
-        });
+        var terminou = false;
+        var relogio = setTimeout(function () { acabar(recusar, new Error("turnstile_tempo")); }, CONFIG.espera_turnstile_ms);
+        function acabar(funcao, valor) {
+          if (terminou) return;
+          terminou = true;
+          clearTimeout(relogio);
+          funcao(valor);
+        }
+        var anterior = widgetsPorCaixa ? widgetsPorCaixa.get(caixa) : null;
+        if (anterior !== null && anterior !== undefined) {
+          try { turnstile.remove(anterior); } catch (e) { /* já tinha saído */ }
+        }
+        try {
+          var id = turnstile.render(caixa, {
+            sitekey: CONFIG.turnstile_sitekey,
+            callback: function (ficha) { acabar(resolver, ficha); },
+            "error-callback": function () { acabar(recusar, new Error("turnstile")); return true; },
+            "expired-callback": function () { acabar(recusar, new Error("turnstile")); },
+            "timeout-callback": function () { acabar(recusar, new Error("turnstile_tempo")); }
+          });
+          if (widgetsPorCaixa && id !== undefined && id !== null) widgetsPorCaixa.set(caixa, id);
+        } catch (e) {
+          acabar(recusar, new Error("turnstile"));
+        }
       });
     });
   }
@@ -137,7 +160,16 @@
   // Token da assinante: só nesta aba (sessionStorage), nunca no armazenamento que fica depois de fechar.
   var CHAVE_DO_TOKEN = "endoafetos.assinante";
   function guardarToken(dados) {
-    try { raiz.sessionStorage.setItem(CHAVE_DO_TOKEN, JSON.stringify({ token: dados.token, expira_em: dados.expira_em })); } catch (e) { /* sem armazenamento */ }
+    try { raiz.sessionStorage.setItem(CHAVE_DO_TOKEN, JSON.stringify({ token: dados.token, expira_em: dados.expira_em, plano: dados.plano })); } catch (e) { /* sem armazenamento */ }
+  }
+  // Plano da última entrada ("gratuito", "admin", "essencial" ou "completo"), só para o texto do contador da conversa.
+  function planoGuardado() {
+    try {
+      var lido = JSON.parse(raiz.sessionStorage.getItem(CHAVE_DO_TOKEN) || "null");
+      return lido && typeof lido.plano === "string" ? lido.plano : "";
+    } catch (e) {
+      return "";
+    }
   }
   function tokenGuardado() {
     try {
@@ -161,6 +193,6 @@
   raiz.EndoConta = {
     CONFIG: CONFIG, ERROS: ERROS, frase: frase, apiLigada: apiLigada, pedir: pedir, saude: saude, dinheiro: dinheiro, data: data,
     no: no, anunciar: anunciar, fichaDoTurnstile: fichaDoTurnstile, guardarToken: guardarToken, tokenGuardado: tokenGuardado,
-    esquecerToken: esquecerToken, parametro: parametro
+    planoGuardado: planoGuardado, esquecerToken: esquecerToken, parametro: parametro
   };
 })(typeof window !== "undefined" ? window : globalThis);
