@@ -7,7 +7,7 @@
   "use strict";
 
   var CONFIG = {
-    api: "https://endoafetos-api-ensaio.endoafetos.workers.dev",
+    api: "https://endoafetos-api.endoafetos.workers.dev",
     turnstile_sitekey: "0x4AAAAAAGI2ABZoxe7E4K2n",
     espera_ms: 15000,
     // Prazo para o Turnstile entregar a ficha; sem ela, a página avisa e o botão volta, nunca fica parada.
