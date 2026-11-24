@@ -1,0 +1,85 @@
+/* Estilo comum das páginas de planos, inscrição, pagamento e conta (24/11/2026). Mesma paleta da conversa, sem fontes de fora.
+   Espaço por margem, não por gap em flex: o Safari do iOS anterior ao 14.5 ignora o gap. */
+:root {
+  --cream: #f8f4f2;
+  --cream-2: #efe8ec;
+  --surface: #ffffff;
+  --rose: #b3427a;
+  --rose-dark: #8c2f5f;
+  --rose-mist: #f9eef3;
+  --gold-soft: #e7e0f6;
+  --lavender: #8a62a3;
+  --lavender-soft: #e4dbef;
+  --ink: #494f83;
+  --ink-soft: #6c6b88;
+  --line: #e6dde3;
+  --ok: #2f6b4f;
+  --ok-soft: #e6f2ec;
+  --serif: 'Fraunces', Georgia, 'Times New Roman', serif;
+  --sans: 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --radius: 20px;
+  --radius-sm: 12px;
+  --shadow: 0 18px 45px -22px rgba(73, 79, 131, 0.40);
+}
+*, *::before, *::after { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; min-height: 100vh; font-family: var(--sans); font-size: 1.0625rem; line-height: 1.6; color: var(--ink);
+  overflow-wrap: break-word; -webkit-font-smoothing: antialiased;
+  background: radial-gradient(1200px 600px at 50% -10%, var(--gold-soft) 0%, transparent 55%), linear-gradient(180deg, var(--cream) 0%, var(--cream-2) 100%);
+}
+p { margin: 0 0 1em; }
+:focus { outline: 3px solid var(--rose-dark); outline-offset: 3px; }
+:focus:not(:focus-visible) { outline: none; }
+main:focus, [tabindex="-1"]:focus { outline: none; }
+a { color: var(--rose-dark); }
+.pular { position: absolute; left: 1rem; top: -5rem; z-index: 10; display: inline-flex; align-items: center; min-height: 44px; padding: .6rem 1rem; background: var(--surface); color: var(--rose-dark); font-weight: 700; border: 2px solid var(--rose-dark); border-radius: var(--radius-sm); }
+.pular:focus { top: 1rem; }
+.topo { background: var(--cream); border-bottom: 1px solid var(--line); }
+.topo__dentro { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; max-width: 760px; margin: 0 auto; padding: .65rem 1rem; }
+.topo__marca { margin: 0; font-family: var(--serif); font-size: 1.3rem; font-weight: 600; color: var(--ink); text-decoration: none; }
+.topo__ligacoes a { display: inline-flex; align-items: center; min-height: 44px; margin-left: 1rem; font-weight: 700; }
+main { max-width: 760px; margin: 0 auto; padding: 1.5rem 1rem 3rem; }
+h1, h2, h3 { font-family: var(--serif); color: var(--ink); line-height: 1.25; }
+h1 { font-size: 1.85rem; margin: .5rem 0 1rem; }
+h2 { font-size: 1.35rem; margin: 1.5rem 0 .75rem; }
+h3 { font-size: 1.15rem; margin: 0 0 .5rem; }
+.intro { font-size: 1.1rem; }
+.cartao { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); padding: 1.25rem 1.25rem 1rem; margin: 0 0 1.25rem; }
+.cartao--destaque { border: 2px solid var(--rose); }
+.preco { font-family: var(--serif); font-size: 1.6rem; font-weight: 600; margin: .25rem 0 .25rem; color: var(--rose-dark); }
+.preco__ano { display: block; font-size: .95rem; color: var(--ink-soft); }
+.itens { margin: .5rem 0 1rem; padding-left: 1.25rem; }
+.itens li { margin-bottom: .35rem; }
+.em-breve { display: inline-block; margin-left: .35rem; padding: 0 .5rem; border-radius: 999px; background: var(--lavender-soft); color: var(--ink); font-size: .8rem; font-weight: 700; }
+.btn { display: inline-flex; align-items: center; justify-content: center; min-height: 48px; padding: .7rem 1.25rem; margin: .25rem .5rem .25rem 0; border: 2px solid var(--rose-dark); border-radius: 999px; background: var(--rose-dark); color: #fff; font: inherit; font-weight: 700; text-decoration: none; cursor: pointer; }
+.btn--contorno { background: transparent; color: var(--rose-dark); }
+.btn[disabled], .btn[aria-disabled="true"] { opacity: .55; cursor: not-allowed; }
+.aviso { padding: .85rem 1rem; border-radius: var(--radius-sm); background: var(--rose-mist); border-left: 4px solid var(--rose); margin: 0 0 1rem; }
+.aviso--ok { background: var(--ok-soft); border-left-color: var(--ok); }
+.aviso--breve { background: var(--lavender-soft); border-left-color: var(--lavender); }
+.dica { font-size: .92rem; color: var(--ink-soft); margin: .25rem 0 .75rem; }
+.campo { margin: 0 0 1rem; }
+.campo label, .legenda { display: block; font-weight: 700; margin-bottom: .3rem; }
+.campo input, .campo select, .campo textarea { width: 100%; min-height: 48px; padding: .6rem .75rem; border: 2px solid var(--line); border-radius: var(--radius-sm); font: inherit; color: var(--ink); background: var(--surface); }
+.campo input:focus, .campo select:focus, .campo textarea:focus { border-color: var(--rose-dark); }
+.campo--erro input, .campo--erro select { border-color: #a1263b; }
+.erro-campo { color: #a1263b; font-size: .92rem; margin: .25rem 0 0; }
+.caixa { display: flex; align-items: flex-start; min-height: 44px; margin: 0 0 .75rem; cursor: pointer; }
+.caixa input { width: 22px; height: 22px; margin: .2rem .65rem 0 0; flex: 0 0 auto; }
+fieldset { border: 0; padding: 0; margin: 0 0 1rem; }
+.opcoes label { display: flex; align-items: center; min-height: 48px; padding: .4rem .75rem; margin: 0 0 .5rem; border: 2px solid var(--line); border-radius: var(--radius-sm); background: var(--surface); cursor: pointer; }
+.opcoes input { margin: 0 .65rem 0 0; width: 20px; height: 20px; }
+.status { min-height: 1.5em; font-weight: 700; }
+.dados { margin: 0 0 1rem; }
+.dados dt { font-weight: 700; }
+.dados dd { margin: 0 0 .6rem; }
+.canais { margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--line); font-size: .95rem; }
+.canais ul { padding-left: 1.25rem; }
+.canais a { display: inline-flex; min-height: 44px; align-items: center; }
+.rodape { text-align: center; font-size: .9rem; color: var(--ink-soft); padding: 1rem; }
+@media (min-width: 720px) {
+  .grade { display: flex; flex-wrap: wrap; margin: 0 -.5rem; }
+  .grade > .cartao { flex: 1 1 30%; margin: 0 .5rem 1.25rem; }
+}

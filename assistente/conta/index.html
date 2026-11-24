@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Minha conta | Assistente EndoAfetos</title>
+<link rel="stylesheet" href="../comum/estilo.css">
+</head>
+<body>
+<a class="pular" href="#conteudo">Pular para o conteúdo</a>
+<header class="topo">
+  <div class="topo__dentro">
+    <a class="topo__marca" href="../../">EndoAfetos</a>
+    <nav class="topo__ligacoes" aria-label="Conta"><a href="../planos/">Planos</a></nav>
+  </div>
+</header>
+<main id="conteudo" tabindex="-1">
+  <h1 id="titulo" tabindex="-1">Minha conta</h1>
+  <p id="em-breve" class="aviso aviso--breve" hidden>As contas abrem em breve, junto com as assinaturas.</p>
+
+  <form id="entrar" class="cartao" novalidate hidden>
+    <h2>Entrar</h2>
+    <div class="campo"><label for="en-email">E-mail</label><input id="en-email" type="email" autocomplete="username" maxlength="254"></div>
+    <div class="campo"><label for="en-senha">Senha</label><input id="en-senha" type="password" autocomplete="current-password" maxlength="200"></div>
+    <div id="en-desafio"></div>
+    <p id="en-status" class="status" role="status" aria-live="polite"></p>
+    <button class="btn" type="submit">Entrar</button>
+    <button id="ir-recuperar" class="btn btn--contorno" type="button">Esqueci minha senha</button>
+  </form>
+
+  <form id="recuperar" class="cartao" novalidate hidden>
+    <h2>Criar uma senha nova</h2>
+    <p>Mandamos para o seu e-mail um link para criar uma senha nova, se houver uma assinatura com ele.</p>
+    <div class="campo"><label for="re-email">E-mail</label><input id="re-email" type="email" autocomplete="email" maxlength="254"></div>
+    <div id="re-desafio"></div>
+    <p id="re-status" class="status" role="status" aria-live="polite"></p>
+    <button class="btn" type="submit">Enviar o link</button>
+    <button id="voltar-entrar" class="btn btn--contorno" type="button">Voltar</button>
+  </form>
+
+  <section id="painel" hidden aria-labelledby="titulo">
+    <div class="cartao">
+      <h2 id="nome-do-plano"></h2>
+      <dl class="dados">
+        <dt>Válida até</dt><dd id="valida-ate"></dd>
+        <dt>Perguntas escritas hoje</dt><dd id="uso-hoje"></dd>
+        <dt>Protocolo</dt><dd id="protocolo"></dd>
+        <dt id="rotulo-pagamento" hidden>Último pagamento</dt><dd id="pagamento" hidden></dd>
+      </dl>
+      <a class="btn" href="./conversa/">Conversar com a assistente</a>
+    </div>
+    <div class="cartao">
+      <h2>Bitácora <span class="em-breve">em breve</span></h2>
+      <p>Um diário guiado para registrar como você está no dia a dia. Ele chega depois da revisão da equipe de saúde e do jurídico.</p>
+      <h2 id="titulo-relatorio">Relatório para a consulta <span class="em-breve">em breve</span></h2>
+      <p id="texto-relatorio">No plano Completo, até 2 relatórios por mês, montados com o que você registrar na bitácora.</p>
+    </div>
+    <div class="cartao" id="bloco-pagamento">
+      <h2>Pagamento e reembolso</h2>
+      <p id="arrependimento"></p>
+      <a id="ir-pagamento" class="btn btn--contorno" href="../pagamento/">Renovar ou pedir reembolso</a>
+    </div>
+    <button id="sair" class="btn btn--contorno" type="button">Sair</button>
+  </section>
+</main>
+<p class="rodape">EndoAfetos, Salvador, Bahia</p>
+<script src="../comum/conta.js"></script>
+<script>
+(function () {
+  "use strict";
+  var C = window.EndoConta;
+  var formEntrar = document.getElementById("entrar");
+  var formRecuperar = document.getElementById("recuperar");
+  var painel = document.getElementById("painel");
+  var titulo = document.getElementById("titulo");
+
+  function mostrar(alvo) {
+    [formEntrar, formRecuperar, painel].forEach(function (bloco) { bloco.hidden = bloco !== alvo; });
+    titulo.focus();
+  }
+
+  function preencherPainel(conta) {
+    document.getElementById("nome-do-plano").textContent = "Plano " + conta.nome_do_plano + (conta.institucional ? " (pela sua instituição)" : "");
+    document.getElementById("valida-ate").textContent = C.data(conta.valida_ate) + " (faltam " + conta.dias_restantes + " dias)";
+    document.getElementById("uso-hoje").textContent = conta.usadas_hoje + " de " + conta.limite_diario + ". Volta a zero à meia-noite.";
+    document.getElementById("protocolo").textContent = conta.protocolo || "";
+    if (conta.relatorios_por_mes === 0) {
+      document.getElementById("titulo-relatorio").hidden = true;
+      document.getElementById("texto-relatorio").hidden = true;
+    }
+    var pagamento = conta.pagamento;
+    if (pagamento && typeof pagamento.valor_centavos === "number") {
+      document.getElementById("rotulo-pagamento").hidden = false;
+      var dd = document.getElementById("pagamento");
+      dd.textContent = C.dinheiro(pagamento.valor_centavos) + " em " + C.data(pagamento.pago_em);
+      dd.hidden = false;
+      document.getElementById("arrependimento").textContent = pagamento.arrependimento_ate
+        ? "Arrependimento: até " + C.data(pagamento.arrependimento_ate) + ", sem ter conversado depois do pagamento, o valor volta na hora."
+        : "";
+    }
+    if (conta.institucional) document.getElementById("bloco-pagamento").hidden = true;
+    document.getElementById("ir-pagamento").href = "../pagamento/?protocolo=" + encodeURIComponent(conta.protocolo || "");
+    mostrar(painel);
+  }
+
+  function abrirConta(token) {
+    return C.pedir("GET", "/api/conta", undefined, token).then(function (resposta) {
+      if (resposta.ok) return preencherPainel(resposta.json);
+      C.esquecerToken();
+      mostrar(formEntrar);
+      if (resposta.json.erro && resposta.json.erro !== "token_invalido") C.anunciar(document.getElementById("en-status"), C.frase(resposta.json.erro), "");
+    });
+  }
+
+  C.saude().then(function (saude) {
+    if (!saude || saude.inscricao !== true) {
+      document.getElementById("em-breve").hidden = false;
+      return;
+    }
+    var token = C.tokenGuardado();
+    if (token) abrirConta(token); else mostrar(formEntrar);
+  });
+
+  formEntrar.addEventListener("submit", function (evento) {
+    evento.preventDefault();
+    var status = document.getElementById("en-status");
+    var botao = formEntrar.querySelector('button[type="submit"]');
+    var email = document.getElementById("en-email").value.trim();
+    var senha = document.getElementById("en-senha").value;
+    if (email === "" || senha === "") return C.anunciar(status, "Preencha o e-mail e a senha.", "");
+    botao.disabled = true;
+    C.anunciar(status, "Entrando.", "");
+    C.fichaDoTurnstile(document.getElementById("en-desafio")).then(function (ficha) {
+      return C.pedir("POST", "/api/entrar", { email: email, senha: senha, turnstile: ficha });
+    }, function () { return { ok: false, json: { erro: "turnstile_invalido" } }; }).then(function (resposta) {
+      botao.disabled = false;
+      document.getElementById("en-senha").value = "";
+      if (!resposta.ok) return C.anunciar(status, C.frase(resposta.json.erro), "");
+      C.guardarToken(resposta.json);
+      C.anunciar(status, "", "");
+      abrirConta(resposta.json.token);
+    });
+  });
+
+  document.getElementById("ir-recuperar").addEventListener("click", function () { mostrar(formRecuperar); });
+  document.getElementById("voltar-entrar").addEventListener("click", function () { mostrar(formEntrar); });
+  formRecuperar.addEventListener("submit", function (evento) {
+    evento.preventDefault();
+    var status = document.getElementById("re-status");
+    var botao = formRecuperar.querySelector('button[type="submit"]');
+    botao.disabled = true;
+    C.anunciar(status, "Enviando.", "");
+    C.fichaDoTurnstile(document.getElementById("re-desafio")).then(function (ficha) {
+      return C.pedir("POST", "/api/entrar/recuperar", { email: document.getElementById("re-email").value.trim(), turnstile: ficha });
+    }, function () { return { ok: false, json: { erro: "turnstile_invalido" } }; }).then(function (resposta) {
+      botao.disabled = false;
+      // A resposta é sempre a mesma, exista a conta ou não.
+      if (resposta.ok) return C.anunciar(status, "Se houver uma assinatura com este e-mail, o link chega em alguns minutos. Confira também a caixa de spam.", "ok");
+      C.anunciar(status, C.frase(resposta.json.erro), "");
+    });
+  });
+
+  document.getElementById("sair").addEventListener("click", function () {
+    C.esquecerToken();
+    mostrar(formEntrar);
+  });
+})();
+</script>
+</body>
+</html>

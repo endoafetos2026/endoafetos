@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Pagamento e reembolso | Assistente EndoAfetos</title>
+<link rel="stylesheet" href="../comum/estilo.css">
+</head>
+<body>
+<a class="pular" href="#conteudo">Pular para o conteúdo</a>
+<header class="topo">
+  <div class="topo__dentro">
+    <a class="topo__marca" href="../../">EndoAfetos</a>
+    <nav class="topo__ligacoes" aria-label="Conta"><a href="../planos/">Planos</a><a href="../conta/">Minha conta</a></nav>
+  </div>
+</header>
+<main id="conteudo" tabindex="-1">
+  <h1>Pagamento</h1>
+  <p id="volta" role="status" aria-live="polite" hidden></p>
+  <p id="em-breve" class="aviso aviso--breve" hidden>O pagamento on-line abre em breve. Sua inscrição fica guardada, e avisaremos por e-mail quando abrir.</p>
+
+  <form id="pagar" class="cartao" novalidate>
+    <p>Informe o protocolo da inscrição e o mesmo e-mail que você usou nela. O pagamento é feito na página do Mercado Pago, com Pix ou cartão.</p>
+    <div class="campo"><label for="pg-protocolo">Protocolo</label><input id="pg-protocolo" autocomplete="off" maxlength="12" placeholder="ABCD-EFGH"></div>
+    <div class="campo"><label for="pg-email">E-mail da inscrição</label><input id="pg-email" type="email" autocomplete="email" maxlength="254"></div>
+    <fieldset class="opcoes">
+      <legend class="legenda">Período</legend>
+      <label><input type="radio" name="periodo" value="mensal" checked> <span>Mensal (30 dias)</span></label>
+      <label><input type="radio" name="periodo" value="anual"> <span>Anual (365 dias, vale 10 mensalidades)</span></label>
+    </fieldset>
+    <h2>Dados para a nota fiscal</h2>
+    <p class="dica">Usados só para emitir a nota fiscal, que a lei exige. O CPF é guardado cifrado e só aparece mascarado.</p>
+    <div class="campo"><label for="pg-nome">Nome civil completo</label><input id="pg-nome" autocomplete="name" maxlength="150"></div>
+    <div class="campo"><label for="pg-cpf">CPF</label><input id="pg-cpf" inputmode="numeric" autocomplete="off" maxlength="14"></div>
+    <div class="campo"><label for="pg-cep">CEP</label><input id="pg-cep" inputmode="numeric" autocomplete="postal-code" maxlength="9"></div>
+    <div class="campo"><label for="pg-logradouro">Rua ou avenida</label><input id="pg-logradouro" autocomplete="address-line1" maxlength="120"></div>
+    <div class="campo"><label for="pg-numero">Número</label><input id="pg-numero" maxlength="20"></div>
+    <div class="campo"><label for="pg-complemento">Complemento (opcional)</label><input id="pg-complemento" autocomplete="address-line2" maxlength="60"></div>
+    <div class="campo"><label for="pg-bairro">Bairro</label><input id="pg-bairro" maxlength="80"></div>
+    <div class="campo"><label for="pg-cidade">Cidade</label><input id="pg-cidade" autocomplete="address-level2" maxlength="80"></div>
+    <div class="campo"><label for="pg-uf">Estado (UF)</label><input id="pg-uf" autocomplete="address-level1" maxlength="2"></div>
+    <div id="pg-desafio"></div>
+    <p id="pg-status" class="status" role="status" aria-live="polite"></p>
+    <button class="btn" type="submit">Ir para o pagamento</button>
+  </form>
+
+  <h2 id="titulo-reembolso">Pedir reembolso</h2>
+  <form id="reembolso" class="cartao" novalidate aria-labelledby="titulo-reembolso">
+    <p>Em até 7 dias depois do pagamento, e sem ter conversado com a assistente depois dele, o valor volta na hora. Fora disso, a equipe analisa o pedido e responde por e-mail.</p>
+    <div class="campo"><label for="re-protocolo">Protocolo</label><input id="re-protocolo" autocomplete="off" maxlength="12" placeholder="ABCD-EFGH"></div>
+    <div class="campo"><label for="re-email">E-mail da inscrição</label><input id="re-email" type="email" autocomplete="email" maxlength="254"></div>
+    <div class="campo"><label for="re-motivo">Motivo (opcional)</label><textarea id="re-motivo" rows="3" maxlength="500"></textarea></div>
+    <div id="re-desafio"></div>
+    <p id="re-status" class="status" role="status" aria-live="polite"></p>
+    <button class="btn btn--contorno" type="submit">Pedir reembolso</button>
+  </form>
+</main>
+<p class="rodape">EndoAfetos, Salvador, Bahia</p>
+<script src="../comum/conta.js"></script>
+<script>
+(function () {
+  "use strict";
+  var C = window.EndoConta;
+  var valor = function (id) { return document.getElementById(id).value.trim(); };
+  var protocolo = C.parametro("protocolo");
+  if (protocolo) { document.getElementById("pg-protocolo").value = protocolo; document.getElementById("re-protocolo").value = protocolo; }
+
+  // Volta do Mercado Pago (?retorno=aprovado|pendente|recusado): só a mensagem; quem libera é o aviso do Mercado Pago.
+  var VOLTAS = {
+    aprovado: ["Pagamento aprovado. Em alguns minutos chega o e-mail com o link para criar a senha.", "aviso aviso--ok"],
+    pendente: ["Pagamento em análise. Quando for aprovado, chega o e-mail com o link para criar a senha.", "aviso aviso--breve"],
+    recusado: ["O pagamento não foi aprovado. Você pode tentar de novo com outro meio.", "aviso"]
+  };
+  var retorno = C.parametro("retorno");
+  if (Object.prototype.hasOwnProperty.call(VOLTAS, retorno)) {
+    var volta = document.getElementById("volta");
+    volta.textContent = VOLTAS[retorno][0];
+    volta.className = VOLTAS[retorno][1];
+    volta.hidden = false;
+  }
+
+  var emBreve = document.getElementById("em-breve");
+  function mostrarEmBreve() {
+    emBreve.hidden = false;
+    document.querySelector("#pagar button").disabled = true;
+    document.querySelector("#reembolso button").disabled = true;
+  }
+  C.saude().then(function (saude) {
+    if (!saude || saude.inscricao !== true || saude.pagamento !== true) mostrarEmBreve();
+  });
+
+  // Destino do link de pagamento: só o Mercado Pago.
+  var MERCADO_PAGO = /^https:\/\/(?:www\.)?(?:mercadopago\.com\.br|mercadopago\.com|sandbox\.mercadopago\.com\.br)\//;
+  var CAMPOS_DA_NOTA = { nome_civil: "pg-nome", cpf: "pg-cpf", cep: "pg-cep", logradouro: "pg-logradouro", numero: "pg-numero", complemento: "pg-complemento", bairro: "pg-bairro", cidade: "pg-cidade", uf: "pg-uf" };
+
+  document.getElementById("pagar").addEventListener("submit", function (evento) {
+    evento.preventDefault();
+    var status = document.getElementById("pg-status");
+    var botao = evento.target.querySelector("button");
+    var tomador = {};
+    Object.keys(CAMPOS_DA_NOTA).forEach(function (chave) { tomador[chave] = valor(CAMPOS_DA_NOTA[chave]); });
+    if (tomador.complemento === "") delete tomador.complemento;
+    var periodo = document.querySelector('input[name="periodo"]:checked').value;
+    botao.disabled = true;
+    C.anunciar(status, "Preparando o pagamento.", "");
+    C.fichaDoTurnstile(document.getElementById("pg-desafio")).then(function (ficha) {
+      return C.pedir("POST", "/api/cobrancas", { protocolo: valor("pg-protocolo"), email: valor("pg-email"), periodo: periodo, tomador: tomador, turnstile: ficha });
+    }, function () { return { ok: false, json: { erro: "turnstile_invalido" } }; }).then(function (resposta) {
+      botao.disabled = false;
+      Object.keys(CAMPOS_DA_NOTA).forEach(function (chave) {
+        var campo = document.getElementById(CAMPOS_DA_NOTA[chave]);
+        var errado = resposta.json.campo === chave;
+        campo.parentNode.classList.toggle("campo--erro", errado);
+        campo.setAttribute("aria-invalid", errado ? "true" : "false");
+      });
+      if (resposta.json.erro === "pagamento_desligado") { mostrarEmBreve(); return C.anunciar(status, C.frase("pagamento_desligado"), "breve"); }
+      if (!resposta.ok) return C.anunciar(status, resposta.json.campo ? "Confira o campo marcado." : C.frase(resposta.json.erro), "");
+      if (typeof resposta.json.link !== "string" || !MERCADO_PAGO.test(resposta.json.link)) return C.anunciar(status, C.frase("indisponivel"), "");
+      C.anunciar(status, "Abrindo o Mercado Pago (" + C.dinheiro(resposta.json.valor_centavos) + ").", "ok");
+      window.location.assign(resposta.json.link);
+    });
+  });
+
+  var ESTADOS_DO_REEMBOLSO = {
+    feito: ["Reembolso feito. O valor volta pelo mesmo meio do pagamento, no prazo do Mercado Pago. O acesso foi encerrado.", "ok"],
+    processando: ["Reembolso em processamento. Avisaremos por e-mail quando concluir.", "breve"],
+    em_analise: ["Seu pedido está com a equipe para análise. A resposta chega por e-mail.", "breve"],
+    manual: ["A equipe vai concluir o reembolso por fora e avisa por e-mail.", "breve"]
+  };
+  document.getElementById("reembolso").addEventListener("submit", function (evento) {
+    evento.preventDefault();
+    var status = document.getElementById("re-status");
+    var botao = evento.target.querySelector("button");
+    botao.disabled = true;
+    C.anunciar(status, "Enviando o pedido.", "");
+    var motivo = valor("re-motivo");
+    C.fichaDoTurnstile(document.getElementById("re-desafio")).then(function (ficha) {
+      var corpo = { protocolo: valor("re-protocolo"), email: valor("re-email"), turnstile: ficha };
+      if (motivo !== "") corpo.motivo = motivo;
+      return C.pedir("POST", "/api/reembolsos", corpo);
+    }, function () { return { ok: false, json: { erro: "turnstile_invalido" } }; }).then(function (resposta) {
+      botao.disabled = false;
+      if (resposta.json.erro === "pagamento_desligado") return C.anunciar(status, C.frase("pagamento_desligado"), "breve");
+      if (!resposta.ok) return C.anunciar(status, C.frase(resposta.json.erro), "");
+      var estado = ESTADOS_DO_REEMBOLSO[resposta.json.estado] || ESTADOS_DO_REEMBOLSO.em_analise;
+      C.anunciar(status, estado[0], estado[1]);
+    });
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<meta name="referrer" content="no-referrer">
+<title>Criar senha | Assistente EndoAfetos</title>
+<link rel="stylesheet" href="../../comum/estilo.css">
+</head>
+<body>
+<a class="pular" href="#conteudo">Pular para o conteúdo</a>
+<header class="topo"><div class="topo__dentro"><a class="topo__marca" href="../../../">EndoAfetos</a></div></header>
+<main id="conteudo" tabindex="-1">
+  <h1 id="titulo" tabindex="-1">Criar sua senha</h1>
+  <p id="sem-link" class="aviso" hidden>Este endereço precisa do link que chegou no seu e-mail. Se ele venceu, peça um novo em <a href="../">Minha conta</a>, no "Esqueci minha senha".</p>
+  <form id="senha" class="cartao" novalidate hidden>
+    <p>Escolha uma senha com pelo menos 10 caracteres. Uma frase curta que só você conhece é um bom caminho.</p>
+    <div class="campo"><label for="nova">Senha nova</label><input id="nova" type="password" autocomplete="new-password" minlength="10" maxlength="200"></div>
+    <div class="campo"><label for="repetida">Repita a senha</label><input id="repetida" type="password" autocomplete="new-password" maxlength="200"></div>
+    <p id="status" class="status" role="status" aria-live="polite"></p>
+    <button class="btn" type="submit">Criar senha</button>
+  </form>
+  <section id="pronta" class="cartao" hidden>
+    <h2>Senha criada</h2>
+    <p>Agora é só entrar com o seu e-mail e a senha nova.</p>
+    <a class="btn" href="../">Entrar</a>
+  </section>
+</main>
+<script src="../../comum/conta.js"></script>
+<script>
+(function () {
+  "use strict";
+  var C = window.EndoConta;
+  // O link do e-mail traz o token de acesso no fragmento (#access_token=...). Ele sai da barra de endereço na hora,
+  // não vai para o histórico nem para outro site, e só segue para a API junto com a senha nova.
+  var fragmento = window.location.hash.replace(/^#/, "");
+  var tokenDeAcesso = null;
+  fragmento.split("&").forEach(function (parte) {
+    var par = parte.split("=");
+    if (par[0] === "access_token" && par[1]) tokenDeAcesso = decodeURIComponent(par[1]);
+  });
+  if (window.history && typeof window.history.replaceState === "function") window.history.replaceState(null, "", window.location.pathname);
+  var formulario = document.getElementById("senha");
+  if (!tokenDeAcesso || !/^[A-Za-z0-9._-]{20,4096}$/.test(tokenDeAcesso)) {
+    document.getElementById("sem-link").hidden = false;
+    return;
+  }
+  formulario.hidden = false;
+  formulario.addEventListener("submit", function (evento) {
+    evento.preventDefault();
+    var status = document.getElementById("status");
+    var nova = document.getElementById("nova").value;
+    var repetida = document.getElementById("repetida").value;
+    if (nova.length < 10 || nova.trim() !== nova) return C.anunciar(status, C.frase("senha_fraca"), "");
+    if (nova !== repetida) return C.anunciar(status, "As duas senhas não são iguais.", "");
+    var botao = formulario.querySelector("button");
+    botao.disabled = true;
+    C.anunciar(status, "Criando a senha.", "");
+    C.pedir("POST", "/api/senha", { token_acesso: tokenDeAcesso, senha: nova }).then(function (resposta) {
+      botao.disabled = false;
+      if (!resposta.ok) return C.anunciar(status, C.frase(resposta.json.erro), "");
+      tokenDeAcesso = null;
+      formulario.hidden = true;
+      document.getElementById("pronta").hidden = false;
+      document.getElementById("titulo").focus();
+    });
+  });
+})();
+</script>
+</body>
+</html>
