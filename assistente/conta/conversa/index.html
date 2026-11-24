@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Conversa | Assistente EndoAfetos</title>
+<link rel="stylesheet" href="../../comum/estilo.css">
+<style>
+.registro { margin: 0 0 1rem; }
+.msg { padding: .85rem 1rem; border-radius: var(--radius-sm); margin: 0 0 .75rem; background: var(--surface); border: 1px solid var(--line); }
+.msg--pessoa { background: var(--rose-mist); margin-left: 2rem; }
+.msg--seguranca { border: 2px solid var(--rose-dark); }
+.msg__autor { margin: 0 0 .25rem; font-weight: 700; font-size: .9rem; color: var(--ink-soft); }
+.msg__texto { margin: 0 0 .5rem; white-space: pre-line; }
+.msg__apoio { margin: .5rem 0 0; padding-top: .5rem; border-top: 1px solid var(--line); font-weight: 700; }
+.saber-mais { margin-top: .5rem; }
+.saber-mais summary { cursor: pointer; font-weight: 700; color: var(--rose-dark); min-height: 44px; display: flex; align-items: center; }
+.saber-mais__nota { font-size: .85rem; color: var(--ink-soft); }
+.escrita textarea { width: 100%; min-height: 96px; padding: .6rem .75rem; border: 2px solid var(--line); border-radius: var(--radius-sm); font: inherit; color: var(--ink); }
+</style>
+</head>
+<body>
+<a class="pular" href="#campo">Pular para o campo de escrita</a>
+<header class="topo">
+  <div class="topo__dentro">
+    <a class="topo__marca" href="../../../">EndoAfetos</a>
+    <nav class="topo__ligacoes" aria-label="Conta"><a href="../">Minha conta</a></nav>
+  </div>
+</header>
+<main id="conteudo" tabindex="-1">
+  <h1 id="titulo" tabindex="-1">Conversa</h1>
+  <p class="dica">A assistente informa e acolhe com conteúdo revisado pela equipe. Ela não faz diagnóstico, não interpreta exames e não indica remédios. Esta conversa não fica guardada: ao sair, ela some desta tela.</p>
+  <p id="restantes" class="dica" role="status" aria-live="polite"></p>
+  <p id="sem-sessao" class="aviso" hidden>Para conversar, entre na sua conta. <a href="../">Entrar</a></p>
+  <div id="registro" class="registro" role="log" aria-live="polite" aria-relevant="additions" aria-label="Mensagens da conversa"></div>
+  <form id="escrita" class="escrita cartao" novalidate hidden>
+    <label class="legenda" for="campo">Escreva sua pergunta</label>
+    <textarea id="campo" maxlength="1000" autocomplete="off" aria-describedby="dica-microfone status"></textarea>
+    <p id="dica-microfone" class="dica">Para falar em vez de digitar, toque no microfone do teclado do celular.</p>
+    <p id="status" class="status" role="status" aria-live="polite"></p>
+    <button class="btn" type="submit">Enviar</button>
+    <button id="encerrar" class="btn btn--contorno" type="button">Encerrar conversa</button>
+  </form>
+  <section class="canais" aria-labelledby="titulo-canais">
+    <h2 id="titulo-canais">Precisa de ajuda agora?</h2>
+    <ul>
+      <li><a href="tel:192">SAMU 192: emergência médica</a></li>
+      <li><a href="tel:188">CVV 188: apoio emocional, 24 horas</a></li>
+      <li><a href="tel:180">Central de Atendimento à Mulher 180</a></li>
+      <li><a href="tel:190">Polícia 190</a></li>
+    </ul>
+  </section>
+</main>
+<script src="../../comum/conta.js"></script>
+<script>
+(function () {
+  "use strict";
+  var C = window.EndoConta;
+  var MAX_TURNOS = 6;
+  var MAX_CARACTERES_DO_HISTORICO = 4000;
+  var FALHA = "Tive um problema para responder agora, e esta pergunta não contou no seu limite. Você pode tentar de novo daqui a pouco.";
+  var registro = document.getElementById("registro");
+  var formulario = document.getElementById("escrita");
+  var campo = document.getElementById("campo");
+  var status = document.getElementById("status");
+  var turnos = [];
+  var enviando = false;
+  var token = C.tokenGuardado();
+
+  if (!token) {
+    document.getElementById("sem-sessao").hidden = false;
+    return;
+  }
+  formulario.hidden = false;
+
+  function historico() {
+    var lista = turnos.slice(-MAX_TURNOS);
+    while (lista.length > 0 && lista.reduce(function (soma, turno) { return soma + turno.texto.length; }, 0) > MAX_CARACTERES_DO_HISTORICO) lista.shift();
+    return lista;
+  }
+
+  function mensagem(classe, autor, texto) {
+    var caixa = C.no("div", "msg " + classe);
+    caixa.appendChild(C.no("p", "msg__autor", autor));
+    caixa.appendChild(C.no("p", "msg__texto", texto));
+    registro.appendChild(caixa);
+    try { caixa.scrollIntoView({ block: "nearest" }); } catch (e) { /* sem rolagem */ }
+    return caixa;
+  }
+
+  function mostrarResposta(dados) {
+    var caixa = mensagem("msg--assistente" + (dados.tipo === "seguranca" ? " msg--seguranca" : ""), "Assistente", String(dados.texto || FALHA));
+    if (typeof dados.linha_apoio === "string" && dados.linha_apoio !== "") caixa.appendChild(C.no("p", "msg__apoio", dados.linha_apoio));
+    if (dados.tipo === "resposta" && Array.isArray(dados.saber_mais) && dados.saber_mais.length > 0) {
+      var detalhes = C.no("details", "saber-mais");
+      detalhes.appendChild(C.no("summary", null, "Saber mais"));
+      dados.saber_mais.slice(0, 3).forEach(function (item) {
+        if (item && typeof item.texto === "string" && item.texto.trim() !== "") detalhes.appendChild(C.no("p", "msg__texto", item.texto.trim()));
+      });
+      detalhes.appendChild(C.no("p", "saber-mais__nota", "Trecho da base de conhecimento da EndoAfetos usado nesta resposta."));
+      caixa.appendChild(detalhes);
+    }
+    if (dados.tipo === "seguranca") caixa.setAttribute("tabindex", "-1");
+    return caixa;
+  }
+
+  function mostrarRestantes(restantes) {
+    if (typeof restantes === "number") document.getElementById("restantes").textContent = "Perguntas escritas que restam hoje: " + restantes;
+  }
+
+  formulario.addEventListener("submit", function (evento) {
+    evento.preventDefault();
+    if (enviando) return;
+    var texto = campo.value.trim();
+    if (texto === "") return C.anunciar(status, "Escreva uma pergunta antes de enviar.", "");
+    if (texto.length > 1000) return C.anunciar(status, "A pergunta passou de 1000 caracteres. Encurte para enviar.", "");
+    enviando = true;
+    C.anunciar(status, "Um instante, estou preparando a resposta.", "");
+    var corpo = { mensagem: texto, historico: historico() };
+    turnos.push({ papel: "pessoa", texto: texto, assinatura: null });
+    mensagem("msg--pessoa", "Você", texto);
+    campo.value = "";
+    C.pedir("POST", "/api/chat", corpo, token).then(function (resposta) {
+      enviando = false;
+      C.anunciar(status, "", "");
+      var dados = resposta.json;
+      if (resposta.ok) {
+        var caixa = mostrarResposta(dados);
+        if (typeof dados.assinatura === "string") turnos.push({ papel: "assistente", texto: dados.texto, assinatura: dados.assinatura });
+        mostrarRestantes(dados.restantes);
+        if (dados.tipo === "seguranca") caixa.focus();
+        return;
+      }
+      if (dados.erro === "token_invalido") {
+        C.esquecerToken();
+        formulario.hidden = true;
+        document.getElementById("sem-sessao").hidden = false;
+        return;
+      }
+      if (dados.erro === "assinatura_inativa" || dados.erro === "inscricao_desligada") {
+        formulario.hidden = true;
+        return mensagem("msg--assistente", "Assistente", C.frase(dados.erro));
+      }
+      // Falha sem resposta: a pergunta volta ao campo, se ele estiver vazio.
+      mensagem("msg--assistente", "Assistente", dados.erro === "muitas_requisicoes" ? C.frase("muitas_requisicoes") : FALHA);
+      if (campo.value === "") campo.value = texto;
+    });
+  });
+
+  // Encerrar apaga a conversa desta tela e da memória da página.
+  document.getElementById("encerrar").addEventListener("click", function () {
+    turnos = [];
+    while (registro.firstChild) registro.removeChild(registro.firstChild);
+    campo.value = "";
+    C.anunciar(status, "Conversa encerrada. Nada dela ficou guardado.", "ok");
+    document.getElementById("titulo").focus();
+  });
+})();
+</script>
+</body>
+</html>

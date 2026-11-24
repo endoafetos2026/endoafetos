@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Inscrição | Assistente EndoAfetos</title>
+<link rel="stylesheet" href="../comum/estilo.css">
+</head>
+<body>
+<a class="pular" href="#conteudo">Pular para o conteúdo</a>
+<header class="topo">
+  <div class="topo__dentro">
+    <a class="topo__marca" href="../../">EndoAfetos</a>
+    <nav class="topo__ligacoes" aria-label="Conta"><a href="../planos/">Planos</a><a href="../conta/">Entrar</a></nav>
+  </div>
+</header>
+<main id="conteudo" tabindex="-1">
+  <h1>Inscrição</h1>
+  <p class="intro">Pedimos só o que é preciso para criar sua conta: nome completo e e-mail. Nada sobre a sua saúde.</p>
+  <p id="fechada" class="aviso aviso--breve" role="status" aria-live="polite" hidden>As inscrições abrem em breve. Volte daqui a alguns dias ou <a href="../../#contato">fale com a equipe</a>.</p>
+
+  <form id="formulario" class="cartao" novalidate>
+    <fieldset class="opcoes">
+      <legend class="legenda">Plano</legend>
+      <label><input type="radio" name="plano" value="essencial"> <span><strong>Essencial</strong>: <span data-preco="essencial">R$ 14,90</span> por mês, 10 perguntas por dia</span></label>
+      <label><input type="radio" name="plano" value="completo"> <span><strong>Completo</strong>: <span data-preco="completo">R$ 24,90</span> por mês, 20 perguntas por dia e relatório (em breve)</span></label>
+    </fieldset>
+    <p class="dica">O período (mensal ou anual, que vale 10 mensalidades) você escolhe na hora do pagamento.</p>
+    <div class="campo">
+      <label for="campo-nome">Nome completo</label>
+      <input id="campo-nome" name="nome" autocomplete="name" maxlength="120" required>
+    </div>
+    <div class="campo">
+      <label for="campo-email">E-mail</label>
+      <input id="campo-email" name="email" type="email" autocomplete="email" maxlength="254" required>
+      <p class="dica">É por ele que chegam o protocolo, o link para criar a senha e os avisos da assinatura. O assunto do e-mail não fala de saúde.</p>
+    </div>
+    <label class="caixa"><input id="caixa-termos" type="checkbox"> <span>Li e aceito os <a href="../termos/" target="_blank" rel="noopener">termos da assinatura e o aviso de privacidade</a> (abre em outra aba).</span></label>
+    <label class="caixa"><input id="caixa-maior" type="checkbox"> <span>Tenho 18 anos ou mais.</span></label>
+    <div id="caixa-desafio"></div>
+    <p id="status" class="status" role="status" aria-live="polite"></p>
+    <button class="btn" type="submit">Enviar inscrição</button>
+  </form>
+
+  <section id="feita" class="cartao" hidden tabindex="-1" aria-labelledby="titulo-feita">
+    <h2 id="titulo-feita">Inscrição recebida</h2>
+    <p>Seu protocolo é <strong id="protocolo"></strong>. Ele também vai para o seu e-mail.</p>
+    <p id="proximo-passo" class="aviso aviso--breve">O pagamento on-line abre em breve. Sua inscrição fica guardada, e avisaremos por e-mail.</p>
+    <a id="ir-pagar" class="btn" href="../pagamento/" hidden>Ir para o pagamento</a>
+  </section>
+</main>
+<p class="rodape">EndoAfetos, Salvador, Bahia</p>
+<script src="../comum/conta.js"></script>
+<script>
+(function () {
+  "use strict";
+  var C = window.EndoConta;
+  var VERSAO_DOS_TEXTOS = "termos-assinatura-0.1.0-provisoria";
+  var formulario = document.getElementById("formulario");
+  var status = document.getElementById("status");
+  var fechada = document.getElementById("fechada");
+  var pagamentoAberto = false;
+
+  ["essencial", "completo"].forEach(function (plano) {
+    var alvo = document.querySelector('[data-preco="' + plano + '"]');
+    if (alvo) alvo.textContent = C.dinheiro(C.CONFIG.planos[plano].mensal);
+  });
+  var pedido = C.parametro("plano");
+  var escolhida = formulario.querySelector('input[name="plano"][value="' + (pedido === "completo" ? "completo" : pedido === "essencial" ? "essencial" : "") + '"]');
+  if (escolhida) escolhida.checked = true;
+
+  function fechar() {
+    fechada.hidden = false;
+    formulario.querySelector("button").disabled = true;
+  }
+  C.saude().then(function (saude) {
+    if (!saude || saude.inscricao !== true) return fechar();
+    pagamentoAberto = saude.pagamento === true;
+  });
+
+  function marcarCampo(id, errado) {
+    var campo = document.getElementById(id);
+    if (campo && campo.parentNode.classList) campo.parentNode.classList.toggle("campo--erro", errado);
+    if (campo) campo.setAttribute("aria-invalid", errado ? "true" : "false");
+  }
+
+  formulario.addEventListener("submit", function (evento) {
+    evento.preventDefault();
+    var plano = formulario.querySelector('input[name="plano"]:checked');
+    var nome = document.getElementById("campo-nome").value.replace(/\s+/g, " ").trim();
+    var email = document.getElementById("campo-email").value.trim();
+    var nomeOk = /\S+\s+\S+/.test(nome) && nome.length <= 120;
+    var emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    marcarCampo("campo-nome", !nomeOk);
+    marcarCampo("campo-email", !emailOk);
+    if (!plano) return C.anunciar(status, "Escolha um plano.", "");
+    if (!nomeOk) return C.anunciar(status, "Escreva o nome completo, com sobrenome.", "");
+    if (!emailOk) return C.anunciar(status, "Confira o e-mail.", "");
+    if (!document.getElementById("caixa-termos").checked) return C.anunciar(status, "Para seguir, aceite os termos.", "");
+    if (!document.getElementById("caixa-maior").checked) return C.anunciar(status, "A assinatura é só para quem tem 18 anos ou mais.", "");
+    var botao = formulario.querySelector("button");
+    botao.disabled = true;
+    C.anunciar(status, "Enviando.", "");
+    C.fichaDoTurnstile(document.getElementById("caixa-desafio")).then(function (ficha) {
+      return C.pedir("POST", "/api/inscricoes", {
+        nome: nome, email: email, plano: plano.value,
+        aceites: { termos: true, maior_de_18: true, versao_textos: VERSAO_DOS_TEXTOS },
+        turnstile: ficha
+      });
+    }, function () {
+      return { ok: false, json: { erro: "turnstile_invalido" } };
+    }).then(function (resposta) {
+      botao.disabled = false;
+      if (!resposta.ok) return C.anunciar(status, C.frase(resposta.json.erro), "");
+      formulario.hidden = true;
+      var feita = document.getElementById("feita");
+      document.getElementById("protocolo").textContent = String(resposta.json.protocolo || "");
+      if (pagamentoAberto) {
+        document.getElementById("proximo-passo").textContent = "Agora é só pagar. O acesso é liberado assim que o pagamento for aprovado.";
+        var ir = document.getElementById("ir-pagar");
+        ir.href = "../pagamento/?protocolo=" + encodeURIComponent(String(resposta.json.protocolo || ""));
+        ir.hidden = false;
+      }
+      feita.hidden = false;
+      feita.focus();
+    });
+  });
+})();
+</script>
+</body>
+</html>
