@@ -243,6 +243,15 @@ main { padding: 1rem 1rem 1.5rem; }
 .msg__tecnico { margin: .5rem 0 0; font-family: Consolas, Menlo, monospace; font-size: .8rem; color: var(--ink-soft); }
 .msg__acoes { display: flex; flex-wrap: wrap; margin-top: .65rem; }
 .msg__acoes:empty { display: none; }
+.saber-mais { margin-top: .6rem; border-top: 1px solid var(--line, #e3d6df); padding-top: .45rem; }
+.saber-mais__titulo { cursor: pointer; font-weight: 600; color: var(--rose-dark); min-height: 44px; display: flex; align-items: center; }
+.saber-mais__titulo:focus-visible { outline: 3px solid var(--rose-dark); outline-offset: 2px; }
+.saber-mais__texto { margin: .4rem 0 0; }
+.saber-mais__nota { margin: .5rem 0 0; font-size: .85rem; color: var(--ink-soft); }
+.leitura { display: flex; flex-wrap: wrap; align-items: center; margin: .25rem 0 .75rem; }
+.leitura[hidden] { display: none; }
+.leitura__opcao { min-height: 44px; margin: 0 1rem .25rem 0; }
+.leitura__dica { flex-basis: 100%; margin: 0; font-size: .85rem; color: var(--ink-soft); }
 /* Acolhida: os controles ficam dentro do balão da pergunta e saem dele quando a pessoa responde */
 .acolhida__controles { margin-top: .75rem; }
 .acolhida__controles .campo { margin-bottom: .65rem; }
@@ -448,7 +457,7 @@ a.btn { text-decoration: none; }
 // CONFIG.api: endereco https do Worker, sem caminho. CONFIG.turnstile_sitekey: chave publica do widget do Turnstile.
 // Com os dois preenchidos, nada mais precisa mudar. Com CONFIG.api vazio, a pagina fica em demonstracao e nada sai dela.
 /* ==== DADOS:INICIO ==== */
-const VERSAO_PAGINA = "provisorio-2026-11-20";
+const VERSAO_PAGINA = "provisorio-2026-11-24";
 
 // api vazio = modo demonstracao sem servidor: nenhuma requisicao sai da pagina.
 const CONFIG = {
@@ -457,6 +466,9 @@ const CONFIG = {
   turnstile_script: "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit",
   // Precisa ser igual a versao de aceite configurada no Worker.
   versao_aceite: "provisorio-2026-11-19",
+  // Com o cadastro do gratuito ligado no servidor, o aceite muda de texto e de versao. O VERSAO_ACEITE do ambiente
+  // precisa ser este valor quando CADASTRO_GRATUITO for ligado.
+  versao_aceite_cadastro: "cadastro-provisorio-2026-11-24",
   // Botao "Conhecer a EndoAfetos" do cartao de conversao: caminho do proprio site.
   link_conhecer: "../#contato",
   // Mostra no cartao de conversao o bloco do brinde do estande (BTX Salvador).
@@ -498,6 +510,24 @@ const TEXTOS = {
   aceite_titulo: "Antes de começar",
   aceite: "A MarIA Flor é uma assistente de inteligência artificial. Ela informa e acolhe, mas não faz diagnóstico, não interpreta exames e não indica remédios. O que você escrever é enviado a um serviço de inteligência artificial para gerar a resposta e pode ser processado fora do Brasil. Não escreva seu nome completo, documentos nem laudos. Este espaço é para pessoas com 18 anos ou mais. Não é um canal de urgência: em emergência de saúde, ligue 192.",
   caixa_aceite: "Li e concordo, e tenho 18 anos ou mais",
+  // Gratuito com cadastro (24/11, provisorio, para o juridico): o nome completo e o e-mail entram so no cadastro; na
+  // conversa continua valendo nao escrever o nome completo. A caixa de 18 anos fica separada do aceite.
+  cadastro: {
+    aceite: "A MarIA Flor é uma assistente de inteligência artificial. Ela informa e acolhe, mas não faz diagnóstico, não interpreta exames e não indica remédios. O que você escrever na conversa é enviado a um serviço de inteligência artificial para gerar a resposta e pode ser processado fora do Brasil, e a conversa não é guardada. Na conversa, não escreva seu nome completo, documentos nem laudos. Não é um canal de urgência: em emergência de saúde, ligue 192.",
+    finalidade: "Pedimos o nome completo e o e-mail para identificar o seu cadastro, contar as 3 perguntas do dia e atender pedidos sobre os seus dados. Eles não vão para a inteligência artificial.",
+    nome_rotulo: "Nome completo",
+    email_rotulo: "E-mail",
+    caixa_aceite: "Li e concordo",
+    caixa_maior: "Tenho 18 anos ou mais",
+    caixa_novidades: "Quero receber novidades da EndoAfetos por e-mail (opcional)",
+    erros: {
+      nome_completo: "Escreva o nome completo, com sobrenome.",
+      email: "Confira o e-mail.",
+      maior_de_18: "Este espaço é só para quem tem 18 anos ou mais.",
+      cadastro: "Confira os campos do cadastro.",
+      novidades: "Confira os campos do cadastro."
+    }
+  },
   convite_rotulo: "Código de convite",
   convite_dica: "O código de convite é para quem participa do teste. Sem código, toque em Começar para usar os botões de tema.",
   aviso_teste: "Esta é uma sessão de teste: a conversa é gravada para a equipe avaliar as respostas. Não escreva dados pessoais reais.",
@@ -523,7 +553,7 @@ const TEXTOS = {
   demo_aviso: "Esta página está em modo demonstração sem servidor. A MarIA Flor ainda não está ligada, e nada do que você fizer aqui é enviado.",
   canais_titulo: "Canais de ajuda",
   emergencia: "Em emergência de saúde, ligue 192.",
-  falha: "Tive um problema para responder agora. Você pode tentar de novo daqui a pouco ou usar os botões de tema.",
+  falha: "Tive um problema para responder agora, e esta pergunta não contou no seu limite. Você pode tentar de novo daqui a pouco ou escolher um tema nos botões.",
   tentar: "Tentar de novo",
   conversa_titulo: "Conversa com a MarIA Flor",
   conversa_rotulo: "Mensagens da conversa",
@@ -550,17 +580,27 @@ const TEXTOS = {
   perguntar_do_meu_jeito: "Perguntar do meu jeito",
   ouvir: "Ouvir",
   parar: "Parar",
+  // 24/11: "Ouvir" deixa de ser botao em cada resposta e vira opcao de acessibilidade, desligada por padrao.
+  ler_em_voz_alta: "Ler respostas em voz alta",
+  ler_em_voz_alta_dica: "Vale só para esta conversa e desliga ao encerrar.",
+  parar_leitura: "Parar a leitura",
+  // "Saber mais": o texto da base usado na resposta, sem nova chamada de IA.
+  saber_mais: "Saber mais",
+  saber_mais_nota: "Trecho da base de conhecimento da EndoAfetos usado nesta resposta.",
+  // No BTX, falar so pelo microfone do teclado (PLANO-PAINEL-E-CONTAS.md, secao 2, item 2).
+  dica_microfone: "Para falar em vez de digitar, toque no microfone do teclado do celular.",
   marcar_problema: "Marcar problema",
   tecnico_tipo: "tipo: {tipo}",
   tecnico_base: "base: {ids}",
   tecnico_local: "sem resposta do servidor",
   marcacao: {
     legenda: "O que há de errado nesta resposta?",
+    // 24/11 (achado A13): os motivos antigos quase sempre viravam "Outro".
     motivos: [
-      { valor: "incorreta", rotulo: "Incorreta" },
-      { valor: "perigosa", rotulo: "Perigosa" },
-      { valor: "fora_do_tom", rotulo: "Fora do tom" },
-      { valor: "incompleta", rotulo: "Incompleta" },
+      { valor: "nao_respondeu", rotulo: "Não respondeu o que perguntei" },
+      { valor: "errada_ou_perigosa", rotulo: "Informação errada ou perigosa" },
+      { valor: "tom", rotulo: "O tom não ficou bom" },
+      { valor: "erro_tecnico", rotulo: "Erro técnico" },
       { valor: "outro", rotulo: "Outro" }
     ],
     comentario_rotulo: "Comentário (opcional)",
@@ -738,17 +778,24 @@ function enderecoApi(config, caminho) {
 function lerRespostaApi(status, corpo) {
   const valido = Boolean(corpo) && typeof corpo === "object";
   if (valido && corpo.ok === true) return { ok: true, status: status, dados: corpo };
-  return {
+  const lida = {
     ok: false,
     status: status,
     erro: valido && typeof corpo.erro === "string" ? corpo.erro : "falha",
     mensagem: valido ? textoOuNulo(corpo.mensagem) : null
   };
+  // Cadastro do gratuito (24/11): o campo recusado e, com sinal de risco no nome, a mensagem de seguranca.
+  if (valido && typeof corpo.campo === "string") lida.campo = corpo.campo;
+  if (valido && textoOuNulo(corpo.seguranca)) lida.seguranca = corpo.seguranca;
+  return lida;
 }
 
 function lerSaude(dados) {
   if (!dados || MODOS.indexOf(dados.modo) === -1) return null;
-  return { modo: dados.modo, texto_livre: dados.texto_livre === true, coleta: dados.coleta === true };
+  const saude = { modo: dados.modo, texto_livre: dados.texto_livre === true, coleta: dados.coleta === true };
+  // Gratuito com cadastro: so aparece quando o servidor o liga (CADASTRO_GRATUITO).
+  if (dados.cadastro_gratuito === true) saude.cadastro_gratuito = true;
+  return saude;
 }
 
 // Instante em que a sessao vence, pelo relogio deste aparelho. Devolve null quando expira_em
@@ -775,7 +822,9 @@ function lerSessao(dados, agoraMs, validadeMaxMs) {
     limite: numero(dados.limite),
     restantes: numero(dados.restantes),
     vence_em: vencimentoDaSessao(dados.expira_em, agoraMs, validadeMaxMs),
-    usos: dados.tipo === "teste" ? lerUsosDoConvite(dados.convite_usos) : null
+    usos: dados.tipo === "teste" ? lerUsosDoConvite(dados.convite_usos) : null,
+    // Achado A12: a linha tecnica (tipo e itens da base) so para os convites da equipe.
+    tecnico: dados.tipo === "teste" && dados.tecnico === true
   };
 }
 
@@ -798,11 +847,24 @@ function limparCodigo(texto, maximo) {
 
 function montarSessao(dados) {
   const convite = limparCodigo(dados.convite, dados.convite_max);
-  return {
+  const corpo = {
     turnstile: String(dados.turnstile),
     aceite_versao: dados.aceite_versao,
     convite: convite === "" ? null : convite
   };
+  // Gratuito com cadastro (24/11): so quando o servidor pede e sem codigo de convite.
+  if (dados.cadastro && corpo.convite === null) corpo.cadastro = dados.cadastro;
+  return corpo;
+}
+
+// Cadastro do gratuito: nome completo (com sobrenome), e-mail e a caixa de 18 anos. Devolve o corpo ou o campo errado.
+function lerCadastroDoGratuito(nome, email, maior, novidades) {
+  const nomeLimpo = String(nome == null ? "" : nome).replace(/\s+/g, " ").trim();
+  const emailLimpo = String(email == null ? "" : email).trim();
+  if (!/^\S+(?: \S+)+$/.test(nomeLimpo) || nomeLimpo.length > 120 || /\d/.test(nomeLimpo)) return { ok: false, campo: "nome_completo" };
+  if (!emailValido(emailLimpo, 254)) return { ok: false, campo: "email" };
+  if (maior !== true) return { ok: false, campo: "maior_de_18" };
+  return { ok: true, cadastro: { nome_completo: nomeLimpo, email: emailLimpo, maior_de_18: true, novidades: novidades === true } };
 }
 
 // Texto que pode ir para a tela: preenchido e sem identificador da base. O Worker ja garante; a pagina confere de novo.
@@ -1095,8 +1157,21 @@ function lerChat(dados) {
     restantes: typeof dados.restantes === "number" && isFinite(dados.restantes) ? dados.restantes : null,
     convite: dados.convite === true,
     linha_apoio: textoOuNulo(dados.linha_apoio),
-    id_turno: idTurno
+    id_turno: idTurno,
+    saber_mais: lerSaberMais(dados)
   };
+}
+
+// "Saber mais": so numa resposta, so textos preenchidos, no maximo tres. Nada de identificador nem titulo.
+const MAX_SABER_MAIS = 3;
+function lerSaberMais(dados) {
+  if (!dados || dados.tipo !== "resposta" || !Array.isArray(dados.saber_mais)) return [];
+  const textos = [];
+  dados.saber_mais.forEach(function (item) {
+    const texto = item && typeof item.texto === "string" ? item.texto.trim() : "";
+    if (texto !== "" && textos.length < MAX_SABER_MAIS && textos.indexOf(texto) === -1) textos.push(texto);
+  });
+  return textos;
 }
 
 function sinalDeRisco(chat) {
@@ -1621,66 +1696,92 @@ function montarFeedback(dados) {
     }
   }
 
-  function marcarFala(botao, falando) {
-    botao.textContent = falando ? TEXTOS.parar : TEXTOS.ouvir;
-    botao.setAttribute("aria-pressed", falando ? "true" : "false");
+  // 24/11 (PLANO-PAINEL-E-CONTAS.md, secao 2, item 3): o "Ouvir" sai de cada resposta e vira a opcao
+  // "Ler respostas em voz alta", desligada por padrao. Ligada, le cada mensagem nova da MarIA Flor, inclusive
+  // as de seguranca e a linha de apoio. Vale so para esta conversa: nada e guardado no aparelho, e ela desliga
+  // ao encerrar a conversa e ao voltar ao aceite. So aparece com voz pt-BR no aparelho.
+  let leituraLigada = false;
+  let controleDeLeitura = null;
+
+  function mostrarParar() {
+    if (controleDeLeitura) controleDeLeitura.parar.hidden = !fala;
   }
 
   function pararFala() {
     const motor = motorDeVoz();
     const anterior = fala;
     fala = null;
-    if (anterior) marcarFala(anterior.botao, false);
+    mostrarParar();
     if (motor && (anterior || motor.speaking || motor.pending)) {
       try { motor.cancel(); } catch (falha) { /* sem efeito */ }
     }
   }
 
-  // Um toque fala, outro para.
-  function alternarFala(item) {
+  function falar(item) {
     const motor = motorDeVoz();
     const voz = vozAtual();
     if (!motor || !voz) return;
-    const jaFalava = Boolean(fala) && fala.item === item;
     pararFala();
-    trocou();
-    if (jaFalava) return;
     const trecho = new window.SpeechSynthesisUtterance(textoFalado(item.texto));
     trecho.lang = "pt-BR";
     trecho.voice = voz;
-    const atual = { item: item, botao: item.botao };
+    const atual = { item: item };
     const encerrar = function () {
       if (fala !== atual) return;
       fala = null;
-      marcarFala(atual.botao, false);
+      mostrarParar();
     };
     trecho.onend = encerrar;
     trecho.onerror = encerrar;
     fala = atual;
-    marcarFala(atual.botao, true);
+    mostrarParar();
     motor.speak(trecho);
   }
 
-  // O botao "Ouvir" so existe quando o aparelho tem voz pt-BR; se a lista de vozes
-  // chegar depois, as respostas ja mostradas ganham o botao.
-  function atualizarOuvir() {
-    if (!vozAtual()) return;
-    ouviveis.forEach(function (item) {
-      if (item.botao) return;
-      const botao = no("button", "btn-mini", TEXTOS.ouvir);
-      botao.type = "button";
-      botao.setAttribute("aria-pressed", "false");
-      botao.addEventListener("click", function () { alternarFala(item); });
-      item.botao = botao;
-      item.acoes.appendChild(botao);
-    });
+  // Ao encerrar a conversa ou ao voltar ao aceite: a troca de tela (mostrar) e quem cala a fala em curso.
+  function desligarLeitura() {
+    leituraLigada = false;
+    if (controleDeLeitura) controleDeLeitura.entrada.checked = false;
   }
 
-  // Devolve o item, para quem precisa saber depois se a leitura em curso e dele.
+  // A opcao so aparece quando o aparelho tem voz pt-BR; se a lista de vozes chegar depois, ela aparece entao.
+  function atualizarOuvir() {
+    if (controleDeLeitura) controleDeLeitura.caixa.hidden = !vozAtual();
+  }
+
+  function montarControleDeLeitura() {
+    const caixa = no("div", "leitura");
+    const opcao = caixaDeMarcar(novoId("ler-em-voz-alta"), TEXTOS.ler_em_voz_alta, "checkbox");
+    opcao.rotulo.className = "caixa leitura__opcao";
+    opcao.entrada.checked = leituraLigada;
+    const dica = no("p", "leitura__dica", TEXTOS.ler_em_voz_alta_dica);
+    dica.id = novoId("dica-leitura");
+    opcao.entrada.setAttribute("aria-describedby", dica.id);
+    const parar = no("button", "btn-mini", TEXTOS.parar_leitura);
+    parar.type = "button";
+    parar.hidden = true;
+    opcao.entrada.addEventListener("change", function () {
+      leituraLigada = opcao.entrada.checked === true;
+      if (!leituraLigada) pararFala();
+    });
+    parar.addEventListener("click", function () {
+      pararFala();
+      trocou();
+    });
+    caixa.appendChild(opcao.rotulo);
+    caixa.appendChild(parar);
+    caixa.appendChild(dica);
+    controleDeLeitura = { caixa: caixa, entrada: opcao.entrada, parar: parar };
+    atualizarOuvir();
+    return caixa;
+  }
+
+  // Devolve o item, para quem precisa saber depois se a leitura em curso e dele. Com a opcao ligada, a mensagem
+  // nova e lida na hora; com ela desligada, nada toca.
   function registrarOuvivel(acoes, texto) {
     const item = { acoes: acoes, texto: texto, botao: null };
     ouviveis.push(item);
-    atualizarOuvir();
+    if (leituraLigada) falar(item);
     return item;
   }
 
@@ -1800,8 +1901,10 @@ function montarFeedback(dados) {
     estado.marcaDeRisco = null;
     definirAvatar("acolhimento");
 
+    // Gratuito com cadastro: so fora do modo fechado e quando o servidor o pede.
+    const comCadastro = !demonstracao && !fechado && Boolean(estado.saude) && estado.saude.cadastro_gratuito === true;
     const titulo = tituloDaTela(TEXTOS.aceite_titulo);
-    const texto = no("p", "aceite__texto", TEXTOS.aceite);
+    const texto = no("p", "aceite__texto", comCadastro ? TEXTOS.cadastro.aceite : TEXTOS.aceite);
     const formulario = no("form", "aceite");
     formulario.noValidate = true;
     const blocos = [titulo];
@@ -1847,7 +1950,27 @@ function montarFeedback(dados) {
       formulario.appendChild(convite.campo);
     }
 
-    const concordo = caixaDeMarcar("caixa-aceite", TEXTOS.caixa_aceite);
+    let cadastro = null;
+    if (comCadastro) {
+      const finalidade = no("p", "dica", TEXTOS.cadastro.finalidade);
+      finalidade.id = "dica-cadastro";
+      const nome = campoDeTexto("campo-nome-completo", TEXTOS.cadastro.nome_rotulo, "text", 120);
+      // Aparelho do estande é compartilhado: o navegador não guarda nem sugere o nome de quem veio antes.
+      nome.entrada.setAttribute("autocomplete", "off");
+      nome.entrada.setAttribute("aria-describedby", "dica-cadastro status-aceite");
+      const email = campoDeTexto("campo-email-gratuito", TEXTOS.cadastro.email_rotulo, "email", 254);
+      email.entrada.setAttribute("autocomplete", "off");
+      const maior = caixaDeMarcar("caixa-maior-gratuito", TEXTOS.cadastro.caixa_maior);
+      const novidades = caixaDeMarcar("caixa-novidades", TEXTOS.cadastro.caixa_novidades);
+      formulario.appendChild(finalidade);
+      formulario.appendChild(nome.campo);
+      formulario.appendChild(email.campo);
+      formulario.appendChild(maior.rotulo);
+      formulario.appendChild(novidades.rotulo);
+      cadastro = { nome: nome.entrada, email: email.entrada, maior: maior.entrada, novidades: novidades.entrada };
+    }
+
+    const concordo = caixaDeMarcar("caixa-aceite", comCadastro ? TEXTOS.cadastro.caixa_aceite : TEXTOS.caixa_aceite);
     const caixaDesafio = no("div", "desafio");
     const status = linhaDeStatus("status-aceite");
     if (mensagem) {
@@ -1868,12 +1991,23 @@ function montarFeedback(dados) {
     function travar(travado) {
       concordo.entrada.disabled = travado;
       if (convite) convite.entrada.disabled = travado;
+      if (cadastro) Object.keys(cadastro).forEach(function (chave) { cadastro[chave].disabled = travado; });
       travarBotao(botao, travado);
     }
 
     formulario.addEventListener("submit", function (evento) {
       evento.preventDefault();
       if (abrindo) return;
+      let corpoDoCadastro = null;
+      if (cadastro) {
+        const lido = lerCadastroDoGratuito(valorDe(cadastro.nome), valorDe(cadastro.email), cadastro.maior.checked === true, cadastro.novidades.checked === true);
+        if (!lido.ok) {
+          status.textContent = TEXTOS.cadastro.erros[lido.campo];
+          (lido.campo === "maior_de_18" ? cadastro.maior : lido.campo === "email" ? cadastro.email : cadastro.nome).focus();
+          return;
+        }
+        corpoDoCadastro = lido.cadastro;
+      }
       if (concordo.entrada.checked !== true) {
         status.textContent = TEXTOS.falta_caixa;
         concordo.entrada.focus();
@@ -1883,6 +2017,8 @@ function montarFeedback(dados) {
         telaDemonstracao();
         return;
       }
+      // O cadastro fica so na memoria desta pagina, para o "tentar de novo" da conversa; nunca no aparelho.
+      estado.cadastro = corpoDoCadastro;
       const codigo = convite ? limparCodigo(valorDe(convite.entrada), CONFIG.convite_max) : "";
       if (!precisaDeSessao(estado.saude, codigo)) {
         telaConversa(null);
@@ -1898,9 +2034,10 @@ function montarFeedback(dados) {
         return pedir("/api/sessao", {
           corpo: montarSessao({
             turnstile: ficha,
-            aceite_versao: CONFIG.versao_aceite,
+            aceite_versao: corpoDoCadastro ? CONFIG.versao_aceite_cadastro : CONFIG.versao_aceite,
             convite: codigo,
-            convite_max: CONFIG.convite_max
+            convite_max: CONFIG.convite_max,
+            cadastro: corpoDoCadastro
           })
         });
       }).then(null, function () {
@@ -1908,6 +2045,16 @@ function montarFeedback(dados) {
       }).then(function (resposta) {
         if (serie !== estado.serie) return;
         abrindo = false;
+        // Cadastro recusado: a pessoa corrige ali mesmo. Com sinal de risco no nome, a mensagem de seguranca.
+        if (!resposta.ok && corpoDoCadastro && (resposta.erro === "cadastro_invalido" || resposta.erro === "cadastro_com_risco")) {
+          travar(false);
+          estado.cadastro = null;
+          status.textContent = resposta.erro === "cadastro_com_risco" && resposta.seguranca
+            ? resposta.seguranca
+            : (TEXTOS.cadastro.erros[resposta.campo] || TEXTOS.cadastro.erros.cadastro);
+          if (resposta.erro === "cadastro_com_risco") estado.riscoNaVisita = true;
+          return;
+        }
         const sessao = resposta.ok ? lerSessao(resposta.dados, Date.now(), CONFIG.sessao_validade_max_ms) : null;
         if (sessao) {
           estado.sessao = sessao;
@@ -1950,7 +2097,7 @@ function montarFeedback(dados) {
 
     const titulo = tituloDaTela(TEXTOS.conversa_titulo);
     const intro = no("p", "intro", comEscrita ? TEXTOS.conversa_intro : TEXTOS.conversa_intro_guiado);
-    const blocos = [titulo, intro];
+    const blocos = [titulo, intro, montarControleDeLeitura()];
     // Convite com limite: quantos usos do codigo ja foram e quantos restam. Sem limite, a linha fica vazia.
     // E regiao viva sempre presente (nunca hidden): regiao que nasce oculta nao anuncia o primeiro texto, e a
     // sessao pode abrir depois, pelo codigo informado dentro da conversa, com o foco longe do alto da tela.
@@ -2018,6 +2165,7 @@ function montarFeedback(dados) {
 
     // Sessao vencida ou recusada: de volta ao aceite, sem perder a pergunta nem os canais de ajuda.
     function sessaoTerminou(aviso, pergunta) {
+      desligarLeitura();
       const noCampo = escrita ? valorDe(escrita.campo).trim() : "";
       estado.rascunho = textoOuNulo(pergunta) || textoOuNulo(mensagemEmEnvio) || noCampo;
       telaAceite(aviso || TEXTOS.sessao_encerrada, true);
@@ -2054,7 +2202,20 @@ function montarFeedback(dados) {
         caixa.appendChild(no("p", "msg__apoio", chat.linha_apoio));
         falado += "\n" + chat.linha_apoio;
       }
-      if (emTeste) {
+      // "Saber mais": o texto da base, fechado por padrao, sem nova chamada ao servidor. A leitura em voz alta le
+      // so a resposta; quem abre o "Saber mais" le com os proprios olhos ou com o leitor de tela.
+      if (chat.tipo === "resposta" && chat.saber_mais && chat.saber_mais.length > 0) {
+        const detalhes = no("details", "saber-mais");
+        detalhes.appendChild(no("summary", "saber-mais__titulo", TEXTOS.saber_mais));
+        chat.saber_mais.forEach(function (texto) {
+          texto.split(/\n{2,}/).forEach(function (paragrafo) {
+            if (paragrafo.trim() !== "") detalhes.appendChild(no("p", "saber-mais__texto", paragrafo.trim()));
+          });
+        });
+        detalhes.appendChild(no("p", "saber-mais__nota", TEXTOS.saber_mais_nota));
+        caixa.appendChild(detalhes);
+      }
+      if (emTeste && estado.sessao && estado.sessao.tecnico === true) {
         let tecnico = preencher(TEXTOS.tecnico_tipo, { tipo: chat.tipo });
         if (chat.base_ids.length > 0) tecnico += " · " + preencher(TEXTOS.tecnico_base, { ids: chat.base_ids.join(", ") });
         if (semServidor) tecnico += " · " + TEXTOS.tecnico_local;
@@ -2811,6 +2972,7 @@ function montarFeedback(dados) {
       formulario.appendChild(rotulo);
       formulario.appendChild(limite);
       formulario.appendChild(campo);
+      formulario.appendChild(no("p", "dica dica-microfone", TEXTOS.dica_microfone));
       formulario.appendChild(contador);
       formulario.appendChild(status);
       formulario.appendChild(botao);
@@ -2832,9 +2994,10 @@ function montarFeedback(dados) {
         return pedir("/api/sessao", {
           corpo: montarSessao({
             turnstile: ficha,
-            aceite_versao: CONFIG.versao_aceite,
+            aceite_versao: estado.cadastro ? CONFIG.versao_aceite_cadastro : CONFIG.versao_aceite,
             convite: codigo,
-            convite_max: CONFIG.convite_max
+            convite_max: CONFIG.convite_max,
+            cadastro: estado.cadastro
           })
         });
       }).then(null, function () {
@@ -3265,9 +3428,12 @@ function montarFeedback(dados) {
         const sim = no("button", "btn", TEXTOS.encerrar.sim);
         sim.type = "button";
         sim.addEventListener("click", function () {
+          desligarLeitura();
           estado.rascunho = "";
           estado.riscoNaVisita = false;
           estado.acolhida = acolhidaVazia();
+          // O cadastro do gratuito era da pessoa que encerrou: sai da memória da página.
+          estado.cadastro = null;
           telaAceite(null, true);
         });
         const nao = no("button", "btn btn--contorno", TEXTOS.encerrar.nao);
