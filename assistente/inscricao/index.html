@@ -23,10 +23,11 @@
   <form id="formulario" class="cartao" novalidate>
     <fieldset class="opcoes">
       <legend class="legenda">Plano</legend>
+      <label><input type="radio" name="plano" value="gratuito"> <span><strong>Gratuito</strong>: sem pagamento, 3 perguntas escritas por semana (renovam na sexta-feira)</span></label>
       <label><input type="radio" name="plano" value="essencial"> <span><strong>Essencial</strong>: <span data-preco="essencial">R$ 14,90</span> por mês, 10 perguntas por dia</span></label>
       <label><input type="radio" name="plano" value="completo"> <span><strong>Completo</strong>: <span data-preco="completo">R$ 24,90</span> por mês, 20 perguntas por dia e relatório (em breve)</span></label>
     </fieldset>
-    <p class="dica">O período (mensal ou anual, que vale 10 mensalidades) você escolhe na hora do pagamento.</p>
+    <p class="dica">Toda inscrição já abre a sua conta no plano gratuito. Nos planos pagos, o período (mensal ou anual, que vale 10 mensalidades) você escolhe na hora do pagamento, e o plano passa a valer quando o pagamento for aprovado.</p>
     <div class="campo">
       <label for="campo-nome">Nome completo</label>
       <input id="campo-nome" name="nome" autocomplete="name" maxlength="120" required>
@@ -34,7 +35,7 @@
     <div class="campo">
       <label for="campo-email">E-mail</label>
       <input id="campo-email" name="email" type="email" autocomplete="email" maxlength="254" required>
-      <p class="dica">É por ele que chegam o protocolo, o link para criar a senha e os avisos da assinatura. O assunto do e-mail não fala de saúde.</p>
+      <p class="dica">É por ele que chegam o link para criar a senha, o protocolo e os avisos da conta. O assunto do e-mail não fala de saúde.</p>
     </div>
     <label class="caixa"><input id="caixa-termos" type="checkbox"> <span>Li e aceito os <a href="../termos/" target="_blank" rel="noopener">termos da assinatura e o aviso de privacidade</a> (abre em outra aba).</span></label>
     <label class="caixa"><input id="caixa-maior" type="checkbox"> <span>Tenho 18 anos ou mais.</span></label>
@@ -45,7 +46,8 @@
 
   <section id="feita" class="cartao" hidden tabindex="-1" aria-labelledby="titulo-feita">
     <h2 id="titulo-feita">Inscrição recebida</h2>
-    <p>Seu protocolo é <strong id="protocolo"></strong>. Ele também vai para o seu e-mail.</p>
+    <p id="conta-aberta">Sua conta já está aberta no plano gratuito. Se este e-mail ainda não tinha conta, chega nele o link para criar a senha (confira também a caixa de spam). Se já tinha, entre em <a href="../conta/">Minha conta</a>.</p>
+    <p id="linha-protocolo">Seu protocolo é <strong id="protocolo"></strong>. Ele também vai para o seu e-mail.</p>
     <p id="proximo-passo" class="aviso aviso--breve">O pagamento on-line abre em breve. Sua inscrição fica guardada, e avisaremos por e-mail.</p>
     <a id="ir-pagar" class="btn" href="../pagamento/" hidden>Ir para o pagamento</a>
   </section>
@@ -67,7 +69,7 @@
     if (alvo) alvo.textContent = C.dinheiro(C.CONFIG.planos[plano].mensal);
   });
   var pedido = C.parametro("plano");
-  var escolhida = formulario.querySelector('input[name="plano"][value="' + (pedido === "completo" ? "completo" : pedido === "essencial" ? "essencial" : "") + '"]');
+  var escolhida = formulario.querySelector('input[name="plano"][value="' + (pedido === "completo" || pedido === "essencial" || pedido === "gratuito" ? pedido : "") + '"]');
   if (escolhida) escolhida.checked = true;
 
   function fechar() {
@@ -116,7 +118,12 @@
       formulario.hidden = true;
       var feita = document.getElementById("feita");
       document.getElementById("protocolo").textContent = String(resposta.json.protocolo || "");
-      if (pagamentoAberto) {
+      // Gratuito (24/11): só a conta, sem protocolo nem pagamento.
+      if (plano.value === "gratuito") {
+        document.getElementById("titulo-feita").textContent = "Conta aberta";
+        document.getElementById("linha-protocolo").hidden = true;
+        document.getElementById("proximo-passo").hidden = true;
+      } else if (pagamentoAberto) {
         document.getElementById("proximo-passo").textContent = "Agora é só pagar. O acesso é liberado assim que o pagamento for aprovado.";
         var ir = document.getElementById("ir-pagar");
         ir.href = "../pagamento/?protocolo=" + encodeURIComponent(String(resposta.json.protocolo || ""));
