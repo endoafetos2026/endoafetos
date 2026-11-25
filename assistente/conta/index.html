@@ -5,18 +5,27 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
 <title>Minha conta | Assistente EndoAfetos</title>
-<link rel="stylesheet" href="../comum/estilo.css">
+<link rel="stylesheet" href="../comum/estilo.css?v=d53b2c2dea">
 </head>
 <body>
 <a class="pular" href="#conteudo">Pular para o conteúdo</a>
+<!-- ==== TOPO:INICIO ==== -->
 <header class="topo">
   <div class="topo__dentro">
-    <a class="topo__marca" href="../../">EndoAfetos</a>
-    <nav class="topo__ligacoes" aria-label="Conta"><a href="../planos/">Planos</a></nav>
+    <a class="topo__marca" href="../../"><img class="topo__logo" src="../../assets/logo.png" alt="" width="40" height="40" onerror="this.hidden=true">EndoAfetos</a>
+    <nav class="topo__ligacoes" aria-label="Conta">
+      <a class="topo__voltar" href="../planos/"><span aria-hidden="true">‹ </span>Voltar aos planos</a>
+    </nav>
   </div>
 </header>
+<!-- ==== TOPO:FIM ==== -->
 <main id="conteudo" tabindex="-1">
   <h1 id="titulo" tabindex="-1">Minha conta</h1>
+  <p id="carregando" class="dica" role="status">Carregando a sua conta.</p>
+  <div id="sem-resposta" class="aviso" role="alert" hidden>
+    <p id="sem-resposta-texto"></p>
+    <button id="tentar" class="btn btn--contorno" type="button">Tentar de novo</button>
+  </div>
   <p id="em-breve" class="aviso aviso--breve" hidden>As contas abrem em breve, junto com as assinaturas.</p>
 
   <form id="entrar" class="cartao" novalidate hidden>
@@ -43,7 +52,7 @@
     <div class="cartao">
       <h2 id="nome-do-plano"></h2>
       <dl class="dados">
-        <dt>Válida até</dt><dd id="valida-ate"></dd>
+        <dt id="rotulo-valida">Válida até</dt><dd id="valida-ate"></dd>
         <dt id="rotulo-uso">Perguntas escritas hoje</dt><dd id="uso-hoje"></dd>
         <dt id="rotulo-protocolo">Protocolo</dt><dd id="protocolo"></dd>
         <dt id="rotulo-pagamento" hidden>Último pagamento</dt><dd id="pagamento" hidden></dd>
@@ -68,9 +77,20 @@
     </div>
     <button id="sair" class="btn btn--contorno" type="button">Sair</button>
   </section>
+  <!-- ==== CANAIS:INICIO ==== -->
+  <section class="canais" aria-labelledby="titulo-canais">
+    <h2 id="titulo-canais">Precisa de ajuda agora?</h2>
+    <ul>
+      <li><a href="tel:192">SAMU 192: emergência médica</a></li>
+      <li><a href="tel:188">CVV 188: apoio emocional, 24 horas</a></li>
+      <li><a href="tel:180">Central de Atendimento à Mulher 180</a></li>
+      <li><a href="tel:190">Polícia 190</a></li>
+    </ul>
+  </section>
+  <!-- ==== CANAIS:FIM ==== -->
 </main>
 <p class="rodape">EndoAfetos, Salvador, Bahia</p>
-<script src="../comum/conta.js"></script>
+<script src="../comum/conta.js?v=23d20a98cd"></script>
 <script>
 (function () {
   "use strict";
@@ -95,14 +115,20 @@
       : admin ? "Conta de administração (todos os recursos de assinatura)"
         : "Plano " + conta.nome_do_plano + (conta.institucional ? " (pela sua instituição)" : "");
     document.getElementById("nome-do-plano").textContent = nome;
+    // Conta sem prazo (a gratuita e a de administração): a linha da validade não aparece.
     document.getElementById("valida-ate").textContent = conta.valida_ate
       ? C.data(conta.valida_ate) + " (faltam " + conta.dias_restantes + " dias)"
-      : "Sem prazo";
+      : "";
+    document.getElementById("rotulo-valida").hidden = !conta.valida_ate;
+    document.getElementById("valida-ate").hidden = !conta.valida_ate;
+    // O mesmo jeito de contar da conversa: quantas restam, de quantas, e quando renovam.
+    var restantes = typeof uso.restantes === "number" ? uso.restantes : Math.max(0, uso.limite - uso.usadas);
+    var renovacao = uso.renova_em ? C.data(uso.renova_em) : "";
     if (uso.janela === "semana") {
       document.getElementById("rotulo-uso").textContent = "Perguntas escritas nesta semana";
-      document.getElementById("uso-hoje").textContent = uso.usadas + " de " + uso.limite + ". Renovam na sexta-feira" + (uso.renova_em ? ", " + C.data(uso.renova_em) : "") + ".";
+      document.getElementById("uso-hoje").textContent = "Restam " + restantes + " de " + uso.limite + ". Elas renovam na sexta-feira" + (renovacao ? ", dia " + renovacao.slice(0, 5) : "") + ".";
     } else {
-      document.getElementById("uso-hoje").textContent = uso.usadas + " de " + uso.limite + ". Volta a zero à meia-noite.";
+      document.getElementById("uso-hoje").textContent = "Restam " + restantes + " de " + uso.limite + ". Elas renovam à meia-noite.";
     }
     document.getElementById("protocolo").textContent = conta.protocolo || "";
     document.getElementById("rotulo-protocolo").hidden = !conta.protocolo;
@@ -129,23 +155,46 @@
     mostrar(painel);
   }
 
+  var carregando = document.getElementById("carregando");
+  var semResposta = document.getElementById("sem-resposta");
+
+  // Sem internet ou com o servidor fora do ar: a página diz o que houve e oferece tentar de novo. Quem já entrou
+  // continua com a entrada valendo.
+  function mostrarSemResposta(erro) {
+    [formEntrar, formRecuperar, painel].forEach(function (bloco) { bloco.hidden = true; });
+    document.getElementById("sem-resposta-texto").textContent = C.frase(erro);
+    semResposta.hidden = false;
+  }
+
   function abrirConta(token) {
     return C.pedir("GET", "/api/conta", undefined, token).then(function (resposta) {
       if (resposta.ok) return preencherPainel(resposta.json);
+      if (resposta.json.erro === "rede") return mostrarSemResposta("rede");
       C.esquecerToken();
       mostrar(formEntrar);
       if (resposta.json.erro && resposta.json.erro !== "token_invalido") C.anunciar(document.getElementById("en-status"), C.frase(resposta.json.erro), "");
     });
   }
 
-  C.saude().then(function (saude) {
-    if (!saude || saude.inscricao !== true) {
-      document.getElementById("em-breve").hidden = false;
-      return;
-    }
-    var token = C.tokenGuardado();
-    if (token) abrirConta(token); else mostrar(formEntrar);
-  });
+  // Ao abrir: "carregando" até o servidor responder. "Em breve" só quando ele responde que as contas estão fechadas.
+  function abrir() {
+    carregando.hidden = false;
+    semResposta.hidden = true;
+    C.consultarSaude().then(function (resultado) {
+      carregando.hidden = true;
+      if (resultado.erro === "rede" || resultado.erro === "indisponivel") return mostrarSemResposta(resultado.erro);
+      if (!resultado.saude || resultado.saude.inscricao !== true) {
+        document.getElementById("em-breve").hidden = false;
+        return;
+      }
+      var token = C.tokenGuardado();
+      if (token) return abrirConta(token);
+      // "Pedir um link novo", na página da senha, traz a pessoa direto ao pedido do link (?recuperar=1).
+      mostrar(C.parametro("recuperar") === "1" ? formRecuperar : formEntrar);
+    });
+  }
+  document.getElementById("tentar").addEventListener("click", abrir);
+  abrir();
 
   formEntrar.addEventListener("submit", function (evento) {
     evento.preventDefault();
@@ -156,7 +205,7 @@
     if (email === "" || senha === "") return C.anunciar(status, "Preencha o e-mail e a senha.", "");
     botao.disabled = true;
     C.anunciar(status, "Entrando.", "");
-    C.fichaDoTurnstile(document.getElementById("en-desafio")).then(function (ficha) {
+    C.fichaDoTurnstile(document.getElementById("en-desafio"), status).then(function (ficha) {
       return C.pedir("POST", "/api/entrar", { email: email, senha: senha, turnstile: ficha });
     }, function () { return { ok: false, json: { erro: "turnstile_invalido" } }; }).then(function (resposta) {
       botao.disabled = false;
@@ -176,12 +225,12 @@
     var botao = formRecuperar.querySelector('button[type="submit"]');
     botao.disabled = true;
     C.anunciar(status, "Enviando.", "");
-    C.fichaDoTurnstile(document.getElementById("re-desafio")).then(function (ficha) {
+    C.fichaDoTurnstile(document.getElementById("re-desafio"), status).then(function (ficha) {
       return C.pedir("POST", "/api/entrar/recuperar", { email: document.getElementById("re-email").value.trim(), turnstile: ficha });
     }, function () { return { ok: false, json: { erro: "turnstile_invalido" } }; }).then(function (resposta) {
       botao.disabled = false;
       // A resposta é sempre a mesma, exista a conta ou não.
-      if (resposta.ok) return C.anunciar(status, "Se houver uma assinatura com este e-mail, o link chega em alguns minutos. Confira também a caixa de spam.", "ok");
+      if (resposta.ok) return C.anunciar(status, "Se houver uma conta com este e-mail, o link chega em alguns minutos. Confira também a caixa de spam.", "ok");
       C.anunciar(status, C.frase(resposta.json.erro), "");
     });
   });

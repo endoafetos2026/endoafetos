@@ -1,6 +1,6 @@
 /* Peças comuns das páginas de planos, inscrição, pagamento e conta (24/11/2026).
    Nada aqui é segredo: CONFIG.api é o endereço público do Worker e CONFIG.turnstile_sitekey é a chave pública do
-   Turnstile. Os dois ficam vazios no repositório e são preenchidos na publicação. Com CONFIG.api vazio, as páginas
+   Turnstile. Os dois ficam preenchidos no repositório, com os valores publicados. Com CONFIG.api vazio, as páginas
    mostram o estado "em breve" e não fazem pedido nenhum.
    Todo texto vindo do servidor entra por textContent, nunca como marcação. */
 (function (raiz) {
@@ -12,6 +12,8 @@
     espera_ms: 15000,
     // Prazo para o Turnstile entregar a ficha; sem ela, a página avisa e o botão volta, nunca fica parada.
     espera_turnstile_ms: 30000,
+    // Passado este tempo sem a ficha, a página diz que a verificação está demorando, para não parecer parada.
+    aviso_turnstile_ms: 8000,
     // Planos e preços para mostrar (os que valem são os do servidor, src/planos.mjs). O anual vale 10 mensalidades.
     planos: {
       essencial: { nome: "Essencial", mensal: 1490, anual: 14900, limite_diario: 10, relatorios: 0 },
@@ -31,12 +33,14 @@
     muitas_requisicoes: "Muitas tentativas em pouco tempo: aguarde alguns minutos.",
     dados_invalidos: "Confira os campos e tente de novo.",
     nao_encontrado: "Não encontramos uma inscrição com este protocolo e este e-mail.",
-    token_invalido: "Sua sessão terminou. Entre de novo.",
+    token_invalido: "Seu acesso terminou. Entre de novo para continuar.",
     senha_fraca: "A senha precisa ter pelo menos 10 caracteres, sem espaço no começo nem no fim.",
-    link_vencido: "O link venceu ou já foi usado. Peça um novo em \"Esqueci minha senha\".",
+    link_vencido: "O link venceu ou já foi usado. Peça um link novo: ele chega no seu e-mail em alguns minutos.",
     indisponivel: "O serviço está indisponível agora. Tente de novo daqui a pouco.",
     rede: "Não foi possível falar com o servidor. Confira a internet e tente de novo."
   };
+  // Dita no lugar do "Enviando" quando a verificação de segurança passa do tempo de aviso.
+  var DEMORA_NA_VERIFICACAO = "A verificação de segurança está demorando. Aguarde mais um pouco.";
 
   function frase(codigo) {
     return Object.prototype.hasOwnProperty.call(ERROS, codigo) ? ERROS[codigo] : ERROS.indisponivel;
@@ -75,8 +79,16 @@
     });
   }
 
+  // Saúde do servidor com o motivo da falha: "rede" (sem internet ou sem resposta), "desligada" (página sem servidor)
+  // ou "indisponivel". Com o motivo, a página não diz "em breve" quando o problema é a internet.
+  function consultarSaude() {
+    return pedir("GET", "/api/saude").then(function (r) {
+      if (r.ok) return { saude: r.json, erro: null };
+      return { saude: null, erro: r.json.erro === "rede" || r.json.erro === "desligada" ? r.json.erro : "indisponivel" };
+    });
+  }
   function saude() {
-    return pedir("GET", "/api/saude").then(function (r) { return r.ok ? r.json : null; });
+    return consultarSaude().then(function (r) { return r.saude; });
   }
 
   function dinheiro(centavos) {
@@ -108,16 +120,28 @@
 
   // Turnstile: carrega o widget só quando a página precisa, numa caixa da própria página.
   var promessaDoTurnstile = null;
+  var scriptDoTurnstile = null;
+  // O script que não chegou sai da página, e a tentativa seguinte começa do zero.
+  function desistirDoScript() {
+    promessaDoTurnstile = null;
+    if (scriptDoTurnstile && scriptDoTurnstile.parentNode) scriptDoTurnstile.parentNode.removeChild(scriptDoTurnstile);
+    scriptDoTurnstile = null;
+  }
   function carregarTurnstile() {
     if (!CONFIG.turnstile_sitekey) return Promise.reject(new Error("turnstile"));
     if (raiz.turnstile) return Promise.resolve(raiz.turnstile);
     if (promessaDoTurnstile) return promessaDoTurnstile;
     promessaDoTurnstile = new Promise(function (resolver, recusar) {
       var script = document.createElement("script");
+      scriptDoTurnstile = script;
       script.src = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
       script.async = true;
-      script.onload = function () { raiz.turnstile ? resolver(raiz.turnstile) : recusar(new Error("turnstile")); };
-      script.onerror = function () { promessaDoTurnstile = null; recusar(new Error("turnstile")); };
+      script.onload = function () {
+        if (raiz.turnstile) return resolver(raiz.turnstile);
+        desistirDoScript();
+        recusar(new Error("turnstile"));
+      };
+      script.onerror = function () { desistirDoScript(); recusar(new Error("turnstile")); };
       document.head.appendChild(script);
     });
     return promessaDoTurnstile;
@@ -125,18 +149,26 @@
   // Uma ficha nova a cada envio (ela só vale uma vez). Correção de 24/11 (conferência do Carlos): apagar a caixa à mão
   // deixava o widget anterior vivo dentro do Turnstile ("Cannot find Widget", erro 600010) e a ficha nova nunca
   // chegava, com a página parada. Agora o widget anterior sai pelo próprio turnstile.remove, e a espera tem prazo.
+  // O prazo conta desde o pedido: cobre também o script que não chega. Com `status` (o parágrafo de estado do
+  // formulário), a página avisa quando a verificação passa do tempo de aviso, em vez de parecer parada.
   var widgetsPorCaixa = typeof WeakMap === "function" ? new WeakMap() : null;
-  function fichaDoTurnstile(caixa) {
-    return carregarTurnstile().then(function (turnstile) {
-      return new Promise(function (resolver, recusar) {
-        var terminou = false;
-        var relogio = setTimeout(function () { acabar(recusar, new Error("turnstile_tempo")); }, CONFIG.espera_turnstile_ms);
-        function acabar(funcao, valor) {
-          if (terminou) return;
-          terminou = true;
-          clearTimeout(relogio);
-          funcao(valor);
-        }
+  function fichaDoTurnstile(caixa, status) {
+    return new Promise(function (resolver, recusar) {
+      var terminou = false;
+      var relogio = setTimeout(function () {
+        if (!raiz.turnstile) desistirDoScript();
+        acabar(recusar, new Error("turnstile_tempo"));
+      }, CONFIG.espera_turnstile_ms);
+      var aviso = status ? setTimeout(function () { if (!terminou) anunciar(status, DEMORA_NA_VERIFICACAO, ""); }, CONFIG.aviso_turnstile_ms) : null;
+      function acabar(funcao, valor) {
+        if (terminou) return;
+        terminou = true;
+        clearTimeout(relogio);
+        if (aviso !== null) clearTimeout(aviso);
+        funcao(valor);
+      }
+      carregarTurnstile().then(function (turnstile) {
+        if (terminou) return;
         var anterior = widgetsPorCaixa ? widgetsPorCaixa.get(caixa) : null;
         if (anterior !== null && anterior !== undefined) {
           try { turnstile.remove(anterior); } catch (e) { /* já tinha saído */ }
@@ -153,7 +185,7 @@
         } catch (e) {
           acabar(recusar, new Error("turnstile"));
         }
-      });
+      }, function (erro) { acabar(recusar, erro); });
     });
   }
 
@@ -191,7 +223,8 @@
   }
 
   raiz.EndoConta = {
-    CONFIG: CONFIG, ERROS: ERROS, frase: frase, apiLigada: apiLigada, pedir: pedir, saude: saude, dinheiro: dinheiro, data: data,
+    CONFIG: CONFIG, ERROS: ERROS, frase: frase, apiLigada: apiLigada, pedir: pedir, saude: saude, consultarSaude: consultarSaude,
+    dinheiro: dinheiro, data: data,
     no: no, anunciar: anunciar, fichaDoTurnstile: fichaDoTurnstile, guardarToken: guardarToken, tokenGuardado: tokenGuardado,
     planoGuardado: planoGuardado, esquecerToken: esquecerToken, parametro: parametro
   };

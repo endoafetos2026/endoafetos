@@ -5,16 +5,21 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
 <title>Inscrição | Assistente EndoAfetos</title>
-<link rel="stylesheet" href="../comum/estilo.css">
+<link rel="stylesheet" href="../comum/estilo.css?v=d53b2c2dea">
 </head>
 <body>
 <a class="pular" href="#conteudo">Pular para o conteúdo</a>
+<!-- ==== TOPO:INICIO ==== -->
 <header class="topo">
   <div class="topo__dentro">
-    <a class="topo__marca" href="../../">EndoAfetos</a>
-    <nav class="topo__ligacoes" aria-label="Conta"><a href="../planos/">Planos</a><a href="../conta/">Entrar</a></nav>
+    <a class="topo__marca" href="../../"><img class="topo__logo" src="../../assets/logo.png" alt="" width="40" height="40" onerror="this.hidden=true">EndoAfetos</a>
+    <nav class="topo__ligacoes" aria-label="Conta">
+      <a class="topo__voltar" href="../planos/"><span aria-hidden="true">‹ </span>Voltar aos planos</a>
+      <a href="../conta/">Minha conta</a>
+    </nav>
   </div>
 </header>
+<!-- ==== TOPO:FIM ==== -->
 <main id="conteudo" tabindex="-1">
   <h1>Inscrição</h1>
   <p class="intro">Pedimos só o que é preciso para criar sua conta: nome completo e e-mail. Nada sobre a sua saúde.</p>
@@ -51,9 +56,20 @@
     <p id="proximo-passo" class="aviso aviso--breve">O pagamento on-line abre em breve. Sua inscrição fica guardada, e avisaremos por e-mail.</p>
     <a id="ir-pagar" class="btn" href="../pagamento/" hidden>Ir para o pagamento</a>
   </section>
+  <!-- ==== CANAIS:INICIO ==== -->
+  <section class="canais" aria-labelledby="titulo-canais">
+    <h2 id="titulo-canais">Precisa de ajuda agora?</h2>
+    <ul>
+      <li><a href="tel:192">SAMU 192: emergência médica</a></li>
+      <li><a href="tel:188">CVV 188: apoio emocional, 24 horas</a></li>
+      <li><a href="tel:180">Central de Atendimento à Mulher 180</a></li>
+      <li><a href="tel:190">Polícia 190</a></li>
+    </ul>
+  </section>
+  <!-- ==== CANAIS:FIM ==== -->
 </main>
 <p class="rodape">EndoAfetos, Salvador, Bahia</p>
-<script src="../comum/conta.js"></script>
+<script src="../comum/conta.js?v=23d20a98cd"></script>
 <script>
 (function () {
   "use strict";
@@ -76,9 +92,12 @@
     fechada.hidden = false;
     formulario.querySelector("button").disabled = true;
   }
-  C.saude().then(function (saude) {
-    if (!saude || saude.inscricao !== true) return fechar();
-    pagamentoAberto = saude.pagamento === true;
+  // "Em breve" só quando o servidor responde que a inscrição está fechada. Sem internet, a página diz isso e o botão
+  // continua valendo, para a pessoa tentar de novo.
+  C.consultarSaude().then(function (resultado) {
+    if (resultado.erro === "rede" || resultado.erro === "indisponivel") return C.anunciar(status, C.frase(resultado.erro), "");
+    if (!resultado.saude || resultado.saude.inscricao !== true) return fechar();
+    pagamentoAberto = resultado.saude.pagamento === true;
   });
 
   function marcarCampo(id, errado) {
@@ -100,11 +119,11 @@
     if (!nomeOk) return C.anunciar(status, "Escreva o nome completo, com sobrenome.", "");
     if (!emailOk) return C.anunciar(status, "Confira o e-mail.", "");
     if (!document.getElementById("caixa-termos").checked) return C.anunciar(status, "Para seguir, aceite os termos.", "");
-    if (!document.getElementById("caixa-maior").checked) return C.anunciar(status, "A assinatura é só para quem tem 18 anos ou mais.", "");
+    if (!document.getElementById("caixa-maior").checked) return C.anunciar(status, "A conta é só para quem tem 18 anos ou mais.", "");
     var botao = formulario.querySelector("button");
     botao.disabled = true;
     C.anunciar(status, "Enviando.", "");
-    C.fichaDoTurnstile(document.getElementById("caixa-desafio")).then(function (ficha) {
+    C.fichaDoTurnstile(document.getElementById("caixa-desafio"), status).then(function (ficha) {
       return C.pedir("POST", "/api/inscricoes", {
         nome: nome, email: email, plano: plano.value,
         aceites: { termos: true, maior_de_18: true, versao_textos: VERSAO_DOS_TEXTOS },

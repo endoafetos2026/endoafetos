@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
 <title>Conversa | Assistente EndoAfetos</title>
-<link rel="stylesheet" href="../../comum/estilo.css">
+<link rel="stylesheet" href="../../comum/estilo.css?v=d53b2c2dea">
 <style>
 .registro { margin: 0 0 1rem; }
 .msg { padding: .85rem 1rem; border-radius: var(--radius-sm); margin: 0 0 .75rem; background: var(--surface); border: 1px solid var(--line); }
@@ -16,32 +16,38 @@
 .msg__apoio { margin: .5rem 0 0; padding-top: .5rem; border-top: 1px solid var(--line); font-weight: 700; }
 .saber-mais { margin-top: .5rem; }
 .saber-mais summary { cursor: pointer; font-weight: 700; color: var(--rose-dark); min-height: 44px; display: flex; align-items: center; }
+.saber-mais .msg__texto { margin: 0 0 1rem; padding-top: .75rem; border-top: 1px solid var(--line); }
 .saber-mais__nota { font-size: .85rem; color: var(--ink-soft); }
-.escrita textarea { width: 100%; min-height: 96px; padding: .6rem .75rem; border: 2px solid var(--line); border-radius: var(--radius-sm); font: inherit; color: var(--ink); }
+.escrita textarea { width: 100%; min-height: 96px; padding: .6rem .75rem; border: 2px solid var(--ink-soft); border-radius: var(--radius-sm); font: inherit; color: var(--ink); }
 </style>
 </head>
 <body>
 <a class="pular" href="#campo">Pular para o campo de escrita</a>
+<!-- ==== TOPO:INICIO ==== -->
 <header class="topo">
   <div class="topo__dentro">
-    <a class="topo__marca" href="../../../">EndoAfetos</a>
-    <nav class="topo__ligacoes" aria-label="Conta"><a href="../">Minha conta</a></nav>
+    <a class="topo__marca" href="../../../"><img class="topo__logo" src="../../../assets/logo.png" alt="" width="40" height="40" onerror="this.hidden=true">EndoAfetos</a>
+    <nav class="topo__ligacoes" aria-label="Conta">
+      <a class="topo__voltar" href="../"><span aria-hidden="true">‹ </span>Voltar à minha conta</a>
+    </nav>
   </div>
 </header>
+<!-- ==== TOPO:FIM ==== -->
 <main id="conteudo" tabindex="-1">
   <h1 id="titulo" tabindex="-1">Conversa</h1>
   <p class="dica">A assistente informa e acolhe com conteúdo revisado pela equipe. Ela não faz diagnóstico, não interpreta exames e não indica remédios. Esta conversa não fica guardada: ao sair, ela some desta tela.</p>
-  <p id="restantes" class="dica" role="status" aria-live="polite"></p>
   <p id="sem-sessao" class="aviso" hidden>Para conversar, entre na sua conta. <a href="../">Entrar</a></p>
   <div id="registro" class="registro" role="log" aria-live="polite" aria-relevant="additions" aria-label="Mensagens da conversa"></div>
   <form id="escrita" class="escrita cartao" novalidate hidden>
     <label class="legenda" for="campo">Escreva sua pergunta</label>
-    <textarea id="campo" maxlength="1000" autocomplete="off" aria-describedby="dica-microfone status"></textarea>
+    <textarea id="campo" maxlength="1000" autocomplete="off" aria-describedby="dica-microfone restantes status"></textarea>
     <p id="dica-microfone" class="dica">Para falar em vez de digitar, toque no microfone do teclado do celular.</p>
+    <p id="restantes" class="dica" role="status" aria-live="polite"></p>
     <p id="status" class="status" role="status" aria-live="polite"></p>
     <button class="btn" type="submit">Enviar</button>
     <button id="encerrar" class="btn btn--contorno" type="button">Encerrar conversa</button>
   </form>
+  <!-- ==== CANAIS:INICIO ==== -->
   <section class="canais" aria-labelledby="titulo-canais">
     <h2 id="titulo-canais">Precisa de ajuda agora?</h2>
     <ul>
@@ -51,8 +57,9 @@
       <li><a href="tel:190">Polícia 190</a></li>
     </ul>
   </section>
+  <!-- ==== CANAIS:FIM ==== -->
 </main>
-<script src="../../comum/conta.js"></script>
+<script src="../../comum/conta.js?v=23d20a98cd"></script>
 <script>
 (function () {
   "use strict";
@@ -68,11 +75,28 @@
   var enviando = false;
   var token = C.tokenGuardado();
 
+  // Sem entrada válida: o campo some e a página leva a pessoa a entrar de novo.
+  function semEntrada() {
+    C.esquecerToken();
+    formulario.hidden = true;
+    document.getElementById("sem-sessao").hidden = false;
+  }
   if (!token) {
     document.getElementById("sem-sessao").hidden = false;
     return;
   }
   formulario.hidden = false;
+
+  // Ao abrir, a conta diz quantas perguntas restam e quando renovam: o contador aparece antes da primeira pergunta.
+  // Se a consulta falhar, a conversa segue, e o contador aparece depois da primeira resposta.
+  var uso = null;
+  C.pedir("GET", "/api/conta", undefined, token).then(function (resposta) {
+    if (resposta.ok && resposta.json.uso && typeof resposta.json.uso === "object") {
+      uso = resposta.json.uso;
+      return mostrarRestantes(uso.restantes);
+    }
+    if (resposta.json.erro === "token_invalido") semEntrada();
+  });
 
   function historico() {
     var lista = turnos.slice(-MAX_TURNOS);
@@ -107,10 +131,15 @@
 
   function mostrarRestantes(restantes) {
     if (typeof restantes !== "number") return;
-    // Plano gratuito: 3 perguntas por semana, que renovam na sexta-feira.
-    document.getElementById("restantes").textContent = C.planoGuardado() === "gratuito"
-      ? "Perguntas escritas que restam nesta semana: " + restantes + ". Elas renovam na sexta-feira."
-      : "Perguntas escritas que restam hoje: " + restantes;
+    // Plano gratuito: perguntas por semana, que renovam na sexta-feira. O total e a data vêm da conta, lida ao abrir;
+    // sem ela, vale o plano guardado na entrada.
+    var semanal = uso ? uso.janela === "semana" : C.planoGuardado() === "gratuito";
+    var total = uso && typeof uso.limite === "number" ? " de " + uso.limite : "";
+    var renovacao = uso && uso.renova_em ? C.data(uso.renova_em) : "";
+    var dia = renovacao ? ", dia " + renovacao.slice(0, 5) : "";
+    document.getElementById("restantes").textContent = semanal
+      ? "Perguntas escritas que restam nesta semana: " + restantes + total + ". Elas renovam na sexta-feira" + dia + "."
+      : "Perguntas escritas que restam hoje: " + restantes + total + ". Elas renovam à meia-noite.";
   }
 
   formulario.addEventListener("submit", function (evento) {
@@ -136,12 +165,7 @@
         if (dados.tipo === "seguranca") caixa.focus();
         return;
       }
-      if (dados.erro === "token_invalido") {
-        C.esquecerToken();
-        formulario.hidden = true;
-        document.getElementById("sem-sessao").hidden = false;
-        return;
-      }
+      if (dados.erro === "token_invalido") return semEntrada();
       if (dados.erro === "assinatura_inativa" || dados.erro === "inscricao_desligada") {
         formulario.hidden = true;
         return mensagem("msg--assistente", "Assistente", C.frase(dados.erro));
