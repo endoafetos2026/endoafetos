@@ -30,6 +30,8 @@ body {
   background: radial-gradient(1200px 600px at 50% -10%, var(--gold-soft) 0%, transparent 55%), linear-gradient(180deg, var(--cream) 0%, var(--cream-2) 100%);
 }
 p { margin: 0 0 1em; }
+img { max-width: 100%; }
+button, a, label, input, textarea { touch-action: manipulation; }
 :focus { outline: 3px solid var(--rose-dark); outline-offset: 3px; }
 :focus:not(:focus-visible) { outline: none; }
 main:focus, [tabindex="-1"]:focus { outline: none; }
@@ -38,8 +40,12 @@ a { color: var(--rose-dark); }
 .pular:focus { top: 1rem; }
 .topo { background: var(--cream); border-bottom: 1px solid var(--line); }
 .topo__dentro { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; max-width: 760px; margin: 0 auto; padding: .65rem 1rem; }
-.topo__marca { margin: 0; font-family: var(--serif); font-size: 1.3rem; font-weight: 600; color: var(--ink); text-decoration: none; }
-.topo__ligacoes a { display: inline-flex; align-items: center; min-height: 44px; margin-left: 1rem; font-weight: 700; }
+.topo__marca { display: inline-flex; align-items: center; min-height: 44px; margin: 0 1rem 0 0; font-family: var(--serif); font-size: 1.3rem; font-weight: 600; color: var(--ink); text-decoration: none; }
+/* O logotipo, como o avatar da conversa: a borboleta inteira dentro de um círculo claro. */
+.topo__logo { flex: none; width: 40px; height: 40px; margin-right: .6rem; padding: 4px; object-fit: contain; background: var(--surface); border: 2px solid var(--rose); border-radius: 50%; }
+/* Margem à direita, não à esquerda: quando as ligações descem para a linha de baixo, ficam alinhadas com a marca. */
+.topo__ligacoes a { display: inline-flex; align-items: center; min-height: 44px; margin-right: 1rem; font-weight: 700; }
+.topo__ligacoes a:last-child { margin-right: 0; }
 main { max-width: 760px; margin: 0 auto; padding: 1.5rem 1rem 3rem; }
 h1, h2, h3 { font-family: var(--serif); color: var(--ink); line-height: 1.25; }
 h1 { font-size: 1.85rem; margin: .5rem 0 1rem; }
@@ -49,20 +55,26 @@ h3 { font-size: 1.15rem; margin: 0 0 .5rem; }
 .cartao { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); padding: 1.25rem 1.25rem 1rem; margin: 0 0 1.25rem; }
 .cartao--destaque { border: 2px solid var(--rose); }
 .preco { font-family: var(--serif); font-size: 1.6rem; font-weight: 600; margin: .25rem 0 .25rem; color: var(--rose-dark); }
+/* O período ("por mês") vai menor que o valor: com a mesma letra grande, o preço quebrava em duas linhas no cartão. */
+.preco__periodo { font-family: var(--sans); font-size: 1rem; font-weight: 700; color: var(--ink); }
 .preco__ano { display: block; font-size: .95rem; color: var(--ink-soft); }
 .itens { margin: .5rem 0 1rem; padding-left: 1.25rem; }
 .itens li { margin-bottom: .35rem; }
 .em-breve { display: inline-block; margin-left: .35rem; padding: 0 .5rem; border-radius: 999px; background: var(--lavender-soft); color: var(--ink); font-size: .8rem; font-weight: 700; }
-.btn { display: inline-flex; align-items: center; justify-content: center; min-height: 48px; padding: .7rem 1.25rem; margin: .25rem .5rem .25rem 0; border: 2px solid var(--rose-dark); border-radius: 999px; background: var(--rose-dark); color: #fff; font: inherit; font-weight: 700; text-decoration: none; cursor: pointer; }
+.btn { display: inline-flex; align-items: center; justify-content: center; min-height: 48px; padding: .7rem 1.25rem; margin: .25rem .5rem .25rem 0; border: 2px solid var(--rose-dark); border-radius: 999px; background: var(--rose-dark); color: #fff; font: inherit; font-weight: 700; text-align: center; text-decoration: none; cursor: pointer; }
 .btn--contorno { background: transparent; color: var(--rose-dark); }
 .btn[disabled], .btn[aria-disabled="true"] { opacity: .55; cursor: not-allowed; }
 .aviso { padding: .85rem 1rem; border-radius: var(--radius-sm); background: var(--rose-mist); border-left: 4px solid var(--rose); margin: 0 0 1rem; }
 .aviso--ok { background: var(--ok-soft); border-left-color: var(--ok); }
 .aviso--breve { background: var(--lavender-soft); border-left-color: var(--lavender); }
-.dica { font-size: .92rem; color: var(--ink-soft); margin: .25rem 0 .75rem; }
+/* Sobre o fundo da página o cinza não chega ao contraste 4,5: lá a dica usa a cor principal. Dentro do cartão, que é
+   branco, o cinza passa. */
+.dica { font-size: .92rem; color: var(--ink); margin: .25rem 0 .75rem; }
+.cartao .dica { color: var(--ink-soft); }
 .campo { margin: 0 0 1rem; }
 .campo label, .legenda { display: block; font-weight: 700; margin-bottom: .3rem; }
-.campo input, .campo select, .campo textarea { width: 100%; min-height: 48px; padding: .6rem .75rem; border: 2px solid var(--line); border-radius: var(--radius-sm); font: inherit; color: var(--ink); background: var(--surface); }
+/* O contorno do campo precisa de 3 para 1 contra o cartão branco, para a pessoa ver onde escrever. */
+.campo input, .campo select, .campo textarea { width: 100%; min-height: 48px; padding: .6rem .75rem; border: 2px solid var(--ink-soft); border-radius: var(--radius-sm); font: inherit; color: var(--ink); background: var(--surface); }
 .campo input:focus, .campo select:focus, .campo textarea:focus { border-color: var(--rose-dark); }
 .campo--erro input, .campo--erro select { border-color: #a1263b; }
 .erro-campo { color: #a1263b; font-size: .92rem; margin: .25rem 0 0; }
@@ -78,8 +90,10 @@ fieldset { border: 0; padding: 0; margin: 0 0 1rem; }
 .canais { margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--line); font-size: .95rem; }
 .canais ul { padding-left: 1.25rem; }
 .canais a { display: inline-flex; min-height: 44px; align-items: center; }
-.rodape { text-align: center; font-size: .9rem; color: var(--ink-soft); padding: 1rem; }
+.rodape { text-align: center; font-size: .9rem; color: var(--ink); padding: 1rem; }
 @media (min-width: 720px) {
   .grade { display: flex; flex-wrap: wrap; margin: 0 -.5rem; }
-  .grade > .cartao { flex: 1 1 30%; margin: 0 .5rem 1.25rem; }
+  /* Cartões lado a lado com a mesma altura e o botão embaixo, na mesma linha nos três, ocupando a largura do cartão. */
+  .grade > .cartao { display: flex; flex-direction: column; flex: 1 1 30%; margin: 0 .5rem 1.25rem; }
+  .grade > .cartao .btn { margin: auto 0 .25rem; }
 }

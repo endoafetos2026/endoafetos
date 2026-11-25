@@ -5,16 +5,21 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
 <title>Pagamento e reembolso | Assistente EndoAfetos</title>
-<link rel="stylesheet" href="../comum/estilo.css">
+<link rel="stylesheet" href="../comum/estilo.css?v=d53b2c2dea">
 </head>
 <body>
 <a class="pular" href="#conteudo">Pular para o conteúdo</a>
+<!-- ==== TOPO:INICIO ==== -->
 <header class="topo">
   <div class="topo__dentro">
-    <a class="topo__marca" href="../../">EndoAfetos</a>
-    <nav class="topo__ligacoes" aria-label="Conta"><a href="../planos/">Planos</a><a href="../conta/">Minha conta</a></nav>
+    <a class="topo__marca" href="../../"><img class="topo__logo" src="../../assets/logo.png" alt="" width="40" height="40" onerror="this.hidden=true">EndoAfetos</a>
+    <nav class="topo__ligacoes" aria-label="Conta">
+      <a class="topo__voltar" href="../planos/"><span aria-hidden="true">‹ </span>Voltar aos planos</a>
+      <a href="../conta/">Minha conta</a>
+    </nav>
   </div>
 </header>
+<!-- ==== TOPO:FIM ==== -->
 <main id="conteudo" tabindex="-1">
   <h1>Pagamento</h1>
   <p id="volta" role="status" aria-live="polite" hidden></p>
@@ -55,9 +60,20 @@
     <p id="re-status" class="status" role="status" aria-live="polite"></p>
     <button class="btn btn--contorno" type="submit">Pedir reembolso</button>
   </form>
+  <!-- ==== CANAIS:INICIO ==== -->
+  <section class="canais" aria-labelledby="titulo-canais">
+    <h2 id="titulo-canais">Precisa de ajuda agora?</h2>
+    <ul>
+      <li><a href="tel:192">SAMU 192: emergência médica</a></li>
+      <li><a href="tel:188">CVV 188: apoio emocional, 24 horas</a></li>
+      <li><a href="tel:180">Central de Atendimento à Mulher 180</a></li>
+      <li><a href="tel:190">Polícia 190</a></li>
+    </ul>
+  </section>
+  <!-- ==== CANAIS:FIM ==== -->
 </main>
 <p class="rodape">EndoAfetos, Salvador, Bahia</p>
-<script src="../comum/conta.js"></script>
+<script src="../comum/conta.js?v=23d20a98cd"></script>
 <script>
 (function () {
   "use strict";
@@ -86,8 +102,10 @@
     document.querySelector("#pagar button").disabled = true;
     document.querySelector("#reembolso button").disabled = true;
   }
-  C.saude().then(function (saude) {
-    if (!saude || saude.inscricao !== true || saude.pagamento !== true) mostrarEmBreve();
+  // "Em breve" só quando o servidor responde que o pagamento está fechado. Sem internet, a página diz isso.
+  C.consultarSaude().then(function (resultado) {
+    if (resultado.erro === "rede" || resultado.erro === "indisponivel") return C.anunciar(document.getElementById("pg-status"), C.frase(resultado.erro), "");
+    if (!resultado.saude || resultado.saude.inscricao !== true || resultado.saude.pagamento !== true) mostrarEmBreve();
   });
 
   // Destino do link de pagamento: só o Mercado Pago.
@@ -104,7 +122,7 @@
     var periodo = document.querySelector('input[name="periodo"]:checked').value;
     botao.disabled = true;
     C.anunciar(status, "Preparando o pagamento.", "");
-    C.fichaDoTurnstile(document.getElementById("pg-desafio")).then(function (ficha) {
+    C.fichaDoTurnstile(document.getElementById("pg-desafio"), status).then(function (ficha) {
       return C.pedir("POST", "/api/cobrancas", { protocolo: valor("pg-protocolo"), email: valor("pg-email"), periodo: periodo, tomador: tomador, turnstile: ficha });
     }, function () { return { ok: false, json: { erro: "turnstile_invalido" } }; }).then(function (resposta) {
       botao.disabled = false;
@@ -135,7 +153,7 @@
     botao.disabled = true;
     C.anunciar(status, "Enviando o pedido.", "");
     var motivo = valor("re-motivo");
-    C.fichaDoTurnstile(document.getElementById("re-desafio")).then(function (ficha) {
+    C.fichaDoTurnstile(document.getElementById("re-desafio"), status).then(function (ficha) {
       var corpo = { protocolo: valor("re-protocolo"), email: valor("re-email"), turnstile: ficha };
       if (motivo !== "") corpo.motivo = motivo;
       return C.pedir("POST", "/api/reembolsos", corpo);

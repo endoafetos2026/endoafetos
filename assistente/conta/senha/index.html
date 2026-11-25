@@ -6,14 +6,26 @@
 <meta name="robots" content="noindex">
 <meta name="referrer" content="no-referrer">
 <title>Criar senha | Assistente EndoAfetos</title>
-<link rel="stylesheet" href="../../comum/estilo.css">
+<link rel="stylesheet" href="../../comum/estilo.css?v=d53b2c2dea">
 </head>
 <body>
 <a class="pular" href="#conteudo">Pular para o conteúdo</a>
-<header class="topo"><div class="topo__dentro"><a class="topo__marca" href="../../../">EndoAfetos</a></div></header>
+<!-- ==== TOPO:INICIO ==== -->
+<header class="topo">
+  <div class="topo__dentro">
+    <a class="topo__marca" href="../../../"><img class="topo__logo" src="../../../assets/logo.png" alt="" width="40" height="40" onerror="this.hidden=true">EndoAfetos</a>
+    <nav class="topo__ligacoes" aria-label="Conta">
+      <a class="topo__voltar" href="../"><span aria-hidden="true">‹ </span>Voltar à minha conta</a>
+    </nav>
+  </div>
+</header>
+<!-- ==== TOPO:FIM ==== -->
 <main id="conteudo" tabindex="-1">
   <h1 id="titulo" tabindex="-1">Criar sua senha</h1>
-  <p id="sem-link" class="aviso" hidden>Este endereço precisa do link que chegou no seu e-mail. Se ele venceu, peça um novo em <a href="../">Minha conta</a>, no "Esqueci minha senha".</p>
+  <div id="sem-link" class="aviso" hidden tabindex="-1">
+    <p id="sem-link-texto">Este endereço precisa do link que chegou no seu e-mail. Se ele venceu, peça um link novo.</p>
+    <a class="btn" href="../?recuperar=1">Pedir um link novo</a>
+  </div>
   <form id="senha" class="cartao" novalidate hidden>
     <p>Escolha uma senha com pelo menos 10 caracteres. Uma frase curta que só você conhece é um bom caminho.</p>
     <div class="campo"><label for="nova">Senha nova</label><input id="nova" type="password" autocomplete="new-password" minlength="10" maxlength="200"></div>
@@ -26,8 +38,19 @@
     <p>Agora é só entrar com o seu e-mail e a senha nova.</p>
     <a class="btn" href="../">Entrar</a>
   </section>
+  <!-- ==== CANAIS:INICIO ==== -->
+  <section class="canais" aria-labelledby="titulo-canais">
+    <h2 id="titulo-canais">Precisa de ajuda agora?</h2>
+    <ul>
+      <li><a href="tel:192">SAMU 192: emergência médica</a></li>
+      <li><a href="tel:188">CVV 188: apoio emocional, 24 horas</a></li>
+      <li><a href="tel:180">Central de Atendimento à Mulher 180</a></li>
+      <li><a href="tel:190">Polícia 190</a></li>
+    </ul>
+  </section>
+  <!-- ==== CANAIS:FIM ==== -->
 </main>
-<script src="../../comum/conta.js"></script>
+<script src="../../comum/conta.js?v=23d20a98cd"></script>
 <script>
 (function () {
   "use strict";
@@ -38,12 +61,24 @@
   var tokenDeAcesso = null;
   fragmento.split("&").forEach(function (parte) {
     var par = parte.split("=");
-    if (par[0] === "access_token" && par[1]) tokenDeAcesso = decodeURIComponent(par[1]);
+    if (par[0] === "access_token" && par[1]) {
+      try { tokenDeAcesso = decodeURIComponent(par[1]); } catch (e) { tokenDeAcesso = null; }
+    }
   });
+  // Link vencido ou já usado: o serviço de contas devolve a pessoa para cá com um erro no lugar do token.
+  var veioComErro = /(?:^|[?&#])error(?:_code)?=/.test(window.location.search + "#" + fragmento);
   if (window.history && typeof window.history.replaceState === "function") window.history.replaceState(null, "", window.location.pathname);
   var formulario = document.getElementById("senha");
+  // Sem link, ou com o link vencido: a página explica e oferece o pedido de um link novo.
+  function mostrarSemLink(texto) {
+    var bloco = document.getElementById("sem-link");
+    if (texto) document.getElementById("sem-link-texto").textContent = texto;
+    formulario.hidden = true;
+    bloco.hidden = false;
+    bloco.focus();
+  }
   if (!tokenDeAcesso || !/^[A-Za-z0-9._-]{20,4096}$/.test(tokenDeAcesso)) {
-    document.getElementById("sem-link").hidden = false;
+    mostrarSemLink(veioComErro ? C.frase("link_vencido") : "");
     return;
   }
   formulario.hidden = false;
@@ -59,6 +94,10 @@
     C.anunciar(status, "Criando a senha.", "");
     C.pedir("POST", "/api/senha", { token_acesso: tokenDeAcesso, senha: nova }).then(function (resposta) {
       botao.disabled = false;
+      if (resposta.json.erro === "link_vencido") {
+        tokenDeAcesso = null;
+        return mostrarSemLink(C.frase("link_vencido"));
+      }
       if (!resposta.ok) return C.anunciar(status, C.frase(resposta.json.erro), "");
       tokenDeAcesso = null;
       formulario.hidden = true;
