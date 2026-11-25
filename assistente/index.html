@@ -6,7 +6,7 @@
 <!-- remover quando o conteúdo for assinado -->
 <meta name="robots" content="noindex">
 <!-- ==== CABECA:INICIO ==== -->
-<title>MarIA Flor — assistente virtual da EndoAfetos</title>
+<title>Maria FlorIA — assistente virtual da EndoAfetos</title>
 <meta name="theme-color" content="#b3427a">
 <!-- ==== CABECA:FIM ==== -->
 <link rel="icon" type="image/png" href="../assets/logo.png">
@@ -86,6 +86,8 @@ button, a, label, input, textarea { touch-action: manipulation; }
 .topo__nome { font-family: var(--serif); font-size: 1.4rem; font-weight: 600; color: var(--ink); }
 .topo__nome em { font-style: normal; color: var(--rose-dark); }
 .topo__sub { font-size: .9rem; color: var(--ink); }
+/* Texto so para o leitor de tela (a forma falada do nome): fora da vista, mas lido. */
+.so-leitor { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
 
 /* Avatar: a borboleta do logotipo. Cada estado muda o traço e o halo, não só a cor. */
 .avatar {
@@ -439,9 +441,9 @@ a.btn { text-decoration: none; }
 <header class="topo">
   <div class="topo__dentro">
     <!-- ==== MARCA:INICIO ==== -->
-    <img class="avatar" id="avatar" src="../assets/logo.png" alt="Borboleta do logotipo EndoAfetos, avatar da MarIA Flor" width="56" height="56" data-estado="acolhimento" onerror="this.hidden=true">
+    <img class="avatar" id="avatar" src="../assets/logo.png" alt="Borboleta do logotipo EndoAfetos, avatar da Maria Flor" width="56" height="56" data-estado="acolhimento" onerror="this.hidden=true">
     <p class="topo__marca">
-      <span class="topo__nome">MarIA <em>Flor</em></span>
+      <span class="topo__nome"><span aria-hidden="true">Maria Flor<em>IA</em></span><span class="so-leitor">Maria Flor</span></span>
       <span class="topo__sub">Assistente virtual da EndoAfetos</span>
     </p>
     <!-- ==== MARCA:FIM ==== -->
@@ -468,12 +470,12 @@ a.btn { text-decoration: none; }
 /* ==== IDENTIDADE:INICIO ==== */
 // Nome da assistente e como a voz o diz. Gerado a partir da identidade: nao edite o que esta entre os marcadores.
 const IDENTIDADE = {
-  versao: "0.1.0-provisoria",
-  nome: "MarIA Flor",
+  versao: "0.2.0-provisoria",
+  nome: "Maria FlorIA",
   nome_falado: "Maria Flor",
   artigo: "a",
   descricao: "assistente virtual da EndoAfetos",
-  pronuncias: [["MarIA", "Maria"]]
+  pronuncias: [["FlorIA", "Flor"]]
 };
 // Nos textos, o nome da assistente e a marca {assistente}: aqui ela vira o nome, em todo texto do objeto.
 function comIdentidade(valor) {
@@ -484,7 +486,7 @@ function comIdentidade(valor) {
   return valor;
 }
 /* ==== IDENTIDADE:FIM ==== */
-const VERSAO_PAGINA = "provisorio-2026-11-24";
+const VERSAO_PAGINA = "provisorio-2026-11-26";
 
 // api vazio = modo demonstracao sem servidor: nenhuma requisicao sai da pagina.
 const CONFIG = {
@@ -492,10 +494,10 @@ const CONFIG = {
   turnstile_sitekey: "0x4AAAAAAGI2ABZoxe7E4K2n",
   turnstile_script: "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit",
   // Precisa ser igual a versao de aceite configurada no Worker.
-  versao_aceite: "provisorio-2026-11-19",
+  versao_aceite: "provisorio-2026-11-26",
   // Com o cadastro do gratuito ligado no servidor, o aceite muda de texto e de versao. O VERSAO_ACEITE do ambiente
   // precisa ser este valor quando CADASTRO_GRATUITO for ligado.
-  versao_aceite_cadastro: "cadastro-provisorio-2026-11-24",
+  versao_aceite_cadastro: "cadastro-provisorio-2026-11-26",
   // Botao "Conhecer a EndoAfetos" do cartao de conversao: caminho do proprio site.
   link_conhecer: "../#contato",
   // Mostra no cartao de conversao o bloco do brinde do estande (BTX Salvador).
@@ -530,7 +532,7 @@ const CONFIG = {
 const TEXTOS = {
   provisorio: true,
   estado: "em_curadoria",
-  versao: "provisorio-2026-11-19",
+  versao: "provisorio-2026-11-26",
   nome: "{assistente}",
   carregando_titulo: "{assistente}",
   carregando: "Carregando.",
