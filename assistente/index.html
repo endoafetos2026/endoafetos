@@ -5,12 +5,15 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <!-- remover quando o conteúdo for assinado -->
 <meta name="robots" content="noindex">
+<!-- ==== CABECA:INICIO ==== -->
 <title>MarIA Flor — assistente virtual da EndoAfetos</title>
 <meta name="theme-color" content="#b3427a">
+<!-- ==== CABECA:FIM ==== -->
 <link rel="icon" type="image/png" href="../assets/logo.png">
 <style>
 /* Paleta e tipografia do site EndoAfetos, sem carregar fontes de fora */
 :root {
+  /* ==== CORES:INICIO ==== */
   --cream: #f8f4f2;
   --cream-2: #efe8ec;
   --surface: #ffffff;
@@ -23,8 +26,11 @@
   --ink: #494f83;
   --ink-soft: #6c6b88;
   --line: #e6dde3;
+  /* ==== CORES:FIM ==== */
+  /* ==== FONTES:INICIO ==== */
   --serif: 'Fraunces', Georgia, 'Times New Roman', serif;
   --sans: 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  /* ==== FONTES:FIM ==== */
   --radius: 20px;
   --radius-sm: 12px;
   --shadow: 0 18px 45px -22px rgba(73, 79, 131, 0.40);
@@ -432,11 +438,13 @@ a.btn { text-decoration: none; }
 
 <header class="topo">
   <div class="topo__dentro">
+    <!-- ==== MARCA:INICIO ==== -->
     <img class="avatar" id="avatar" src="../assets/logo.png" alt="Borboleta do logotipo EndoAfetos, avatar da MarIA Flor" width="56" height="56" data-estado="acolhimento" onerror="this.hidden=true">
     <p class="topo__marca">
       <span class="topo__nome">MarIA <em>Flor</em></span>
       <span class="topo__sub">Assistente virtual da EndoAfetos</span>
     </p>
+    <!-- ==== MARCA:FIM ==== -->
   </div>
 </header>
 
@@ -457,6 +465,25 @@ a.btn { text-decoration: none; }
 // CONFIG.api: endereco https do Worker, sem caminho. CONFIG.turnstile_sitekey: chave publica do widget do Turnstile.
 // Com os dois preenchidos, nada mais precisa mudar. Com CONFIG.api vazio, a pagina fica em demonstracao e nada sai dela.
 /* ==== DADOS:INICIO ==== */
+/* ==== IDENTIDADE:INICIO ==== */
+// Nome da assistente e como a voz o diz. Gerado a partir da identidade: nao edite o que esta entre os marcadores.
+const IDENTIDADE = {
+  versao: "0.1.0-provisoria",
+  nome: "MarIA Flor",
+  nome_falado: "Maria Flor",
+  artigo: "a",
+  descricao: "assistente virtual da EndoAfetos",
+  pronuncias: [["MarIA", "Maria"]]
+};
+// Nos textos, o nome da assistente e a marca {assistente}: aqui ela vira o nome, em todo texto do objeto.
+function comIdentidade(valor) {
+  if (typeof valor === "string") return valor.split("{assistente}").join(IDENTIDADE.nome);
+  if (valor && typeof valor === "object") {
+    Object.keys(valor).forEach(function (chave) { valor[chave] = comIdentidade(valor[chave]); });
+  }
+  return valor;
+}
+/* ==== IDENTIDADE:FIM ==== */
 const VERSAO_PAGINA = "provisorio-2026-11-24";
 
 // api vazio = modo demonstracao sem servidor: nenhuma requisicao sai da pagina.
@@ -504,16 +531,16 @@ const TEXTOS = {
   provisorio: true,
   estado: "em_curadoria",
   versao: "provisorio-2026-11-19",
-  nome: "MarIA Flor",
-  carregando_titulo: "MarIA Flor",
+  nome: "{assistente}",
+  carregando_titulo: "{assistente}",
   carregando: "Carregando.",
   aceite_titulo: "Antes de começar",
-  aceite: "A MarIA Flor é uma assistente de inteligência artificial. Ela informa e acolhe, mas não faz diagnóstico, não interpreta exames e não indica remédios. O que você escrever é enviado a um serviço de inteligência artificial para gerar a resposta e pode ser processado fora do Brasil. Não escreva seu nome completo, documentos nem laudos. Este espaço é para pessoas com 18 anos ou mais. Não é um canal de urgência: em emergência de saúde, ligue 192.",
+  aceite: "A {assistente} é uma assistente de inteligência artificial. Ela informa e acolhe, mas não faz diagnóstico, não interpreta exames e não indica remédios. O que você escrever é enviado a um serviço de inteligência artificial para gerar a resposta e pode ser processado fora do Brasil. Não escreva seu nome completo, documentos nem laudos. Este espaço é para pessoas com 18 anos ou mais. Não é um canal de urgência: em emergência de saúde, ligue 192.",
   caixa_aceite: "Li e concordo, e tenho 18 anos ou mais",
   // Gratuito com cadastro (24/11, provisorio, para o juridico): o nome completo e o e-mail entram so no cadastro; na
   // conversa continua valendo nao escrever o nome completo. A caixa de 18 anos fica separada do aceite.
   cadastro: {
-    aceite: "A MarIA Flor é uma assistente de inteligência artificial. Ela informa e acolhe, mas não faz diagnóstico, não interpreta exames e não indica remédios. O que você escrever na conversa é enviado a um serviço de inteligência artificial para gerar a resposta e pode ser processado fora do Brasil, e a conversa não é guardada. Na conversa, não escreva seu nome completo, documentos nem laudos. Não é um canal de urgência: em emergência de saúde, ligue 192.",
+    aceite: "A {assistente} é uma assistente de inteligência artificial. Ela informa e acolhe, mas não faz diagnóstico, não interpreta exames e não indica remédios. O que você escrever na conversa é enviado a um serviço de inteligência artificial para gerar a resposta e pode ser processado fora do Brasil, e a conversa não é guardada. Na conversa, não escreva seu nome completo, documentos nem laudos. Não é um canal de urgência: em emergência de saúde, ligue 192.",
     finalidade: "Pedimos o nome completo e o e-mail para identificar o seu cadastro, contar as 3 perguntas do dia e atender pedidos sobre os seus dados. Eles não vão para a inteligência artificial.",
     nome_rotulo: "Nome completo",
     email_rotulo: "E-mail",
@@ -550,16 +577,16 @@ const TEXTOS = {
   reabrir_dica: "O campo para escrever não abriu. Você pode tentar abrir de novo.",
   reabrir_botao: "Tentar abrir o campo de novo",
   demo_titulo: "A assistente ainda não está ligada",
-  demo_aviso: "Esta página está em modo demonstração sem servidor. A MarIA Flor ainda não está ligada, e nada do que você fizer aqui é enviado.",
+  demo_aviso: "Esta página está em modo demonstração sem servidor. A {assistente} ainda não está ligada, e nada do que você fizer aqui é enviado.",
   canais_titulo: "Canais de ajuda",
   emergencia: "Em emergência de saúde, ligue 192.",
   falha: "Tive um problema para responder agora, e esta pergunta não contou no seu limite. Você pode tentar de novo daqui a pouco ou escolher um tema nos botões.",
   tentar: "Tentar de novo",
-  conversa_titulo: "Conversa com a MarIA Flor",
+  conversa_titulo: "Conversa com a {assistente}",
   conversa_rotulo: "Mensagens da conversa",
   conversa_intro: "Escreva sua pergunta ou escolha um tema nos botões.",
   conversa_intro_guiado: "Escolha um tema nos botões.",
-  autor_assistente: "MarIA Flor",
+  autor_assistente: "{assistente}",
   autor_pessoa: "Você",
   aviso_limite: "Nesta versão respondo {n} perguntas escritas",
   aviso_limite_um: "Nesta versão respondo 1 pergunta escrita",
@@ -627,7 +654,7 @@ const TEXTOS = {
     encerramento: "Obrigada por participar dessa conversa sobre endometriose. Informação, escuta e acolhimento fazem diferença nessa jornada.",
     conheca_titulo: "Conheça a EndoAfetos!",
     conheca_texto: "Um espaço de informação, acolhimento e conexão. Venha conhecer nossa proposta, conversar com nossa equipe e descobrir como podemos caminhar juntas.",
-    ofertas_intro: "Em breve, a MarIA Flor pode acompanhar você de dois jeitos:",
+    ofertas_intro: "Em breve, a {assistente} pode acompanhar você de dois jeitos:",
     ofertas: [
       { titulo: "Apoio educativo no dia a dia", texto: "Para tirar dúvidas sobre endometriose quando você precisar, com informação revisada por profissionais de saúde." },
       { titulo: "Diário e relatório para a consulta", texto: "Para registrar como você está no dia a dia e gerar um relatório que ajuda na consulta médica ou no atendimento profissional." }
@@ -666,7 +693,7 @@ const TEXTOS = {
   // Os demais textos do formulario (e-mail, 18 anos, envio) sao os de "contato".
   pre_inscricao: {
     estado: "em_curadoria",
-    texto: "A MarIA Flor está em pré-lançamento. Quer ser avisada quando a versão completa abrir?",
+    texto: "A {assistente} está em pré-lançamento. Quer ser avisada quando a versão completa abrir?",
     nome_rotulo: "Nome (opcional)",
     plano_legenda: "Tenho interesse em:",
     planos: [
@@ -677,6 +704,8 @@ const TEXTOS = {
     falta_aviso: "Para enviar, marque que aceita ser avisada por e-mail."
   }
 };
+// Nos textos acima, o nome da assistente e a marca {assistente}; ela vira o nome aqui, uma vez so (ver IDENTIDADE).
+comIdentidade(TEXTOS);
 
 // So para o modo demonstracao sem servidor: com a API ligada, os canais vem de /api/guiado.
 // Numero e nome copiados da base provisoria. So mudar junto com a lista de canais assinada.
@@ -1224,8 +1253,11 @@ function mensagemDaRecusa(textos, resposta, padrao) {
   return mensagem || padrao;
 }
 
+// A voz diz o nome como ele se fala: cada grafia de IDENTIDADE.pronuncias vira a forma falada. So na fala; a tela nao muda.
 function textoFalado(texto) {
-  return String(texto).replace(/MarIA/g, "Maria");
+  let falado = String(texto);
+  IDENTIDADE.pronuncias.forEach(function (par) { falado = falado.split(par[0]).join(par[1]); });
+  return falado;
 }
 
 function semAcentos(texto) {
@@ -1697,7 +1729,7 @@ function montarFeedback(dados) {
   }
 
   // 24/11 (PLANO-PAINEL-E-CONTAS.md, secao 2, item 3): o "Ouvir" sai de cada resposta e vira a opcao
-  // "Ler respostas em voz alta", desligada por padrao. Ligada, le cada mensagem nova da MarIA Flor, inclusive
+  // "Ler respostas em voz alta", desligada por padrao. Ligada, le cada mensagem nova da assistente, inclusive
   // as de seguranca e a linha de apoio. Vale so para esta conversa: nada e guardado no aparelho, e ela desliga
   // ao encerrar a conversa e ao voltar ao aceite. So aparece com voz pt-BR no aparelho.
   let leituraLigada = false;
@@ -2234,7 +2266,7 @@ function montarFeedback(dados) {
     }
 
     // Duvida do tema: a pergunta escolhida, como fala da pessoa, e as respostas aprovadas, literais e na ordem, como
-    // fala da MarIA Flor. Sem modelo, sem pedido ao servidor e sem gastar pergunta escrita. Nada de identificador.
+    // fala da assistente. Sem modelo, sem pedido ao servidor e sem gastar pergunta escrita. Nada de identificador.
     function respostaDaDuvida(duvida) {
       pararFala();
       falaDaPessoa(duvida.pergunta);
@@ -2281,7 +2313,7 @@ function montarFeedback(dados) {
       return { caixa: caixa, texto: paragrafo };
     }
 
-    // Linha de apoio sem resposta antes dela (nome da acolhida com sinal ambiguo): fala da MarIA Flor, com o texto
+    // Linha de apoio sem resposta antes dela (nome da acolhida com sinal ambiguo): fala da assistente, com o texto
     // que o Worker mandar, no mesmo destaque da linha de apoio do chat.
     function linhaDeApoioSozinha(texto) {
       const caixa = bolha("msg--assistente msg--apoio", TEXTOS.autor_assistente);
@@ -2372,7 +2404,7 @@ function montarFeedback(dados) {
       }
 
       // POST /api/acolhida/nome com o texto como foi escrito: o Worker roda a regra de risco nele antes de limpar.
-      // Sem sinal, vale o nome que ele devolveu. Com sinal explicito, a mensagem de seguranca como fala da MarIA Flor,
+      // Sem sinal, vale o nome que ele devolveu. Com sinal explicito, a mensagem de seguranca como fala da assistente,
       // com o destaque dela; com sinal ambiguo, a linha de apoio. Nos dois, sem nome, risco na visita (nada de
       // convite nem de oferta) e a fala assinada guardada para seguir na frente do historico de todo chat da sessao.
       // Falha ou resposta fora do contrato: segue sem nome. Sem resposta legivel do Worker (rede, prazo, resposta que
@@ -2645,7 +2677,7 @@ function montarFeedback(dados) {
       return linha;
     }
 
-    // "Conheca a EndoAfetos!": texto, as duas ofertas da MarIA Flor e o botao para o site.
+    // "Conheca a EndoAfetos!": texto, as duas ofertas da assistente e o botao para o site.
     function blocoConheca(textos) {
       const secao = no("section", "conversao__conheca");
       const titulo = no("h3", null, textos.conheca_titulo);
