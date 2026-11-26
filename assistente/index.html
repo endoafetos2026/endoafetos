@@ -185,6 +185,15 @@ main { padding: 1rem 1rem 1.5rem; }
 .grupo legend { padding: 0; margin-bottom: .25rem; font-weight: 700; }
 .desafio { max-width: 100%; margin: .75rem 0; }
 .desafio:empty { margin: 0; }
+/* Tela de chegada (26/11): texto justificado, como o texto corrido do site, com hifenizacao em portugues. */
+.aceite__texto { margin: 0 0 .85em; text-align: justify; -webkit-hyphens: auto; hyphens: auto; }
+.aceite__chamada { margin: 1.1em 0 .9em; font-weight: 700; color: var(--rose-dark); text-align: left; }
+/* Bloco "Ja tenho conta": discreto, depois do Comecar. */
+.entrada { margin-top: 1.75rem; padding-top: 1.25rem; border-top: 1px solid var(--line); }
+.entrada .subtitulo { font-size: 1.1rem; }
+.entrada .dica { margin-top: 0; }
+.entrada__esqueci { margin: .25rem 0 0; font-size: .95rem; }
+.entrada__esqueci a { display: inline-block; padding: .5rem 0; }
 
 .btn {
   display: flex; align-items: center; justify-content: center;
@@ -828,13 +837,20 @@ const CONFIG = {
   api: "https://endoafetos-api.endoafetos.workers.dev",
   turnstile_sitekey: "0x4AAAAAAGI2ABZoxe7E4K2n",
   turnstile_script: "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit",
-  // Precisa ser igual a versao de aceite configurada no Worker.
-  versao_aceite: "provisorio-2026-11-26",
+  // Precisa estar entre as versoes que o Worker aceita (VERSAO_ACEITE ou, durante uma troca, VERSAO_ACEITE_OUTRAS).
+  versao_aceite: "provisorio-2026-12-01",
   // Com o cadastro do gratuito ligado no servidor, o aceite muda de texto e de versao. O VERSAO_ACEITE do ambiente
   // precisa ser este valor quando CADASTRO_GRATUITO for ligado.
   versao_aceite_cadastro: "cadastro-provisorio-2026-11-26",
   // Botao "Conhecer a EndoAfetos" do cartao de conversao: caminho do proprio site.
   link_conhecer: "../#contato",
+  // Bloco "Ja tenho conta" da tela de chegada (26/11), so com as contas abertas no servidor (inscricao em /api/saude).
+  // Quem entra vai para a conversa da conta, caminho do proprio site. A chave e o formato do token sao os de
+  // comum/conta.js (guardarToken), que a conversa da conta le: so nesta aba, nunca no armazenamento que fica.
+  conversa_da_conta: "./conta/conversa/",
+  recuperar_senha: "./conta/?recuperar=1",
+  chave_do_token: "endoafetos.assinante",
+  senha_max: 200,
   // Mostra no cartao de conversao o bloco do brinde do estande (BTX Salvador).
   evento_btx: true,
   // Blocos de pre-lancamento, desligados por padrao. A pre-inscricao so aparece com coleta true em /api/saude.
@@ -867,13 +883,47 @@ const CONFIG = {
 const TEXTOS = {
   provisorio: true,
   estado: "em_curadoria",
-  versao: "provisorio-2026-11-26",
+  versao: "provisorio-2026-12-01",
   nome: "{assistente}",
   carregando_titulo: "{assistente}",
   carregando: "Carregando.",
-  aceite_titulo: "Antes de começar",
-  aceite: "A {assistente} é uma assistente de inteligência artificial. Ela informa e acolhe, mas não faz diagnóstico, não interpreta exames e não indica remédios. O que você escrever é enviado a um serviço de inteligência artificial para gerar a resposta e pode ser processado fora do Brasil. Não escreva seu nome completo, documentos nem laudos. Este espaço é para pessoas com 18 anos ou mais. Não é um canal de urgência: em emergência de saúde, ligue 192.",
+  // Tela de chegada (26/11, texto do Carlos, provisorio, para o juridico): um paragrafo por item, e a chamada no fim.
+  // O penultimo paragrafo traz as duas frases do consentimento que vinham do texto anterior (o servico de
+  // inteligencia artificial, que pode estar fora do Brasil, e os 18 anos).
+  aceite_titulo: "Vamos conhecer a {assistente}?",
+  aceite_titulo_emoji: "🌸",
+  aceite: [
+    "A {assistente} é uma assistente virtual que utiliza inteligência artificial para conversar, acolher dúvidas e compartilhar informações sobre saúde e bem-estar.",
+    "Ela pode ajudar você a compreender melhor alguns assuntos, mas não substitui uma consulta com profissionais de saúde. Não realiza diagnósticos, não interpreta exames e não prescreve medicamentos.",
+    "Para sua segurança e privacidade, evite compartilhar dados pessoais, documentos ou informações que permitam identificar você, como laudos e exames.",
+    "Se precisar de atendimento médico de urgência, procure um serviço de saúde ou ligue 192 (SAMU).",
+    "O que você escrever é enviado a um serviço de inteligência artificial para gerar a resposta e pode ser processado fora do Brasil. Este espaço é para pessoas com 18 anos ou mais."
+  ],
+  aceite_chamada: "Vamos começar?",
   caixa_aceite: "Li e concordo, e tenho 18 anos ou mais",
+  // Bloco "Ja tenho conta" da tela de chegada (26/11, provisorio, para o juridico). As frases de erro sao as mesmas
+  // das paginas da conta (comum/conta.js).
+  entrada: {
+    titulo: "Já tenho conta",
+    gratuito: "Com conta gratuita: 3 interações por semana, que se renovam às 00h01 de sexta-feira, horário de Brasília.",
+    email_rotulo: "E-mail",
+    senha_rotulo: "Senha",
+    botao: "Entrar",
+    esqueci: "Esqueci minha senha",
+    falta_campos: "Preencha o e-mail e a senha.",
+    entrando: "Entrando.",
+    indo: "Abrindo a conversa da sua conta.",
+    sem_armazenamento: "Não foi possível guardar a entrada neste navegador. Confira se ele está bloqueando os dados dos sites e tente de novo.",
+    erros: {
+      credenciais_invalidas: "E-mail ou senha não conferem.",
+      dados_invalidos: "Confira os campos e tente de novo.",
+      turnstile_invalido: "Não foi possível confirmar a verificação de segurança. Tente de novo.",
+      muitas_requisicoes: "Muitas tentativas em pouco tempo: aguarde alguns minutos.",
+      inscricao_desligada: "As inscrições abrem em breve.",
+      indisponivel: "O serviço está indisponível agora. Tente de novo daqui a pouco.",
+      rede: "Não foi possível falar com o servidor. Confira a internet e tente de novo."
+    }
+  },
   // Gratuito com cadastro (24/11, provisorio, para o juridico): o nome completo e o e-mail entram so no cadastro; na
   // conversa continua valendo nao escrever o nome completo. A caixa de 18 anos fica separada do aceite.
   cadastro: {
@@ -1161,6 +1211,8 @@ function lerSaude(dados) {
   const saude = { modo: dados.modo, texto_livre: dados.texto_livre === true, coleta: dados.coleta === true };
   // Gratuito com cadastro: so aparece quando o servidor o liga (CADASTRO_GRATUITO).
   if (dados.cadastro_gratuito === true) saude.cadastro_gratuito = true;
+  // Contas abertas (INSCRICAO): a tela de chegada mostra o bloco "Ja tenho conta".
+  if (dados.inscricao === true) saude.inscricao = true;
   return saude;
 }
 
@@ -1734,6 +1786,14 @@ function montarFeedback(dados) {
     comentario: String(dados.comentario == null ? "" : dados.comentario).trim().slice(0, dados.comentario_max)
   };
 }
+
+// Frase do bloco "Ja tenho conta" para a entrada recusada: a do codigo conhecido; sem resposta do servidor (rede fora
+// do ar ou prazo vencido), a da rede; qualquer outro caso, a de servico indisponivel.
+function fraseDaEntrada(textos, resposta) {
+  const erros = textos.entrada.erros;
+  if (resposta && typeof resposta.erro === "string" && Object.prototype.hasOwnProperty.call(erros, resposta.erro)) return erros[resposta.erro];
+  return resposta && resposta.status === 0 ? erros.rede : erros.indisponivel;
+}
 /* ==== PURAS:FIM ==== */
 
 /* ==== CARA:INICIO ==== */
@@ -2254,6 +2314,8 @@ var EndoAfetosV1 = (function () {
     // Muda a cada troca de tela: resposta que chega para a tela anterior e descartada.
     serie: 0,
     aoSair: null,
+    // Volta pelo botao Voltar com a pagina guardada pelo navegador: solta o bloco da conta da tela de chegada.
+    aoVoltar: null,
     mudouEm: 0
   };
 
@@ -2748,6 +2810,139 @@ var EndoAfetosV1 = (function () {
     mostrar([titulo, aviso, canais.secao], titulo, true);
   }
 
+  // Unica gravacao no navegador (26/11): o token de quem entrou pelo bloco "Ja tenho conta", so nesta aba, com a
+  // chave e o formato de comum/conta.js, para a conversa da conta o ler. Quem nao entra nao grava nada.
+  function guardarTokenDaConta(dados) {
+    try {
+      window.sessionStorage.setItem(CONFIG.chave_do_token, JSON.stringify({ token: dados.token, expira_em: dados.expira_em, plano: dados.plano }));
+      return true;
+    } catch (falha) {
+      return false;
+    }
+  }
+
+  // Aparelho do estande e compartilhado: cada chegada a esta pagina (ao abrir e ao voltar pelo botao Voltar) esquece
+  // a entrada de quem usou a aba antes. Nunca le o que estava guardado.
+  function esquecerTokenDaConta() {
+    try {
+      window.sessionStorage.removeItem(CONFIG.chave_do_token);
+    } catch (falha) {
+      // sem armazenamento: nada a esquecer
+    }
+  }
+
+  // Unica troca de pagina feita pelo script: depois da entrada, para a conversa da conta, caminho do proprio site.
+  function irParaConversaDaConta() {
+    try {
+      window.location.assign(CONFIG.conversa_da_conta);
+    } catch (falha) {
+      // sem navegacao
+    }
+  }
+
+  // Bloco "Ja tenho conta" (26/11): e-mail e senha pela mesma rota das paginas da conta (POST /api/entrar). O
+  // Turnstile so e pedido no toque em Entrar, nunca ao abrir a tela. Deu certo: o token fica nesta aba e a pessoa
+  // vai para a conversa da conta. aceiteEmCurso() diz se o Comecar esta abrindo a conversa: os dois nao correm juntos.
+  function blocoDaEntrada(aceiteEmCurso) {
+    const textos = TEXTOS.entrada;
+    const secao = no("section", "entrada");
+    secao.setAttribute("aria-labelledby", "titulo-entrada");
+    const titulo = no("h2", "subtitulo", textos.titulo);
+    titulo.id = "titulo-entrada";
+    const gratuito = no("p", "dica", textos.gratuito);
+    gratuito.id = "dica-entrada";
+    const formulario = no("form", "entrada__formulario");
+    formulario.noValidate = true;
+    const email = campoDeTexto("campo-email-entrada", textos.email_rotulo, "email", CONFIG.email_max);
+    // Aparelho do estande e compartilhado: pede ao navegador para nao sugerir o e-mail de quem veio antes.
+    email.entrada.setAttribute("autocomplete", "off");
+    email.entrada.setAttribute("autocapitalize", "none");
+    email.entrada.setAttribute("aria-describedby", "dica-entrada status-entrada");
+    const senha = campoDeTexto("campo-senha-entrada", textos.senha_rotulo, "password", CONFIG.senha_max);
+    senha.entrada.setAttribute("autocomplete", "off");
+    senha.entrada.setAttribute("aria-describedby", "status-entrada");
+    const caixaDesafio = no("div", "desafio");
+    const status = linhaDeStatus("status-entrada");
+    const botao = no("button", "btn btn--contorno", textos.botao);
+    botao.type = "submit";
+    formulario.appendChild(email.campo);
+    formulario.appendChild(senha.campo);
+    formulario.appendChild(caixaDesafio);
+    formulario.appendChild(status);
+    formulario.appendChild(botao);
+    const esqueci = no("p", "entrada__esqueci");
+    const ligacao = no("a", null, textos.esqueci);
+    ligacao.href = CONFIG.recuperar_senha;
+    esqueci.appendChild(ligacao);
+    secao.appendChild(titulo);
+    secao.appendChild(gratuito);
+    secao.appendChild(formulario);
+    secao.appendChild(esqueci);
+
+    let desafio = null;
+    let entrando = false;
+
+    function travar(travado) {
+      email.entrada.disabled = travado;
+      senha.entrada.disabled = travado;
+      travarBotao(botao, travado);
+    }
+
+    formulario.addEventListener("submit", function (evento) {
+      evento.preventDefault();
+      if (entrando || aceiteEmCurso()) return;
+      const endereco = valorDe(email.entrada).trim();
+      const segredo = valorDe(senha.entrada);
+      if (endereco === "" || segredo === "") {
+        status.textContent = textos.falta_campos;
+        (endereco === "" ? email.entrada : senha.entrada).focus();
+        return;
+      }
+      entrando = true;
+      travar(true);
+      status.textContent = textos.entrando;
+      const serie = estado.serie;
+      if (!desafio) desafio = criarDesafio(caixaDesafio);
+      desafio.pedirFicha().then(function (ficha) {
+        return pedir("/api/entrar", { corpo: { email: endereco, senha: segredo, turnstile: ficha } });
+      }, function () {
+        return { ok: false, erro: "turnstile_invalido" };
+      }).then(function (resposta) {
+        if (serie !== estado.serie) return;
+        senha.entrada.value = "";
+        const dados = resposta.ok ? resposta.dados : null;
+        const comToken = Boolean(dados) && Boolean(textoOuNulo(dados.token));
+        if (comToken && guardarTokenDaConta(dados)) {
+          // O bloco fica travado ate a pagina sair, e o e-mail sai do campo: quem voltar pelo botao Voltar nao o ve.
+          email.entrada.value = "";
+          status.textContent = textos.indo;
+          irParaConversaDaConta();
+          return;
+        }
+        entrando = false;
+        travar(false);
+        status.textContent = comToken ? textos.sem_armazenamento : fraseDaEntrada(TEXTOS, resposta);
+        senha.entrada.focus();
+      });
+    });
+
+    return {
+      secao: secao,
+      ocupado: function () { return entrando; },
+      // De volta pelo botao Voltar: o bloco solta, vazio, para a pessoa seguinte.
+      voltou: function () {
+        entrando = false;
+        email.entrada.value = "";
+        senha.entrada.value = "";
+        status.textContent = "";
+        travar(false);
+      },
+      remover: function () {
+        if (desafio) desafio.remover();
+      }
+    };
+  }
+
   function telaAceite(mensagem, focar) {
     avisarV1("tela", "chegada");
     const demonstracao = !apiAtiva(CONFIG);
@@ -2765,7 +2960,18 @@ var EndoAfetosV1 = (function () {
     // Gratuito com cadastro: so fora do modo fechado e quando o servidor o pede.
     const comCadastro = !demonstracao && !fechado && Boolean(estado.saude) && estado.saude.cadastro_gratuito === true;
     const titulo = tituloDaTela(TEXTOS.aceite_titulo);
-    const texto = no("p", "aceite__texto", comCadastro ? TEXTOS.cadastro.aceite : TEXTOS.aceite);
+    // O emoji do titulo fica escondido do leitor de tela.
+    if (TEXTOS.aceite_titulo_emoji) {
+      titulo.appendChild(document.createTextNode(" "));
+      const flor = no("span", null, TEXTOS.aceite_titulo_emoji);
+      flor.setAttribute("aria-hidden", "true");
+      titulo.appendChild(flor);
+    }
+    // Um paragrafo por item do texto, e a chamada no fim (26/11). O aceite do cadastro continua como era.
+    const paragrafos = (comCadastro ? [TEXTOS.cadastro.aceite] : TEXTOS.aceite).map(function (texto) {
+      return no("p", "aceite__texto", texto);
+    });
+    if (!comCadastro) paragrafos.push(no("p", "aceite__texto aceite__chamada", TEXTOS.aceite_chamada));
     const formulario = no("form", "aceite");
     formulario.noValidate = true;
     const blocos = [titulo];
@@ -2792,8 +2998,11 @@ var EndoAfetosV1 = (function () {
       blocos.push(nota);
       descritoPor.push("nota-rascunho");
     }
-    blocos.push(texto);
+    paragrafos.forEach(function (paragrafo) { blocos.push(paragrafo); });
     blocos.push(formulario);
+    // Quem ja tem conta entra por aqui mesmo, depois do Comecar, so com as contas abertas no servidor.
+    const entrada = !demonstracao && estado.saude.inscricao === true ? blocoDaEntrada(function () { return abrindo; }) : null;
+    if (entrada) blocos.push(entrada.secao);
 
     let convite = null;
     if (fechado) {
@@ -2858,7 +3067,7 @@ var EndoAfetosV1 = (function () {
 
     formulario.addEventListener("submit", function (evento) {
       evento.preventDefault();
-      if (abrindo) return;
+      if (abrindo || (entrada && entrada.ocupado())) return;
       let corpoDoCadastro = null;
       if (cadastro) {
         const lido = lerCadastroDoGratuito(valorDe(cadastro.nome), valorDe(cadastro.email), cadastro.maior.checked === true, cadastro.novidades.checked === true);
@@ -2944,8 +3153,11 @@ var EndoAfetosV1 = (function () {
 
     mostrar(blocos, titulo, focar);
     estado.aoSair = function () {
+      estado.aoVoltar = null;
       if (desafio) desafio.remover();
+      if (entrada) entrada.remover();
     };
+    estado.aoVoltar = entrada ? entrada.voltou : null;
   }
 
   /* ---- Conversa ---- */
@@ -4495,6 +4707,15 @@ var EndoAfetosV1 = (function () {
       limpezas.forEach(function (limpar) { limpar(); });
     };
     carregarGuiado();
+  }
+
+  esquecerTokenDaConta();
+  if (typeof window.addEventListener === "function") {
+    window.addEventListener("pageshow", function (evento) {
+      if (!evento || evento.persisted !== true) return;
+      esquecerTokenDaConta();
+      if (estado.aoVoltar) estado.aoVoltar();
+    });
   }
 
   definirAvatar("acolhimento");
