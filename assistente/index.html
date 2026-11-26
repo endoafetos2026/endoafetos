@@ -6,7 +6,7 @@
 <!-- remover quando o conteúdo for assinado -->
 <meta name="robots" content="noindex">
 <!-- ==== CABECA:INICIO ==== -->
-<title>Maria FlorIA — assistente virtual da EndoAfetos</title>
+<title>Maria FlorIA | assistente virtual da EndoAfetos</title>
 <meta name="theme-color" content="#b3427a">
 <!-- ==== CABECA:FIM ==== -->
 <link rel="icon" type="image/png" href="../assets/logo.png">
@@ -591,21 +591,34 @@ html[data-cara="v1"] .v1-broche { display: inline-block; width: .95em; height: .
 html[data-vento="sim"] .v1-broche { animation: v1-balancar 1.1s ease-in-out 3 alternate; }
 @keyframes v1-balancar { from { transform: rotate(-12deg); } to { transform: rotate(4deg); } }
 
-.v1-cabine__dentro {
-  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
-  max-width: 640px; margin: 0 auto; padding: .5rem 1rem 0;
+/* O cantinho: discreto, no canto direito do topo (no celular estreito, desce para a linha de baixo, à direita).
+   Só aparece quando o script da v1 liga os botões. Os ícones são pequenos; o alvo de toque continua com 44 px. */
+html[data-cara="v1"] .topo__dentro { flex-wrap: wrap; }
+html[data-cara="v1"] .v1-cantinho { display: none; }
+html[data-cara="v1"][data-v1="ligada"] .v1-cantinho { display: flex; align-items: center; margin-left: auto; }
+.v1-cantinho__saudacao { margin-right: .35rem; font-size: .86rem; color: var(--ink-soft); }
+.v1-icone {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 44px; height: 44px; margin: 0; padding: 0;
+  color: var(--ink-soft); background: none; border: 0; border-radius: 50%; cursor: pointer;
 }
-.v1-cabine__saudacao { margin: 0 .75rem .4rem 0; font-family: var(--serif); font-weight: 600; font-size: 1.08rem; color: var(--ink); }
-.v1-cabine__botoes { display: flex; flex-wrap: wrap; }
-.v1-pilula {
-  min-height: 44px; margin: 0 .4rem .4rem 0; padding: 0 .9rem;
-  font: inherit; font-size: .92rem; font-weight: 700;
-  color: var(--ink); background: var(--surface);
-  border: 2px solid var(--line); border-radius: 999px; cursor: pointer;
+.v1-icone svg { display: block; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+/* Cor de passar o ponteiro só para quem tem ponteiro: no toque ela ficaria presa e pareceria "ligado". */
+@media (hover: hover) {
+  .v1-icone:hover { color: var(--rose-dark); }
 }
-.v1-pilula[aria-pressed="true"] { color: var(--rose-dark); background: var(--rose-mist); border-color: var(--rose-dark); }
-.v1-pilula__estado { font-weight: 400; }
-.v1-legenda { max-width: 640px; margin: 0 auto .6rem !important; font-size: .86rem; color: var(--ink-soft); }
+.v1-icone[aria-pressed="true"] { color: var(--rose-dark); }
+.v1-icone[aria-disabled="true"] { cursor: default; }
+.v1-icone--luz .v1-sol circle { fill: currentColor; }
+.v1-icone--luz .v1-lua path { fill: currentColor; }
+.v1-icone--luz .v1-lua, .v1-icone--luz[aria-pressed="true"] .v1-sol { display: none; }
+.v1-icone--luz[aria-pressed="true"] .v1-lua { display: block; }
+.v1-icone__corte { display: none; }
+.v1-icone--movimento[aria-pressed="false"] .v1-icone__corte { display: inline; }
+/* O lírio afastado do ícone de movimento: um toque errado não leva ao painel da equipe. */
+.v1-icone--equipe { margin-left: .75rem; color: var(--lavender); }
+.v1-icone--equipe .v1-lirio__petala { fill: currentColor; fill-opacity: .25; }
+.v1-icone--equipe[hidden] { display: none; }
 
 /* ---------- A borboleta ---------- */
 .v1-bf { display: block; width: 100%; height: 100%; overflow: visible; transform-origin: 50% 60%; transition: transform .8s cubic-bezier(.3, .7, .3, 1); }
@@ -656,7 +669,34 @@ html[data-vento="sim"] .v1-broche { animation: v1-balancar 1.1s ease-in-out 3 al
   100% { opacity: 0; transform: translate3d(70vw, -18vh, 0) rotate(18deg) scale(.7); }
 }
 
-/* ---------- Pétalas e vento: só nas trocas de cena, menos de 5 segundos ---------- */
+/* ---------- Chuva de pétalas no fundo da chegada (decisão do Carlos de 26/11) ----------
+   Leve e contínua, atrás do conteúdo, só na tela de chegada (data-tela, que a página avisa), com o fundo respirando
+   e o movimento ligado: some quando a conversa abre, na segurança, depois de apoio ou risco na visita, com o controle
+   "Movimento" desligado e com o movimento reduzido do aparelho (a regra geral da página zera as animações). Cada
+   caminho tem uma pétala e o seu rastro, menor e mais clara, logo atrás. */
+.v1-chuva { display: none; position: absolute; top: 0; right: 0; left: 0; height: 100vh; overflow: hidden; }
+html[data-cara="v1"][data-tela="chegada"][data-respira="sim"][data-movimento="ligado"] .v1-chuva { display: block; }
+.v1-chuva__petala {
+  position: absolute; top: -24px; width: 10px; height: 15px; opacity: 0;
+  background: #ffffff; border: 1px solid #eccbdb; border-radius: 50% 50% 50% 50% / 70% 70% 30% 30%;
+  animation-name: v1-flutuar; animation-timing-function: linear; animation-iteration-count: infinite; animation-fill-mode: both;
+  --v1-opacidade: .7;
+}
+.v1-chuva__petala--rastro { width: 7px; height: 11px; --v1-opacidade: .3; }
+/* Na luz baixa, pétala escura (o rosa-suave da luz baixa): uma pétala clara atrás do texto claro de fora dos cartões
+   tiraria contraste dele. */
+html[data-luz="baixa"] .v1-chuva__petala { background: #4a3558; border-color: #7a4d70; --v1-opacidade: .8; }
+html[data-luz="baixa"] .v1-chuva__petala--rastro { --v1-opacidade: .4; }
+@keyframes v1-flutuar {
+  0% { opacity: 0; transform: translate3d(0, 0, 0) rotate(0); }
+  10% { opacity: var(--v1-opacidade, .6); }
+  30% { transform: translate3d(var(--v1-balanco, 24px), 30vh, 0) rotate(calc(var(--v1-giro, 200deg) * .3)); }
+  55% { transform: translate3d(calc(var(--v1-balanco, 24px) * -.5), 56vh, 0) rotate(calc(var(--v1-giro, 200deg) * .55)); }
+  80% { opacity: var(--v1-opacidade, .6); transform: translate3d(var(--v1-balanco, 24px), 82vh, 0) rotate(calc(var(--v1-giro, 200deg) * .8)); }
+  100% { opacity: 0; transform: translate3d(0, 104vh, 0) rotate(var(--v1-giro, 200deg)); }
+}
+
+/* ---------- Pétalas e vento nas trocas de cena (orientação e despedida): menos de 5 segundos ---------- */
 .v1-petalas { position: absolute; top: 0; right: 0; left: 0; height: 100vh; z-index: 50; pointer-events: none; overflow: hidden; }
 .v1-petala, .v1-folha { position: absolute; top: -28px; opacity: 0; animation-name: v1-cair; animation-timing-function: cubic-bezier(.3, .1, .6, 1); animation-fill-mode: both; animation-iteration-count: 1; }
 .v1-petala { width: 11px; height: 17px; background: #ffffff; border: 1px solid #eccbdb; border-radius: 50% 50% 50% 50% / 70% 70% 30% 30%; }
@@ -678,6 +718,7 @@ html[data-cara="v1"][data-luz="baixa"] .canal__icone { background-color: #e7e0f6
 
 /* ---------- Segurança: tudo para, fundo neutro e os canais 192, 188 e 180 em primeiro plano ---------- */
 html[data-cara="v1"][data-cena="seguranca"] .v1-ceu__brilho,
+html[data-cara="v1"][data-cena="seguranca"] .v1-chuva,
 html[data-cara="v1"][data-cena="seguranca"] .v1-petalas { display: none !important; }
 html[data-cara="v1"][data-cena="seguranca"] .v1-ceu__veu { transition-duration: .2s; }
 html[data-cara="v1"][data-cena="seguranca"] .v1-bf,
@@ -705,8 +746,8 @@ html[data-cara="v1"][data-movimento="desligado"] .v1-petalas { display: none !im
   html[data-cara="v1"] .topo__nome em { background: none; -webkit-text-fill-color: currentColor; }
 }
 @media print {
-  html[data-cara="v1"] .v1-ceu, html[data-cara="v1"] .v1-petalas, html[data-cara="v1"] .v1-cabine,
-  html[data-cara="v1"] .v1-poleiro, html[data-cara="v1"] .v1-legenda { display: none !important; }
+  html[data-cara="v1"] .v1-ceu, html[data-cara="v1"] .v1-petalas, html[data-cara="v1"] .v1-cantinho,
+  html[data-cara="v1"] .v1-poleiro { display: none !important; }
   html[data-cara="v1"], html[data-cara="v1"] body, html[data-cara="v1"] .topo, html[data-cara="v1"] .cartao,
   html[data-cara="v1"] .msg { color: #000 !important; background: #fff !important; box-shadow: none !important; }
   html[data-cara="v1"] .msg, html[data-cara="v1"] .cartao { border-color: #000 !important; }
@@ -734,6 +775,12 @@ html[data-cara="v1"][data-movimento="desligado"] .v1-petalas { display: none !im
       <span class="topo__nome"><span aria-hidden="true">Maria <span class="nome__flor">Flor</span><em>IA</em></span><span class="so-leitor">Maria Flor</span><span class="v1-so"><svg class="v1-broche" viewBox="0 0 40 40" width="22" height="22" focusable="false" aria-hidden="true"><g class="v1-broche__petalas"><ellipse cx="20" cy="9.6" rx="2.9" ry="7.2"/><ellipse cx="20" cy="9.6" rx="2.9" ry="7.2" transform="rotate(30 20 20)"/><ellipse cx="20" cy="9.6" rx="2.9" ry="7.2" transform="rotate(60 20 20)"/><ellipse cx="20" cy="9.6" rx="2.9" ry="7.2" transform="rotate(90 20 20)"/><ellipse cx="20" cy="9.6" rx="2.9" ry="7.2" transform="rotate(120 20 20)"/><ellipse cx="20" cy="9.6" rx="2.9" ry="7.2" transform="rotate(150 20 20)"/><ellipse cx="20" cy="9.6" rx="2.9" ry="7.2" transform="rotate(180 20 20)"/><ellipse cx="20" cy="9.6" rx="2.9" ry="7.2" transform="rotate(210 20 20)"/><ellipse cx="20" cy="9.6" rx="2.9" ry="7.2" transform="rotate(240 20 20)"/><ellipse cx="20" cy="9.6" rx="2.9" ry="7.2" transform="rotate(270 20 20)"/><ellipse cx="20" cy="9.6" rx="2.9" ry="7.2" transform="rotate(300 20 20)"/><ellipse cx="20" cy="9.6" rx="2.9" ry="7.2" transform="rotate(330 20 20)"/></g><circle class="v1-broche__miolo" cx="20" cy="20" r="5.4"/></svg></span></span>
       <span class="topo__sub">Assistente virtual da EndoAfetos</span>
     </p>
+    <div class="v1-cantinho v1-so">
+      <span class="v1-cantinho__saudacao"></span>
+      <button type="button" class="v1-icone v1-icone--luz" aria-label="Luz baixa" aria-pressed="false"><svg class="v1-sol" viewBox="0 0 24 24" width="22" height="22" focusable="false" aria-hidden="true"><circle cx="12" cy="12" r="4.4"/><path d="M12 2.6v2.6M12 18.8v2.6M2.6 12h2.6M18.8 12h2.6M5.4 5.4l1.8 1.8M16.8 16.8l1.8 1.8M5.4 18.6l1.8-1.8M16.8 7.2l1.8-1.8"/></svg><svg class="v1-lua" viewBox="0 0 24 24" width="22" height="22" focusable="false" aria-hidden="true"><path d="M19.6 14.6A8.2 8.2 0 1 1 9.4 4.4a6.6 6.6 0 0 0 10.2 10.2z"/></svg></button>
+      <button type="button" class="v1-icone v1-icone--movimento" aria-label="Movimento" aria-pressed="true"><svg viewBox="0 0 24 24" width="22" height="22" focusable="false" aria-hidden="true"><path d="M3 9.5c3-3 6 3 9 0s6-3 9 0M3 15c3-3 6 3 9 0s6-3 9 0"/><path class="v1-icone__corte" d="M4.5 20.5l15-17"/></svg></button>
+      <a class="v1-icone v1-icone--equipe" aria-label="Acesso da equipe (abre em nova aba)" hidden><svg viewBox="0 0 24 24" width="20" height="20" focusable="false" aria-hidden="true"><path class="v1-lirio__petala" d="M12 2.8c-1.7 2.7-1.9 5.8 0 8.8 1.9-3 1.7-6.1 0-8.8z"/><path class="v1-lirio__petala" d="M12 11.6C9.4 9 5.8 8.6 3.2 10.1c2.1 2.7 5.5 3.5 8.8 1.5z"/><path class="v1-lirio__petala" d="M12 11.6c2.6-2.6 6.2-3 8.8-1.5-2.1 2.7-5.5 3.5-8.8 1.5z"/><path class="v1-lirio__haste" d="M12 11.6v9.2M12 17.4c1.6-1.6 3.4-2 5-1.6"/></svg></a>
+    </div>
     <!-- ==== MARCA:FIM ==== -->
   </div>
 </header>
@@ -1835,13 +1882,14 @@ var EndoAfetosV1 = (function () {
   /* -- Daqui para baixo, so com a cara nova ligada -- */
 
   var raiz = document.documentElement;
+  // Rotulos que aparecem ao passar o ponteiro sobre os icones do cantinho (o leitor de tela le o aria-label e o
+  // aria-pressed, que ja estao no HTML).
   var TEXTOS_V1 = {
-    luz: "Luz baixa",
-    movimento: "Movimento",
-    grupo: "Luz da cabine",
-    ligado: "ligado",
-    desligado: "desligado",
-    legenda: "A cor mostra o momento da conversa (acolher, informar, orientar, cuidar da sua segurança). A assistente não lê seus sentimentos."
+    luz_ligada: "Luz baixa: ligada",
+    luz_desligada: "Luz baixa: desligada",
+    movimento_ligado: "Movimento: ligado",
+    movimento_desligado: "Movimento: desligado",
+    movimento_do_aparelho: "Movimento: desligado pelo aparelho"
   };
   var COR_DA_BARRA_BAIXA = "#17152a";
   var LIMITE_DE_PETALAS = 14;
@@ -1873,7 +1921,9 @@ var EndoAfetosV1 = (function () {
 
   var sistemaReduz = consulta("(prefers-reduced-motion: reduce)");
   var sistemaEscuro = consulta("(prefers-color-scheme: dark)");
-  var memoria = { houveSeguranca: false };
+  // houveSeguranca: a visita teve mensagem de seguranca. quieta: teve seguranca, linha de apoio ou risco marcado pela
+  // pagina; o fundo nao respira e nao caem petalas. As duas so se apagam em "Encerrar conversa".
+  var memoria = { houveSeguranca: false, quieta: false };
   var escolhaDaLuz = null;
   var movimentoEscolhido = !confere(sistemaReduz);
   var cenaAtual = null;
@@ -1889,40 +1939,59 @@ var EndoAfetosV1 = (function () {
   ceu.appendChild(brilho);
   ceu.appendChild(veus[0]);
   ceu.appendChild(veus[1]);
+
+  // Chuva de petalas no fundo da chegada (decisao do Carlos de 26/11: "petalas caindo levemente no fundo do landing,
+  // deixando um rastro de leveza"). Fica no ceu, atras de tudo; o CSS so a mostra na tela de chegada (data-tela, que
+  // a pagina avisa), com o fundo respirando e o movimento ligado: some quando a conversa abre, na seguranca, depois
+  // de apoio ou risco na visita e com o movimento desligado ou reduzido.
+  // Seis caminhos, cada um com uma petala e o seu rastro (outra, menor e mais clara, logo atras): 12 elementos,
+  // criados uma vez, so com transform e opacity.
+  var chuva = elemento("div", "v1-chuva");
+  var CAMINHOS_DA_CHUVA = 6;
+  function caminhoDaChuva(indice) {
+    var esquerda = (6 + indice * (88 / (CAMINHOS_DA_CHUVA - 1)) + (Math.random() * 8 - 4)).toFixed(1) + "%";
+    var duracao = (11 + Math.random() * 6).toFixed(1) + "s";
+    var atraso = indice * 1.9 + Math.random() * 1.5;
+    var balanco = Math.round(18 + Math.random() * 30) + "px";
+    var giro = Math.round(140 + Math.random() * 200) + "deg";
+    ["v1-chuva__petala", "v1-chuva__petala v1-chuva__petala--rastro"].forEach(function (classe, rastro) {
+      var petala = elemento("span", classe);
+      petala.style.left = esquerda;
+      petala.style.animationDuration = duracao;
+      petala.style.animationDelay = (atraso + rastro * 0.45).toFixed(2) + "s";
+      petala.style.setProperty("--v1-balanco", balanco);
+      petala.style.setProperty("--v1-giro", giro);
+      chuva.appendChild(petala);
+    });
+  }
+  for (var caminho = 0; caminho < CAMINHOS_DA_CHUVA; caminho += 1) caminhoDaChuva(caminho);
+  ceu.appendChild(chuva);
   document.body.insertBefore(ceu, document.body.firstChild);
 
   var petalasCaixa = elemento("div", "v1-petalas");
   petalasCaixa.setAttribute("aria-hidden", "true");
   document.body.appendChild(petalasCaixa);
 
-  // Faixa da cabine logo abaixo do topo: a saudacao pela hora e os dois controles.
-  var faixa = elemento("div", "v1-cabine");
-  var dentro = elemento("div", "v1-cabine__dentro");
-  var saudacaoNaTela = elemento("p", "v1-cabine__saudacao");
-  var grupo = elemento("div", "v1-cabine__botoes");
-  grupo.setAttribute("role", "group");
-  grupo.setAttribute("aria-label", TEXTOS_V1.grupo);
-  function botaoDeControle(rotulo) {
-    var botao = elemento("button", "v1-pilula");
-    botao.type = "button";
-    botao.appendChild(document.createTextNode(rotulo));
-    var situacao = elemento("span", "v1-pilula__estado");
-    situacao.setAttribute("aria-hidden", "true");
-    botao.appendChild(situacao);
-    return botao;
+  // O cantinho do topo (HTML gravado pelo gerador): a saudacao pela hora, sol ou lua (Luz baixa), o movimento e o
+  // lirio do acesso da equipe. Fica escondido ate aqui: sem script, nao aparece botao que nao faz nada.
+  function achar(seletor, nome) {
+    return document.querySelector(seletor) || elemento(nome);
   }
-  var botaoLuz = botaoDeControle(TEXTOS_V1.luz);
-  var botaoMovimento = botaoDeControle(TEXTOS_V1.movimento);
-  grupo.appendChild(botaoLuz);
-  grupo.appendChild(botaoMovimento);
-  dentro.appendChild(saudacaoNaTela);
-  dentro.appendChild(grupo);
-  faixa.appendChild(dentro);
-  var topo = document.querySelector("header.topo");
-  if (topo && topo.parentNode) topo.parentNode.insertBefore(faixa, topo.nextSibling);
-
-  var rodape = document.querySelector("footer.rodape");
-  if (rodape) rodape.insertBefore(elemento("p", "v1-legenda", TEXTOS_V1.legenda), rodape.firstChild);
+  var saudacaoNaTela = achar(".v1-cantinho__saudacao", "span");
+  var botaoLuz = achar(".v1-icone--luz", "button");
+  var botaoMovimento = achar(".v1-icone--movimento", "button");
+  var equipe = document.querySelector(".v1-icone--equipe");
+  // O lirio leva ao painel da equipe, no mesmo servidor da conversa: o endereco sai de CONFIG.api pelas funcoes da
+  // pagina (apiAtiva e enderecoApi), nunca escrito aqui. Sem servidor configurado, o lirio nao aparece.
+  if (equipe && typeof CONFIG !== "undefined" && typeof apiAtiva === "function" && typeof enderecoApi === "function" &&
+      apiAtiva(CONFIG)) {
+    equipe.setAttribute("href", enderecoApi(CONFIG, "/admin"));
+    // Em outra aba: a conversa so vive na memoria desta pagina e se perderia com a troca.
+    equipe.setAttribute("target", "_blank");
+    equipe.setAttribute("rel", "noopener noreferrer");
+    equipe.removeAttribute("hidden");
+  }
+  raiz.setAttribute("data-v1", "ligada");
 
   var bf = document.querySelector(".v1-bf");
   var poleiro = document.querySelector(".v1-poleiro");
@@ -1938,7 +2007,7 @@ var EndoAfetosV1 = (function () {
     var luz = luzEfetiva(escolhaDaLuz, hora, confere(sistemaEscuro));
     raiz.setAttribute("data-luz", luz);
     botaoLuz.setAttribute("aria-pressed", luz === "baixa" ? "true" : "false");
-    botaoLuz.lastChild.textContent = ": " + (luz === "baixa" ? TEXTOS_V1.ligado : TEXTOS_V1.desligado);
+    botaoLuz.setAttribute("title", luz === "baixa" ? TEXTOS_V1.luz_ligada : TEXTOS_V1.luz_desligada);
     if (meta && corDaBarra) meta.setAttribute("content", luz === "baixa" ? COR_DA_BARRA_BAIXA : corDaBarra);
   }
   botaoLuz.addEventListener("click", function () {
@@ -1959,7 +2028,14 @@ var EndoAfetosV1 = (function () {
     var ligado = movimentoEscolhido && !confere(sistemaReduz);
     raiz.setAttribute("data-movimento", ligado ? "ligado" : "desligado");
     botaoMovimento.setAttribute("aria-pressed", ligado ? "true" : "false");
-    botaoMovimento.lastChild.textContent = ": " + (ligado ? TEXTOS_V1.ligado : TEXTOS_V1.desligado);
+    // Com o movimento reduzido do aparelho, o botao nao liga nada: diz isso, em vez de parecer quebrado.
+    if (confere(sistemaReduz)) {
+      botaoMovimento.setAttribute("aria-disabled", "true");
+      botaoMovimento.setAttribute("title", TEXTOS_V1.movimento_do_aparelho);
+    } else {
+      botaoMovimento.removeAttribute("aria-disabled");
+      botaoMovimento.setAttribute("title", ligado ? TEXTOS_V1.movimento_ligado : TEXTOS_V1.movimento_desligado);
+    }
     if (!ligado) pararGestos();
   }
   botaoMovimento.addEventListener("click", function () {
@@ -2065,13 +2141,16 @@ var EndoAfetosV1 = (function () {
     var mudou = resultado.cena !== cenaAtual;
     cenaAtual = resultado.cena;
     memoria.houveSeguranca = resultado.houveSeguranca;
+    // Uma linha de apoio deixa a visita quieta, como a pagina faz com o risco: o fundo nao volta a respirar e nao
+    // caem mais petalas ate "Encerrar conversa" (a regra pura cenaDe fica igual a do prototipo).
+    if (resultado.cena === "apoio") memoria.quieta = true;
     raiz.setAttribute("data-cena", resultado.cena);
-    raiz.setAttribute("data-respira", resultado.fundoRespira ? "sim" : "nao");
+    raiz.setAttribute("data-respira", resultado.fundoRespira && !memoria.quieta ? "sim" : "nao");
     raiz.setAttribute("data-trecho", resultado.trecho);
     if (resultado.fundo) trocarVeu(resultado.fundo);
     postura(resultado.postura);
     if (resultado.borboletaParada) pararGestos();
-    else if (mudou && resultado.petalas) petalas(10);
+    else if (mudou && resultado.petalas && !memoria.quieta) petalas(10);
   }
 
   // A pagina pode avisar varias vezes no mesmo instante (o estado e depois a resposta): vale uma troca por vez, a do
@@ -2079,6 +2158,18 @@ var EndoAfetosV1 = (function () {
   var FORCA = { estado: 1, chat: 2, apoio: 2, encerrar: 3 };
   var pendente = null;
   function avisar(evento, dados) {
+    // Qual tela esta na frente: a chuva de petalas do fundo so vale na chegada (o CSS le data-tela). Vale na hora.
+    if (evento === "tela") {
+      raiz.setAttribute("data-tela", dados === "conversa" ? "conversa" : "chegada");
+      return;
+    }
+    // A pagina marcou a visita como de risco: o fundo se aquieta na hora, sem trocar a postura nem a cena.
+    if (evento === "risco") {
+      memoria.quieta = true;
+      raiz.setAttribute("data-respira", "nao");
+      esvaziarPetalas();
+      return;
+    }
     if (!FORCA[evento]) return;
     if (pendente && FORCA[pendente.evento] > FORCA[evento]) return;
     var vazio = pendente === null;
@@ -2091,6 +2182,7 @@ var EndoAfetosV1 = (function () {
     if (!aviso) return;
     if (aviso.evento === "encerrar") {
       memoria.houveSeguranca = false;
+      memoria.quieta = false;
       aplicarCena(cenaDe({ fase: "encerrada" }, memoria));
       petalas(12);
       partir();
@@ -2114,9 +2206,10 @@ var EndoAfetosV1 = (function () {
 
   aplicarHora();
   aplicarMovimento();
+  raiz.setAttribute("data-tela", "chegada");
   aplicarCena(cenaDe({ fase: "aceite" }, memoria));
+  // Na chegada, a chuva leve do fundo faz o papel das petalas: sem a rajada por cima do conteudo.
   chegar();
-  petalas(12);
   cicloOcioso();
 
   return { ligada: true, avisar: avisar, puras: puras };
@@ -2646,6 +2739,7 @@ var EndoAfetosV1 = (function () {
   }
 
   function telaDemonstracao() {
+    avisarV1("tela", "chegada");
     const titulo = tituloDaTela(TEXTOS.demo_titulo);
     const aviso = no("p", "aviso", TEXTOS.demo_aviso);
     aviso.setAttribute("role", "note");
@@ -2655,6 +2749,7 @@ var EndoAfetosV1 = (function () {
   }
 
   function telaAceite(mensagem, focar) {
+    avisarV1("tela", "chegada");
     const demonstracao = !apiAtiva(CONFIG);
     const fechado = !demonstracao && estado.saude.modo === "fechado";
     estado.sessao = null;
@@ -2818,7 +2913,10 @@ var EndoAfetosV1 = (function () {
           status.textContent = resposta.erro === "cadastro_com_risco" && resposta.seguranca
             ? resposta.seguranca
             : (TEXTOS.cadastro.erros[resposta.campo] || TEXTOS.cadastro.erros.cadastro);
-          if (resposta.erro === "cadastro_com_risco") estado.riscoNaVisita = true;
+          if (resposta.erro === "cadastro_com_risco") {
+            estado.riscoNaVisita = true;
+            avisarV1("chat", { tipo: "seguranca" });
+          }
           return;
         }
         const sessao = resposta.ok ? lerSessao(resposta.dados, Date.now(), CONFIG.sessao_validade_max_ms) : null;
@@ -2853,6 +2951,7 @@ var EndoAfetosV1 = (function () {
   /* ---- Conversa ---- */
 
   function telaConversa(avisoInicial) {
+    avisarV1("tela", "conversa");
     // A sessao pode abrir depois, por "tentar de novo", sem trocar de tela.
     let sessao = estado.sessao;
     let emTeste = Boolean(sessao) && sessao.tipo === "teste";
@@ -3940,6 +4039,7 @@ var EndoAfetosV1 = (function () {
 
     // Sinal de risco: nenhum convite nem oferta ate o fim da sessao, e as ofertas nao voltam nesta visita.
     function marcarRisco() {
+      avisarV1("risco");
       estado.houveRisco = true;
       retirarCartao();
       retirarOfertas();
