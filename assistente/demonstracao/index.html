@@ -227,29 +227,22 @@ button { cursor: pointer; }
 .topo__rotulo { white-space: normal; }
 /* Sem o texto do momento, o botão da demonstração fica à direita. */
 .rota__demo { margin-left: auto; }
-/* Rodapé institucional: os canais de emergência com símbolo e legenda, discretos (visíveis, em segundo plano).
-   Os desenhos são os do quiz, recortados pela cor do texto: no escuro e no claro ficam no mesmo tom apagado. */
-.rodape-site { max-width: 760px; margin: 2.5rem auto 0; padding-top: 1.1rem; border-top: 1px solid var(--linha); color: var(--tinta-suave); font-size: .85rem; line-height: 1.4; }
-.emergencia__titulo { font-family: var(--sans); font-size: .9rem; font-weight: 700; color: var(--tinta-suave); margin: 0 0 .2rem; }
-.emergencia__intro { margin: 0 0 .6rem; }
-.emergencia__lista { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(13.5rem, 1fr)); gap: .1rem 1rem; }
-.emergencia__canal { display: flex; align-items: flex-start; gap: .6rem; min-height: 44px; padding: .4rem 0; color: inherit; text-decoration: none; }
-.emergencia__icone { flex: none; width: 20px; height: 20px; margin-top: .1rem; opacity: .7; }
-@supports ((mask-image: none) or (-webkit-mask-image: none)) {
-  .emergencia__icone { background-color: currentColor; -webkit-mask: var(--icone) center / contain no-repeat; mask: var(--icone) center / contain no-repeat; }
-}
-/* Com as cores forçadas do aparelho (alto contraste), os desenhos continuam na cor do texto. */
-@media (forced-colors: active) { .emergencia__icone { background-color: CanvasText; forced-color-adjust: none; } }
-.emergencia__icone--cruz { --icone: url("data:image/svg+xml,%3Csvg xmlns='http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg' viewBox='0 0 24 24'%3E%3Cpath d='M9 3h6v6h6v6h-6v6H9v-6H3V9h6z' fill='%238c2f5f'/%3E%3C/svg%3E"); }
-.emergencia__icone--escudo { --icone: url("data:image/svg+xml,%3Csvg xmlns='http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2 4 5v6c0 5 3.4 9.3 8 11 4.6-1.7 8-6 8-11V5z' fill='none' stroke='%238c2f5f' stroke-width='2' stroke-linejoin='round'/%3E%3C/svg%3E"); }
-.emergencia__icone--mulher { --icone: url("data:image/svg+xml,%3Csvg xmlns='http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='9' r='5' fill='none' stroke='%238c2f5f' stroke-width='2'/%3E%3Cpath d='M12 14v8M8.5 18.5h7' stroke='%238c2f5f' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E"); }
-.emergencia__icone--pessoas { --icone: url("data:image/svg+xml,%3Csvg xmlns='http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg' viewBox='0 0 24 24'%3E%3Ccircle cx='8' cy='8' r='3' fill='%238c2f5f'/%3E%3Ccircle cx='16.5' cy='9.5' r='2.5' fill='%238c2f5f'/%3E%3Cpath d='M2.5 20c0-3.6 2.5-6 5.5-6s5.5 2.4 5.5 6zM13.5 20c.3-2.9 1.6-5 3.5-5 2.3 0 4.5 2 4.5 5z' fill='%238c2f5f'/%3E%3C/svg%3E"); }
-.emergencia__icone--conversa { --icone: url("data:image/svg+xml,%3Csvg xmlns='http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg' viewBox='0 0 24 24'%3E%3Cpath d='M4 4h16v11H9l-5 4z' fill='none' stroke='%238c2f5f' stroke-width='2' stroke-linejoin='round'/%3E%3Cpath d='M12 13s-3.5-2.1-3.5-4.2A1.9 1.9 0 0 1 12 8a1.9 1.9 0 0 1 3.5.8c0 2.1-3.5 4.2-3.5 4.2z' fill='%238c2f5f'/%3E%3C/svg%3E"); }
-.emergencia__nome { display: block; font-weight: 700; color: var(--tinta); }
-.emergencia__legenda { display: block; font-size: .8rem; }
-@media (hover: hover) { .emergencia__canal:hover .emergencia__nome { text-decoration: underline; } }
-.emergencia__canal:focus-visible { outline: 2px solid var(--foco); outline-offset: 2px; border-radius: 6px; }
-.rodape-site__linha { margin-top: 1rem; text-align: center; font-size: .8rem; color: var(--tinta-suave); }
+/* Rodapé institucional: o mesmo bloco e o mesmo estilo da conversa e das páginas da conta (peças URGENCIA e
+   EMERGENCIA do gerador das páginas), com os nomes das cores do protótipo. */
+.rodape-site { max-width: 760px; margin: 0 auto; font-size: .85rem; }
+.rodape-canais { max-width: 40rem; margin: 2rem auto 1.25rem; padding-top: 1rem; border-top: 1px solid var(--linha); text-align: left; font-size: .85rem; line-height: 1.4; color: var(--tinta); }
+.rodape-canais .rodape-canais__titulo { margin: 0 0 .2rem; font-family: var(--sans); font-size: .92rem; font-weight: 700; line-height: 1.3; color: var(--tinta); }
+.rodape-canais .rodape-canais__frase { margin: 0 0 .6rem; }
+.rodape-canais .rodape-canais__lista { display: flex; flex-wrap: wrap; margin: 0; padding: 0; list-style: none; }
+.rodape-canais .rodape-canais__item { flex: 1 1 13rem; margin: 0 1rem .1rem 0; }
+.rodape-canais__canal { display: flex; align-items: flex-start; min-height: 44px; padding: .35rem 0; color: inherit; text-decoration: none; }
+.rodape-canais__icone { flex: none; width: 20px; height: 20px; margin: .1rem .6rem 0 0; opacity: .75; }
+.rodape-canais__nome { display: block; font-weight: 700; color: var(--tinta); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }
+.rodape-canais__legenda { display: block; font-size: .8rem; }
+.rodape-canais__canal:hover .rodape-canais__nome, .rodape-canais__canal:focus-visible .rodape-canais__nome { text-decoration-thickness: 2px; }
+.rodape-canais__canal:focus-visible { outline: 2px solid currentColor; outline-offset: 2px; }
+main > .rodape-canais { max-width: none; margin-left: 0; margin-right: 0; }
+.rodape-site__linha { text-align: center; font-size: .8rem; color: var(--tinta); }
 
 /* Nome: "Maria Flor" em tinta, "IA" em cor, broche de flor preso ao nome */
 .nome {
@@ -1190,15 +1183,15 @@ textarea.campo { min-height: 5rem; resize: vertical; }
       </div>
     </section>
     <footer class="rodape-site nao-imprime" id="rodape">
-      <section class="emergencia" aria-labelledby="titulo-emergencia">
-        <h2 id="titulo-emergencia" class="emergencia__titulo">Precisa de ajuda agora?</h2>
-        <p class="emergencia__intro">Se precisar de atendimento médico de urgência, procure um serviço de saúde ou ligue 192 (SAMU).</p>
-        <ul class="emergencia__lista">
-          <li><a class="emergencia__canal" href="tel:192"><span class="emergencia__icone emergencia__icone--cruz" aria-hidden="true"></span><span class="emergencia__texto"><span class="emergencia__nome">SAMU 192</span><span class="emergencia__legenda">Emergência médica</span></span></a></li>
-          <li><a class="emergencia__canal" href="tel:190"><span class="emergencia__icone emergencia__icone--escudo" aria-hidden="true"></span><span class="emergencia__texto"><span class="emergencia__nome">Polícia 190</span><span class="emergencia__legenda">Perigo imediato ou violência acontecendo agora</span></span></a></li>
-          <li><a class="emergencia__canal" href="tel:180"><span class="emergencia__icone emergencia__icone--mulher" aria-hidden="true"></span><span class="emergencia__texto"><span class="emergencia__nome">Ligue 180</span><span class="emergencia__legenda">Violência contra a mulher: orientação e denúncia</span></span></a></li>
-          <li><a class="emergencia__canal" href="tel:100"><span class="emergencia__icone emergencia__icone--pessoas" aria-hidden="true"></span><span class="emergencia__texto"><span class="emergencia__nome">Disque 100</span><span class="emergencia__legenda">Direitos humanos: violência contra crianças, adolescentes, pessoas idosas e outros grupos</span></span></a></li>
-          <li><a class="emergencia__canal" href="tel:188"><span class="emergencia__icone emergencia__icone--conversa" aria-hidden="true"></span><span class="emergencia__texto"><span class="emergencia__nome">CVV 188</span><span class="emergencia__legenda">Apoio emocional e prevenção do suicídio, 24 horas</span></span></a></li>
+      <section class="rodape-canais" aria-labelledby="titulo-urgencia">
+        <h2 id="titulo-urgencia" class="rodape-canais__titulo">Precisa de ajuda agora?</h2>
+        <p class="rodape-canais__frase">Se precisar de atendimento médico de urgência, procure um serviço de saúde ou ligue 192 (SAMU).</p>
+        <ul class="rodape-canais__lista">
+          <li class="rodape-canais__item"><a class="rodape-canais__canal" href="tel:192"><svg class="rodape-canais__icone" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false"><path d="M9 3h6v6h6v6h-6v6H9v-6H3V9h6z" fill="currentColor"/></svg><span class="rodape-canais__texto"><span class="rodape-canais__nome">SAMU 192</span> <span class="rodape-canais__legenda">Emergência médica</span></span></a></li>
+          <li class="rodape-canais__item"><a class="rodape-canais__canal" href="tel:190"><svg class="rodape-canais__icone" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false"><path d="M12 2 4 5v6c0 5 3.4 9.3 8 11 4.6-1.7 8-6 8-11V5z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg><span class="rodape-canais__texto"><span class="rodape-canais__nome">Polícia 190</span> <span class="rodape-canais__legenda">Perigo imediato ou violência acontecendo agora</span></span></a></li>
+          <li class="rodape-canais__item"><a class="rodape-canais__canal" href="tel:180"><svg class="rodape-canais__icone" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false"><circle cx="12" cy="9" r="5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 14v8M8.5 18.5h7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span class="rodape-canais__texto"><span class="rodape-canais__nome">Ligue 180</span> <span class="rodape-canais__legenda">Violência contra a mulher: orientação e denúncia</span></span></a></li>
+          <li class="rodape-canais__item"><a class="rodape-canais__canal" href="tel:100"><svg class="rodape-canais__icone" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false"><circle cx="8" cy="8" r="3" fill="currentColor"/><circle cx="16.5" cy="9.5" r="2.5" fill="currentColor"/><path d="M2.5 20c0-3.6 2.5-6 5.5-6s5.5 2.4 5.5 6zM13.5 20c.3-2.9 1.6-5 3.5-5 2.3 0 4.5 2 4.5 5z" fill="currentColor"/></svg><span class="rodape-canais__texto"><span class="rodape-canais__nome">Disque 100</span> <span class="rodape-canais__legenda">Direitos humanos: violência contra crianças, adolescentes, pessoas idosas e outros grupos</span></span></a></li>
+          <li class="rodape-canais__item"><a class="rodape-canais__canal" href="tel:188"><svg class="rodape-canais__icone" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false"><path d="M4 4h16v11H9l-5 4z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M12 13s-3.5-2.1-3.5-4.2A1.9 1.9 0 0 1 12 8a1.9 1.9 0 0 1 3.5.8c0 2.1-3.5 4.2-3.5 4.2z" fill="currentColor"/></svg><span class="rodape-canais__texto"><span class="rodape-canais__nome">CVV 188</span> <span class="rodape-canais__legenda">Apoio emocional e prevenção do suicídio, 24 horas</span></span></a></li>
         </ul>
       </section>
       <p class="rodape-site__linha">EndoAfetos | Conhecer para cuidar.</p>

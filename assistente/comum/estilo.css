@@ -91,9 +91,22 @@ fieldset { border: 0; padding: 0; margin: 0 0 1rem; }
 .dados { margin: 0 0 1rem; }
 .dados dt { font-weight: 700; }
 .dados dd { margin: 0 0 .6rem; }
-.canais { margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--line); font-size: .95rem; }
-.canais ul { padding-left: 1.25rem; }
-.canais a { display: inline-flex; min-height: 44px; align-items: center; }
+/* Rodape institucional (26/11): os canais de emergencia com desenho e legenda, discretos. Gerado pelo gerador das
+   paginas: nao edite o que esta entre os marcadores. */
+/* ==== EMERGENCIA:INICIO ==== */
+.rodape-canais { max-width: 40rem; margin: 2rem auto 1.25rem; padding-top: 1rem; border-top: 1px solid var(--line); text-align: left; font-size: .85rem; line-height: 1.4; color: var(--ink); }
+.rodape-canais .rodape-canais__titulo { margin: 0 0 .2rem; font-family: var(--sans); font-size: .92rem; font-weight: 700; line-height: 1.3; color: var(--ink); }
+.rodape-canais .rodape-canais__frase { margin: 0 0 .6rem; }
+.rodape-canais .rodape-canais__lista { display: flex; flex-wrap: wrap; margin: 0; padding: 0; list-style: none; }
+.rodape-canais .rodape-canais__item { flex: 1 1 13rem; margin: 0 1rem .1rem 0; }
+.rodape-canais__canal { display: flex; align-items: flex-start; min-height: 44px; padding: .35rem 0; color: inherit; text-decoration: none; }
+.rodape-canais__icone { flex: none; width: 20px; height: 20px; margin: .1rem .6rem 0 0; opacity: .75; }
+.rodape-canais__nome { display: block; font-weight: 700; color: var(--ink); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }
+.rodape-canais__legenda { display: block; font-size: .8rem; }
+.rodape-canais__canal:hover .rodape-canais__nome, .rodape-canais__canal:focus-visible .rodape-canais__nome { text-decoration-thickness: 2px; }
+.rodape-canais__canal:focus-visible { outline: 2px solid currentColor; outline-offset: 2px; }
+main > .rodape-canais { max-width: none; margin-left: 0; margin-right: 0; }
+/* ==== EMERGENCIA:FIM ==== */
 .rodape { text-align: center; font-size: .9rem; color: var(--ink); padding: 1rem; }
 @media (min-width: 720px) {
   .grade { display: flex; flex-wrap: wrap; margin: 0 -.5rem; }

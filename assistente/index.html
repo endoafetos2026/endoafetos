@@ -430,12 +430,22 @@ a.btn { text-decoration: none; }
 
 .rodape { padding: 0 1rem 2rem; text-align: center; font-size: .92rem; color: var(--ink); }
 .rodape p { margin: 0; }
-/* Rodape (26/11): a frase da urgencia e os canais de ajuda, como nas paginas da conta. */
-.urgencia { max-width: 640px; margin: 0 auto 1.25rem; padding-top: 1rem; border-top: 1px solid var(--line); }
-.urgencia__titulo { margin: 0 0 .35rem; font-size: 1rem; }
-.rodape .urgencia p { margin: 0 0 .35rem; }
-.urgencia__lista { margin: 0; padding: 0; list-style: none; }
-.urgencia__lista a { display: inline-flex; align-items: center; min-height: 44px; font-weight: 700; color: var(--rose-dark); }
+/* Rodape institucional (26/11): os canais de emergencia com desenho e legenda, discretos. Gerado pelo gerador das
+   paginas: nao edite o que esta entre os marcadores. */
+/* ==== EMERGENCIA:INICIO ==== */
+.rodape-canais { max-width: 40rem; margin: 2rem auto 1.25rem; padding-top: 1rem; border-top: 1px solid var(--line); text-align: left; font-size: .85rem; line-height: 1.4; color: var(--ink); }
+.rodape-canais .rodape-canais__titulo { margin: 0 0 .2rem; font-family: var(--sans); font-size: .92rem; font-weight: 700; line-height: 1.3; color: var(--ink); }
+.rodape-canais .rodape-canais__frase { margin: 0 0 .6rem; }
+.rodape-canais .rodape-canais__lista { display: flex; flex-wrap: wrap; margin: 0; padding: 0; list-style: none; }
+.rodape-canais .rodape-canais__item { flex: 1 1 13rem; margin: 0 1rem .1rem 0; }
+.rodape-canais__canal { display: flex; align-items: flex-start; min-height: 44px; padding: .35rem 0; color: inherit; text-decoration: none; }
+.rodape-canais__icone { flex: none; width: 20px; height: 20px; margin: .1rem .6rem 0 0; opacity: .75; }
+.rodape-canais__nome { display: block; font-weight: 700; color: var(--ink); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }
+.rodape-canais__legenda { display: block; font-size: .8rem; }
+.rodape-canais__canal:hover .rodape-canais__nome, .rodape-canais__canal:focus-visible .rodape-canais__nome { text-decoration-thickness: 2px; }
+.rodape-canais__canal:focus-visible { outline: 2px solid currentColor; outline-offset: 2px; }
+main > .rodape-canais { max-width: none; margin-left: 0; margin-right: 0; }
+/* ==== EMERGENCIA:FIM ==== */
 /* Chegada so com conta (26/11): abas Entrar e Criar conta, como no simulador Arara. */
 .abas { display: flex; margin: 1.25rem 0 1rem; padding: 4px; background: var(--cream-2); border: 1px solid var(--line); border-radius: 999px; }
 .aba { flex: 1 1 0; min-height: 44px; margin: 0; padding: .55rem 1rem; font: inherit; font-weight: 700; color: var(--ink-soft); background: transparent; border: 0; border-radius: 999px; cursor: pointer; }
@@ -756,6 +766,12 @@ html[data-cara="v1"][data-cena="apoio"] .v1-bf,
 html[data-cara="v1"][data-cena="apoio"] .v1-bf * { animation: none !important; }
 html[data-cara="v1"][data-cena="seguranca"] .canais { padding: .9rem 1rem; background: var(--surface); border: 3px solid var(--ink); border-radius: var(--radius-sm); }
 html[data-cara="v1"][data-cena="seguranca"] .canal__rotulo { font-size: 1.18rem; }
+/* Os números ficam no rodapé institucional, discreto (26/11, pedido do Carlos: "padronizar os números de emergência
+   em um rodapé padrão"). O quadro de canais da conversa aparece em primeiro plano na segurança e no apoio, e continua
+   à vista pelo resto da visita depois de qualquer sinal de risco (data-risco, gravado pela cena: segurança, linha de
+   apoio ou risco marcado pela página, como a falha do servidor). Só some numa visita sem sinal nenhum, e nunca antes
+   de a cena da cara nova estar ligada (sem data-cena ele fica). */
+html[data-cara="v1"][data-cena]:not([data-cena="seguranca"]):not([data-cena="apoio"]):not([data-risco="sim"]) .canais { display: none; }
 
 /* ---------- Movimento desligado (pela pessoa ou pelo aparelho): posturas paradas ---------- */
 html[data-cara="v1"][data-movimento="desligado"] .v1-bf,
@@ -825,14 +841,15 @@ html[data-cara="v1"][data-movimento="desligado"] .v1-petalas { display: none !im
 
 <footer class="rodape">
   <!-- ==== URGENCIA:INICIO ==== -->
-  <section class="urgencia" aria-labelledby="titulo-urgencia">
-    <h2 id="titulo-urgencia" class="urgencia__titulo">Precisa de ajuda agora?</h2>
-    <p>Se precisar de atendimento médico de urgência, procure um serviço de saúde ou ligue 192 (SAMU).</p>
-    <ul class="urgencia__lista">
-      <li><a href="tel:192">SAMU 192: emergência médica</a></li>
-      <li><a href="tel:188">CVV 188: apoio emocional, 24 horas</a></li>
-      <li><a href="tel:180">Central de Atendimento à Mulher 180</a></li>
-      <li><a href="tel:190">Polícia 190</a></li>
+  <section class="rodape-canais" aria-labelledby="titulo-urgencia">
+    <h2 id="titulo-urgencia" class="rodape-canais__titulo">Precisa de ajuda agora?</h2>
+    <p class="rodape-canais__frase">Se precisar de atendimento médico de urgência, procure um serviço de saúde ou ligue 192 (SAMU).</p>
+    <ul class="rodape-canais__lista">
+      <li class="rodape-canais__item"><a class="rodape-canais__canal" href="tel:192"><svg class="rodape-canais__icone" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false"><path d="M9 3h6v6h6v6h-6v6H9v-6H3V9h6z" fill="currentColor"/></svg><span class="rodape-canais__texto"><span class="rodape-canais__nome">SAMU 192</span> <span class="rodape-canais__legenda">Emergência médica</span></span></a></li>
+      <li class="rodape-canais__item"><a class="rodape-canais__canal" href="tel:190"><svg class="rodape-canais__icone" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false"><path d="M12 2 4 5v6c0 5 3.4 9.3 8 11 4.6-1.7 8-6 8-11V5z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg><span class="rodape-canais__texto"><span class="rodape-canais__nome">Polícia 190</span> <span class="rodape-canais__legenda">Perigo imediato ou violência acontecendo agora</span></span></a></li>
+      <li class="rodape-canais__item"><a class="rodape-canais__canal" href="tel:180"><svg class="rodape-canais__icone" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false"><circle cx="12" cy="9" r="5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 14v8M8.5 18.5h7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span class="rodape-canais__texto"><span class="rodape-canais__nome">Ligue 180</span> <span class="rodape-canais__legenda">Violência contra a mulher: orientação e denúncia</span></span></a></li>
+      <li class="rodape-canais__item"><a class="rodape-canais__canal" href="tel:100"><svg class="rodape-canais__icone" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false"><circle cx="8" cy="8" r="3" fill="currentColor"/><circle cx="16.5" cy="9.5" r="2.5" fill="currentColor"/><path d="M2.5 20c0-3.6 2.5-6 5.5-6s5.5 2.4 5.5 6zM13.5 20c.3-2.9 1.6-5 3.5-5 2.3 0 4.5 2 4.5 5z" fill="currentColor"/></svg><span class="rodape-canais__texto"><span class="rodape-canais__nome">Disque 100</span> <span class="rodape-canais__legenda">Direitos humanos: violência contra crianças, adolescentes, pessoas idosas e outros grupos</span></span></a></li>
+      <li class="rodape-canais__item"><a class="rodape-canais__canal" href="tel:188"><svg class="rodape-canais__icone" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false"><path d="M4 4h16v11H9l-5 4z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M12 13s-3.5-2.1-3.5-4.2A1.9 1.9 0 0 1 12 8a1.9 1.9 0 0 1 3.5.8c0 2.1-3.5 4.2-3.5 4.2z" fill="currentColor"/></svg><span class="rodape-canais__texto"><span class="rodape-canais__nome">CVV 188</span> <span class="rodape-canais__legenda">Apoio emocional e prevenção do suicídio, 24 horas</span></span></a></li>
     </ul>
   </section>
   <!-- ==== URGENCIA:FIM ==== -->
@@ -2265,6 +2282,9 @@ var EndoAfetosV1 = (function () {
     // Uma linha de apoio deixa a visita quieta, como a pagina faz com o risco: o fundo nao volta a respirar e nao
     // caem mais petalas ate "Encerrar conversa" (a regra pura cenaDe fica igual a do prototipo).
     if (resultado.cena === "apoio") memoria.quieta = true;
+    // A visita teve seguranca, linha de apoio ou risco marcado pela pagina: o quadro de canais da conversa fica a
+    // vista ate "Encerrar conversa" (o CSS le data-risco; 26/11, rodape institucional).
+    raiz.setAttribute("data-risco", memoria.quieta || memoria.houveSeguranca ? "sim" : "nao");
     raiz.setAttribute("data-cena", resultado.cena);
     raiz.setAttribute("data-respira", resultado.fundoRespira && !memoria.quieta ? "sim" : "nao");
     raiz.setAttribute("data-trecho", resultado.trecho);
@@ -2287,6 +2307,7 @@ var EndoAfetosV1 = (function () {
     // A pagina marcou a visita como de risco: o fundo se aquieta na hora, sem trocar a postura nem a cena.
     if (evento === "risco") {
       memoria.quieta = true;
+      raiz.setAttribute("data-risco", "sim");
       raiz.setAttribute("data-respira", "nao");
       esvaziarPetalas();
       return;
