@@ -906,8 +906,8 @@ const CONFIG = {
   // sem conta desta pagina (aceite, Comecar, temas e texto livre) fica no codigo, desligada, ate depois do BTX. Quem
   // fecha a porta de verdade e o servidor (TEXTO_LIVRE desligado na producao).
   conversa_sem_conta: false,
-  // Termo de Uso e Politica de Privacidade oficiais (pendentes em 26/11): o PDF de cada um vai para este caminho. Ate
-  // eles chegarem, os dois aparecem "em breve" e o Criar conta fica fechado.
+  // Termo de Uso e Politica de Privacidade em versao beta 1 (termo-beta-1 e politica-beta-1), publicados em 26/11 pelo
+  // Carlos: o PDF de cada um fica neste caminho. Versao nova troca o arquivo aqui e a versao no servidor, juntos.
   documentos: {
     termo: "../assets/documentos/termo-de-uso.pdf",
     privacidade: "../assets/documentos/politica-de-privacidade.pdf"
@@ -919,10 +919,10 @@ const CONFIG = {
     politica_de_privacidade: "versao_politica",
     dados_de_saude_e_ia: "versao_consentimento_saude"
   },
-  // Criar conta aberto: so com esta chave ligada E com o aceite por versao ligado no servidor (documentos_do_aceite em
-  // /api/saude). Desligada, a aba Criar conta fica como esta desde 26/11: fechada, com "em breve". Ligar e decisao do
-  // Carlos, depois dos PDFs publicados em CONFIG.documentos.
-  cadastro_aberto: false,
+  // Criar conta aberto (ligada em 26/11, com os PDFs publicados; pedido do Carlos: "incluindo consentimento na hora de
+  // inscrever"): o formulario so aparece com esta chave E com o aceite por versao ligado no servidor
+  // (documentos_do_aceite em /api/saude). Sem isso, a aba fica fechada, com os dois documentos para ler.
+  cadastro_aberto: true,
   // Mostra no cartao de conversao o bloco do brinde do estande (BTX Salvador).
   evento_btx: true,
   // Blocos de pre-lancamento, desligados por padrao. A pre-inscricao so aparece com coleta true em /api/saude.
@@ -1010,13 +1010,12 @@ const TEXTOS = {
     aba_criar: "Criar conta",
     contas_fechadas: "As inscrições abrem em breve.",
     documentos: {
-      termo: { titulo: "Termo de Uso", aceite: "Li e aceito o Termo de Uso" },
+      termo: { titulo: "Termo de Uso", aceite: "Li e aceito o Termo de Uso e declaro que tenho 18 anos ou mais" },
       privacidade: { titulo: "Política de Privacidade", aceite: "Li e concordo com a Política de Privacidade" }
     },
     ler: "Ler na íntegra",
     baixar: "Baixar (PDF)",
-    em_breve: "texto oficial em breve",
-    cadastro_fechado: "O cadastro abre quando o Termo de Uso e a Política de Privacidade oficiais forem publicados.",
+    cadastro_fechado: "A criação de conta por esta página abre em breve. Os documentos já podem ser lidos.",
     ja_tem_conta: "Quem já tem conta pode entrar.",
     botao_criar: "Criar minha conta",
     // Criar conta aberto (26/11, provisorio, para o juridico). A resposta do servidor e a mesma, exista a conta ou nao.
@@ -1036,7 +1035,7 @@ const TEXTOS = {
     titulo: "Antes de continuar",
     intro: "Para conversar com a {assistente}, leia e aceite os documentos abaixo. Sempre que um deles mudar, pedimos o seu aceite de novo.",
     documentos: {
-      termo_de_uso: { arquivo: "termo", titulo: "Termo de Uso", aceite: "Li e aceito o Termo de Uso" },
+      termo_de_uso: { arquivo: "termo", titulo: "Termo de Uso", aceite: "Li e aceito o Termo de Uso e declaro que tenho 18 anos ou mais" },
       politica_de_privacidade: { arquivo: "privacidade", titulo: "Política de Privacidade", aceite: "Li e concordo com a Política de Privacidade" },
       dados_de_saude_e_ia: {
         arquivo: null,
@@ -3144,9 +3143,9 @@ var EndoAfetosV1 = (function () {
     };
   }
 
-  // Criar conta (26/11): Termo de Uso e Politica de Privacidade lidos na integra e aceitos, sem a caixa dos 18 anos.
-  // Enquanto os textos oficiais nao chegam, os dois aparecem "em breve", tudo desligado, e nada sai daqui. O PDF de
-  // cada um vai para CONFIG.documentos.
+  // Criar conta (26/11): Termo de Uso e Politica de Privacidade lidos na integra e aceitos. A declaracao dos 18 anos
+  // vai na caixa do Termo (item 8.1 dele; a Politica fala em "assentimento simples de maior de 18 anos"), sem caixa
+  // propria. O PDF de cada um esta em CONFIG.documentos.
   // Cartao de um documento do aceite por versao: titulo, os dois links para o PDF do proprio site (um abre em outra
   // aba, o outro baixa) ou, sem PDF, o texto inteiro, e a caixa de aceite. Serve ao dialogo do aceite e ao Criar conta.
   function cartaoDoDocumento(pendencia, prefixo, idDoStatus) {
@@ -3291,25 +3290,25 @@ var EndoAfetosV1 = (function () {
       const tituloDoDocumento = no("h2", "documento__titulo", documento.titulo);
       tituloDoDocumento.id = "documento-" + qual;
       cabeca.appendChild(tituloDoDocumento);
-      const aviso = no("span", "documento__aviso", "(" + textos.em_breve + ")");
-      aviso.id = "documento-" + qual + "-aviso";
-      [textos.ler, textos.baixar].forEach(function (rotulo) {
-        const botao = no("button", "btn-mini", rotulo);
-        botao.type = "button";
-        botao.disabled = true;
-        botao.setAttribute("aria-describedby", aviso.id);
-        cabeca.appendChild(botao);
-      });
+      // Os dois PDFs estao publicados desde 26/11: da para ler mesmo com o cadastro fechado. As caixas seguem
+      // desligadas: aqui nada e aceito nem enviado.
+      const ler = no("a", "btn-mini", textos.ler);
+      ler.href = CONFIG.documentos[qual];
+      ler.target = "_blank";
+      ler.rel = "noopener";
+      const baixar = no("a", "btn-mini", textos.baixar);
+      baixar.href = CONFIG.documentos[qual];
+      baixar.setAttribute("download", "");
+      cabeca.appendChild(ler);
+      cabeca.appendChild(baixar);
       const rotulo = no("label", "caixa");
       const marca = no("input");
       marca.type = "checkbox";
       marca.id = "aceite-" + qual;
       marca.checked = false;
       marca.disabled = true;
-      const texto = no("span", null, documento.aceite + " ");
-      texto.appendChild(aviso);
       rotulo.appendChild(marca);
-      rotulo.appendChild(texto);
+      rotulo.appendChild(no("span", null, documento.aceite));
       cartao.appendChild(cabeca);
       cartao.appendChild(rotulo);
       caixa.appendChild(cartao);

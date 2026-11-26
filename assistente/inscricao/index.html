@@ -44,8 +44,15 @@
       <input id="campo-email" name="email" type="email" autocomplete="email" maxlength="254" required>
       <p class="dica">É por ele que chegam o link para criar a senha, o protocolo e os avisos da conta. O assunto do e-mail não fala de saúde.</p>
     </div>
-    <label class="caixa"><input id="caixa-termos" type="checkbox"> <span>Li e aceito os <a href="../termos/" target="_blank" rel="noopener">termos da assinatura e o aviso de privacidade</a> (abre em outra aba).</span></label>
-    <label class="caixa"><input id="caixa-maior" type="checkbox"> <span>Tenho 18 anos ou mais.</span></label>
+    <p class="dica">Antes de enviar, leia o Termo de Uso e a Política de Privacidade. Cada um abre em outra aba, em PDF.</p>
+    <label class="caixa"><input id="caixa-termo" type="checkbox"> <span>Li e aceito o <a href="../../assets/documentos/termo-de-uso.pdf" target="_blank" rel="noopener">Termo de Uso</a> e declaro que tenho 18 anos ou mais</span></label>
+    <label class="caixa"><input id="caixa-politica" type="checkbox"> <span>Li e concordo com a <a href="../../assets/documentos/politica-de-privacidade.pdf" target="_blank" rel="noopener">Política de Privacidade</a></span></label>
+    <div id="consentimento-saude">
+      <p class="dica">O que você escrever sobre a sua saúde é usado só para gerar as respostas da assistente.</p>
+      <p class="dica">Para isso, o seu texto é enviado a um serviço de inteligência artificial e pode ser processado fora do Brasil. A EndoAfetos não guarda a conversa nesta versão.</p>
+      <p class="dica">Você pode retirar este consentimento quando quiser. Sem ele, a assistente não pode conversar com você.</p>
+    </div>
+    <label class="caixa"><input id="caixa-saude" type="checkbox" aria-describedby="consentimento-saude"> <span>Autorizo o uso do que eu escrever sobre a minha saúde para gerar as respostas, e o envio desse texto ao serviço de inteligência artificial, inclusive fora do Brasil</span></label>
     <div id="caixa-desafio"></div>
     <p id="status" class="status" role="status" aria-live="polite"></p>
     <button class="btn" type="submit">Enviar inscrição</button>
@@ -78,7 +85,45 @@
 (function () {
   "use strict";
   var C = window.EndoConta;
-  var VERSAO_DOS_TEXTOS = "termos-assinatura-0.1.0-provisoria";
+  // Termo de Uso e Política de Privacidade em versão beta 1 (26/11), em PDF, e o consentimento de dado de saúde. Com o
+  // aceite por versão ligado, o servidor informa em /api/saude os documentos em vigor, e a inscrição manda uma caixa e a
+  // versão de cada um. Sem ele, vale a forma de antes, com esta marca do que foi mostrado.
+  var VERSAO_DOS_TEXTOS = "termo-e-politica-beta-1";
+  var CAIXAS = {
+    termo_de_uso: { caixa: "caixa-termo", campo: "versao_termo", falta: "Para seguir, leia e aceite o Termo de Uso. A conta é só para quem tem 18 anos ou mais." },
+    politica_de_privacidade: { caixa: "caixa-politica", campo: "versao_politica", falta: "Para seguir, leia e aceite a Política de Privacidade." },
+    dados_de_saude_e_ia: { caixa: "caixa-saude", campo: "versao_consentimento_saude", falta: "Para seguir, marque a autorização sobre o que você escrever da sua saúde." }
+  };
+  var ORDEM_DAS_CAIXAS = ["termo_de_uso", "politica_de_privacidade", "dados_de_saude_e_ia"];
+  var PAGINA_DESATUALIZADA = "Os documentos mudaram. Recarregue a página, leia de novo e envie.";
+  var emVigor = null;
+  var desatualizada = false;
+
+  // Documentos em vigor, como o servidor informa: [{documento, versao}]. Um documento que esta página não conhece quer
+  // dizer página antiga: ela não envia nada até ser recarregada.
+  function lerDocumentosEmVigor(lista) {
+    if (!Array.isArray(lista) || lista.length === 0) return;
+    var lidos = [];
+    for (var i = 0; i < lista.length; i += 1) {
+      var item = lista[i];
+      if (!item || !Object.prototype.hasOwnProperty.call(CAIXAS, item.documento) || typeof item.versao !== "string" || item.versao === "") {
+        desatualizada = true;
+        return;
+      }
+      lidos.push({ documento: item.documento, versao: item.versao });
+    }
+    emVigor = lidos;
+  }
+
+  function aceitesDoPedido() {
+    if (!emVigor) return { termos: true, maior_de_18: true, versao_textos: VERSAO_DOS_TEXTOS };
+    var aceites = {};
+    emVigor.forEach(function (item) {
+      aceites[item.documento] = true;
+      aceites[CAIXAS[item.documento].campo] = item.versao;
+    });
+    return aceites;
+  }
   var formulario = document.getElementById("formulario");
   var status = document.getElementById("status");
   var fechada = document.getElementById("fechada");
@@ -102,6 +147,7 @@
     if (resultado.erro === "rede" || resultado.erro === "indisponivel") return C.anunciar(status, C.frase(resultado.erro), "");
     if (!resultado.saude || resultado.saude.inscricao !== true) return fechar();
     pagamentoAberto = resultado.saude.pagamento === true;
+    lerDocumentosEmVigor(resultado.saude.documentos_do_aceite);
   });
 
   function marcarCampo(id, errado) {
@@ -122,22 +168,26 @@
     if (!plano) return C.anunciar(status, "Escolha um plano.", "");
     if (!nomeOk) return C.anunciar(status, "Escreva o nome completo, com sobrenome.", "");
     if (!emailOk) return C.anunciar(status, "Confira o e-mail.", "");
-    if (!document.getElementById("caixa-termos").checked) return C.anunciar(status, "Para seguir, aceite os termos.", "");
-    if (!document.getElementById("caixa-maior").checked) return C.anunciar(status, "A conta é só para quem tem 18 anos ou mais.", "");
+    if (desatualizada) return C.anunciar(status, PAGINA_DESATUALIZADA, "");
+    for (var i = 0; i < ORDEM_DAS_CAIXAS.length; i += 1) {
+      var caixa = CAIXAS[ORDEM_DAS_CAIXAS[i]];
+      if (!document.getElementById(caixa.caixa).checked) return C.anunciar(status, caixa.falta, "");
+    }
     var botao = formulario.querySelector("button");
     botao.disabled = true;
     C.anunciar(status, "Enviando.", "");
     C.fichaDoTurnstile(document.getElementById("caixa-desafio"), status).then(function (ficha) {
       return C.pedir("POST", "/api/inscricoes", {
         nome: nome, email: email, plano: plano.value,
-        aceites: { termos: true, maior_de_18: true, versao_textos: VERSAO_DOS_TEXTOS },
+        aceites: aceitesDoPedido(),
         turnstile: ficha
       });
     }, function () {
       return { ok: false, json: { erro: "turnstile_invalido" } };
     }).then(function (resposta) {
       botao.disabled = false;
-      if (!resposta.ok) return C.anunciar(status, C.frase(resposta.json.erro), "");
+      // Versão trocada no servidor depois de a página abrir: só recarregando a pessoa lê o texto certo.
+      if (!resposta.ok) return C.anunciar(status, resposta.json.erro === "aceite_invalido" ? PAGINA_DESATUALIZADA : C.frase(resposta.json.erro), "");
       formulario.hidden = true;
       var feita = document.getElementById("feita");
       document.getElementById("protocolo").textContent = String(resposta.json.protocolo || "");
