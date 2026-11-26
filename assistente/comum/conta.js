@@ -1,3 +1,38 @@
+/* ==== CARA:INICIO ==== */
+// Chave da cara da pagina: "atual" (a de hoje) ou "v1" (a cara nova, para conferencia). O padrao vem gravado no
+// proprio <html> pelo gerador (ferramentas/gerar-paginas.mjs): sem atributo e a de hoje; data-cara="v1" e a nova. O
+// endereco com ?cara=v1 ou ?cara=atual
+// troca so nesta visita, e os links da propria pagina levam a escolha adiante. Nada e guardado no navegador.
+(function () {
+  "use strict";
+  if (typeof document === "undefined" || !document.documentElement || typeof window === "undefined") return;
+  var raiz = document.documentElement;
+  var busca = "";
+  try {
+    busca = String((window.location && window.location.search) || "");
+  } catch (erro) {
+    busca = "";
+  }
+  var pedido = /(?:^\?|&)cara=(v1|atual)(?:&|$)/.exec(busca);
+  if (!pedido || pedido[1] === (raiz.getAttribute("data-cara") || "atual")) return;
+  var escolha = pedido[1];
+  raiz.setAttribute("data-cara", escolha);
+  // Leva a escolha para os links do proprio site (caminho relativo), na hora do toque: vale tambem para os links
+  // que o script cria depois. Link de fora, de telefone, de e-mail ou da mesma pagina (#) fica como esta.
+  document.addEventListener("click", function (evento) {
+    var alvo = evento.target;
+    while (alvo && alvo.nodeType === 1 && String(alvo.nodeName).toLowerCase() !== "a") alvo = alvo.parentNode;
+    if (!alvo || alvo.nodeType !== 1 || !alvo.getAttribute) return;
+    var destino = alvo.getAttribute("href");
+    if (typeof destino !== "string" || destino === "" || destino.charAt(0) === "#") return;
+    if (/^[a-z][a-z0-9+.-]*:/i.test(destino) || destino.indexOf("//") === 0 || /[?&]cara=/.test(destino)) return;
+    var marca = destino.indexOf("#");
+    var antes = marca === -1 ? destino : destino.slice(0, marca);
+    var depois = marca === -1 ? "" : destino.slice(marca);
+    alvo.setAttribute("href", antes + (antes.indexOf("?") === -1 ? "?" : "&") + "cara=" + escolha + depois);
+  }, true);
+})();
+/* ==== CARA:FIM ==== */
 /* Peças comuns das páginas de planos, inscrição, pagamento e conta (24/11/2026).
    Nada aqui é segredo: CONFIG.api é o endereço público do Worker e CONFIG.turnstile_sitekey é a chave pública do
    Turnstile. Os dois ficam preenchidos no repositório, com os valores publicados. Com CONFIG.api vazio, as páginas

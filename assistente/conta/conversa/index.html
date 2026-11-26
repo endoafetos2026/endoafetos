@@ -4,8 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
-<title>Conversa | Assistente EndoAfetos</title>
-<link rel="stylesheet" href="../../comum/estilo.css?v=da6b441bae">
+<!-- ==== TITULO:INICIO ==== -->
+<title>Conversa | Maria FlorIA — EndoAfetos</title>
+<!-- ==== TITULO:FIM ==== -->
+<link rel="stylesheet" href="../../comum/estilo.css?v=e6bcd2fb6e">
 <style>
 .registro { margin: 0 0 1rem; }
 .msg { padding: .85rem 1rem; border-radius: var(--radius-sm); margin: 0 0 .75rem; background: var(--surface); border: 1px solid var(--line); }
@@ -59,8 +61,12 @@
   </section>
   <!-- ==== CANAIS:FIM ==== -->
 </main>
-<script src="../../comum/conta.js?v=23d20a98cd"></script>
+<script src="../../comum/conta.js?v=3a99ae23e3"></script>
 <script>
+/* ==== AUTOR:INICIO ==== */
+// Autor das falas da assistente. Gerado a partir da identidade: nao edite o que esta entre os marcadores.
+var AUTOR_DA_ASSISTENTE = "Maria FlorIA";
+/* ==== AUTOR:FIM ==== */
 (function () {
   "use strict";
   var C = window.EndoConta;
@@ -114,7 +120,7 @@
   }
 
   function mostrarResposta(dados) {
-    var caixa = mensagem("msg--assistente" + (dados.tipo === "seguranca" ? " msg--seguranca" : ""), "Assistente", String(dados.texto || FALHA));
+    var caixa = mensagem("msg--assistente" + (dados.tipo === "seguranca" ? " msg--seguranca" : ""), AUTOR_DA_ASSISTENTE, String(dados.texto || FALHA));
     if (typeof dados.linha_apoio === "string" && dados.linha_apoio !== "") caixa.appendChild(C.no("p", "msg__apoio", dados.linha_apoio));
     if (dados.tipo === "resposta" && Array.isArray(dados.saber_mais) && dados.saber_mais.length > 0) {
       var detalhes = C.no("details", "saber-mais");
@@ -168,10 +174,10 @@
       if (dados.erro === "token_invalido") return semEntrada();
       if (dados.erro === "assinatura_inativa" || dados.erro === "inscricao_desligada") {
         formulario.hidden = true;
-        return mensagem("msg--assistente", "Assistente", C.frase(dados.erro));
+        return mensagem("msg--assistente", AUTOR_DA_ASSISTENTE, C.frase(dados.erro));
       }
       // Falha sem resposta: a pergunta volta ao campo, se ele estiver vazio.
-      mensagem("msg--assistente", "Assistente", dados.erro === "muitas_requisicoes" ? C.frase("muitas_requisicoes") : FALHA);
+      mensagem("msg--assistente", AUTOR_DA_ASSISTENTE, dados.erro === "muitas_requisicoes" ? C.frase("muitas_requisicoes") : FALHA);
       if (campo.value === "") campo.value = texto;
     });
   });
