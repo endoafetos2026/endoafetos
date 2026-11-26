@@ -430,6 +430,25 @@ a.btn { text-decoration: none; }
 
 .rodape { padding: 0 1rem 2rem; text-align: center; font-size: .92rem; color: var(--ink); }
 .rodape p { margin: 0; }
+/* Rodape (26/11): a frase da urgencia e os canais de ajuda, como nas paginas da conta. */
+.urgencia { max-width: 640px; margin: 0 auto 1.25rem; padding-top: 1rem; border-top: 1px solid var(--line); }
+.urgencia__titulo { margin: 0 0 .35rem; font-size: 1rem; }
+.rodape .urgencia p { margin: 0 0 .35rem; }
+.urgencia__lista { margin: 0; padding: 0; list-style: none; }
+.urgencia__lista a { display: inline-flex; align-items: center; min-height: 44px; font-weight: 700; color: var(--rose-dark); }
+/* Chegada so com conta (26/11): abas Entrar e Criar conta, como no simulador Arara. */
+.abas { display: flex; margin: 1.25rem 0 1rem; padding: 4px; background: var(--cream-2); border: 1px solid var(--line); border-radius: 999px; }
+.aba { flex: 1 1 0; min-height: 44px; margin: 0; padding: .55rem 1rem; font: inherit; font-weight: 700; color: var(--ink-soft); background: transparent; border: 0; border-radius: 999px; cursor: pointer; }
+.aba[aria-selected="true"] { color: var(--surface); background: var(--ink); }
+.painel[hidden] { display: none; }
+.caixa--pequena { padding: .2rem 0 .6rem; font-size: .95rem; }
+.documento { margin: 0 0 1rem; padding: .9rem 1rem; background: var(--rose-mist); border: 1px solid var(--line); border-radius: var(--radius-sm); }
+.documento__cabeca { display: flex; flex-wrap: wrap; align-items: center; }
+.documento__titulo { flex: 1 1 auto; margin: 0 .75rem .5rem 0; font-family: var(--serif); font-size: 1.15rem; font-weight: 600; color: var(--ink); }
+.documento .btn-mini[disabled] { opacity: .6; cursor: default; }
+.documento__aviso { font-weight: 700; color: var(--rose-dark); }
+.cadastro__nota { margin: 0 0 1rem; }
+.btn[disabled] { opacity: .65; cursor: default; transform: none; }
 
 @media (min-width: 520px) {
   .btn { display: inline-flex; width: auto; min-width: 13rem; margin-right: .6rem; }
@@ -760,6 +779,8 @@ html[data-cara="v1"][data-movimento="desligado"] .v1-petalas { display: none !im
   html[data-cara="v1"], html[data-cara="v1"] body, html[data-cara="v1"] .topo, html[data-cara="v1"] .cartao,
   html[data-cara="v1"] .msg { color: #000 !important; background: #fff !important; box-shadow: none !important; }
   html[data-cara="v1"] .msg, html[data-cara="v1"] .cartao { border-color: #000 !important; }
+  /* Desde 26/11 a pagina abre na luz baixa: no papel, todo texto sai preto (titulos, rodape e os numeros de ajuda). */
+  html[data-cara="v1"] * { color: #000 !important; -webkit-text-fill-color: #000 !important; }
   html[data-cara="v1"] *, html[data-cara="v1"] *::before, html[data-cara="v1"] *::after { animation: none !important; transition: none !important; }
   html[data-cara="v1"] .topo__nome em { background: none; color: #000; -webkit-text-fill-color: #000; }
 }
@@ -803,6 +824,18 @@ html[data-cara="v1"][data-movimento="desligado"] .v1-petalas { display: none !im
 </main>
 
 <footer class="rodape">
+  <!-- ==== URGENCIA:INICIO ==== -->
+  <section class="urgencia" aria-labelledby="titulo-urgencia">
+    <h2 id="titulo-urgencia" class="urgencia__titulo">Precisa de ajuda agora?</h2>
+    <p>Se precisar de atendimento médico de urgência, procure um serviço de saúde ou ligue 192 (SAMU).</p>
+    <ul class="urgencia__lista">
+      <li><a href="tel:192">SAMU 192: emergência médica</a></li>
+      <li><a href="tel:188">CVV 188: apoio emocional, 24 horas</a></li>
+      <li><a href="tel:180">Central de Atendimento à Mulher 180</a></li>
+      <li><a href="tel:190">Polícia 190</a></li>
+    </ul>
+  </section>
+  <!-- ==== URGENCIA:FIM ==== -->
   <p>EndoAfetos | Conhecer para cuidar.</p>
 </footer>
 
@@ -851,6 +884,16 @@ const CONFIG = {
   recuperar_senha: "./conta/?recuperar=1",
   chave_do_token: "endoafetos.assinante",
   senha_max: 200,
+  // 26/11 (Carlos: "Ninguem pode conversar sem conta cadastrada"): a chegada so tem Entrar e Criar conta. A conversa
+  // sem conta desta pagina (aceite, Comecar, temas e texto livre) fica no codigo, desligada, ate depois do BTX. Quem
+  // fecha a porta de verdade e o servidor (TEXTO_LIVRE desligado na producao).
+  conversa_sem_conta: false,
+  // Termo de Uso e Politica de Privacidade oficiais (pendentes em 26/11): o PDF de cada um vai para este caminho. Ate
+  // eles chegarem, os dois aparecem "em breve" e o Criar conta fica fechado.
+  documentos: {
+    termo: "../assets/documentos/termo-de-uso.pdf",
+    privacidade: "../assets/documentos/politica-de-privacidade.pdf"
+  },
   // Mostra no cartao de conversao o bloco do brinde do estande (BTX Salvador).
   evento_btx: true,
   // Blocos de pre-lancamento, desligados por padrao. A pre-inscricao so aparece com coleta true em /api/saude.
@@ -905,7 +948,7 @@ const TEXTOS = {
   // das paginas da conta (comum/conta.js).
   entrada: {
     titulo: "Já tenho conta",
-    gratuito: "Com conta gratuita: 3 interações por semana, que se renovam às 00h01 de sexta-feira, horário de Brasília.",
+    mostrar_senha: "Mostrar senha",
     email_rotulo: "E-mail",
     senha_rotulo: "Senha",
     botao: "Entrar",
@@ -923,6 +966,30 @@ const TEXTOS = {
       indisponivel: "O serviço está indisponível agora. Tente de novo daqui a pouco.",
       rede: "Não foi possível falar com o servidor. Confira a internet e tente de novo."
     }
+  },
+  // Chegada so com conta (26/11, pedido do Carlos, provisorio, para o juridico): a apresentacao e as abas Entrar e
+  // Criar conta. O Termo de Uso e a Politica de Privacidade oficiais ainda nao chegaram: o cadastro fica fechado.
+  chegada: {
+    titulo: "Vamos conhecer a {assistente}?",
+    titulo_emoji: "🌸",
+    paragrafos: [
+      "A {assistente} é uma assistente virtual que utiliza inteligência artificial para conversar, acolher dúvidas e compartilhar informações sobre saúde e bem-estar.",
+      "Ela pode ajudar você a compreender melhor alguns assuntos, mas não substitui uma consulta com profissionais de saúde. Não realiza diagnósticos, não interpreta exames e não prescreve medicamentos."
+    ],
+    abas_rotulo: "Entrar ou criar conta",
+    aba_entrar: "Entrar",
+    aba_criar: "Criar conta",
+    contas_fechadas: "As inscrições abrem em breve.",
+    documentos: {
+      termo: { titulo: "Termo de Uso", aceite: "Li e aceito o Termo de Uso" },
+      privacidade: { titulo: "Política de Privacidade", aceite: "Li e concordo com a Política de Privacidade" }
+    },
+    ler: "Ler na íntegra",
+    baixar: "Baixar (PDF)",
+    em_breve: "texto oficial em breve",
+    cadastro_fechado: "O cadastro abre quando o Termo de Uso e a Política de Privacidade oficiais forem publicados.",
+    ja_tem_conta: "Quem já tem conta pode entrar.",
+    botao_criar: "Criar minha conta"
   },
   // Gratuito com cadastro (24/11, provisorio, para o juridico): o nome completo e o e-mail entram so no cadastro; na
   // conversa continua valendo nao escrever o nome completo. A caixa de 18 anos fica separada do aceite.
@@ -1863,15 +1930,11 @@ var EndoAfetosV1 = (function () {
     if (h >= 12 && h < 18) return "Boa tarde";
     return "Boa noite";
   }
-  // A cabine escurece sozinha a noite (19h as 4h59), como num voo noturno. A pessoa pode trocar.
-  function luzBaixaAutomatica(hora) {
-    var h = horaValida(hora);
-    return h >= 19 || h < 5;
-  }
-  // A escolha da pessoa vence; sem escolha, vale o modo escuro do aparelho ou a hora.
-  function luzEfetiva(escolha, hora, sistemaEscuro) {
+  // A escolha da pessoa vence; sem escolha, a luz baixa, a qualquer hora e com qualquer modo do aparelho (decisao do
+  // Carlos de 26/11: "a estetica deve ser por defeito em escuro"). A pessoa troca no icone de luz.
+  function luzEfetiva(escolha) {
     if (escolha === "clara" || escolha === "baixa") return escolha;
-    return sistemaEscuro || luzBaixaAutomatica(hora) ? "baixa" : "clara";
+    return "baixa";
   }
 
   var CENAS = {
@@ -1929,7 +1992,7 @@ var EndoAfetosV1 = (function () {
   }
 
   var puras = {
-    periodoDoDia: periodoDoDia, saudacao: saudacao, luzBaixaAutomatica: luzBaixaAutomatica,
+    periodoDoDia: periodoDoDia, saudacao: saudacao,
     luzEfetiva: luzEfetiva, cenaDe: cenaDe, CENAS: CENAS
   };
   var inerte = { ligada: false, avisar: function () {}, puras: puras };
@@ -1980,7 +2043,6 @@ var EndoAfetosV1 = (function () {
   }
 
   var sistemaReduz = consulta("(prefers-reduced-motion: reduce)");
-  var sistemaEscuro = consulta("(prefers-color-scheme: dark)");
   // houveSeguranca: a visita teve mensagem de seguranca. quieta: teve seguranca, linha de apoio ou risco marcado pela
   // pagina; o fundo nao respira e nao caem petalas. As duas so se apagam em "Encerrar conversa".
   var memoria = { houveSeguranca: false, quieta: false };
@@ -2064,7 +2126,7 @@ var EndoAfetosV1 = (function () {
     var hora = horaAgora();
     camadaHora.setAttribute("data-tom", periodoDoDia(hora));
     saudacaoNaTela.textContent = saudacao(hora);
-    var luz = luzEfetiva(escolhaDaLuz, hora, confere(sistemaEscuro));
+    var luz = luzEfetiva(escolhaDaLuz);
     raiz.setAttribute("data-luz", luz);
     botaoLuz.setAttribute("aria-pressed", luz === "baixa" ? "true" : "false");
     botaoLuz.setAttribute("title", luz === "baixa" ? TEXTOS_V1.luz_ligada : TEXTOS_V1.luz_desligada);
@@ -2074,7 +2136,6 @@ var EndoAfetosV1 = (function () {
     escolhaDaLuz = raiz.getAttribute("data-luz") === "baixa" ? "clara" : "baixa";
     aplicarHora();
   });
-  aoMudar(sistemaEscuro, aplicarHora);
   // A hora muda devagar: confere a cada 5 minutos (sem guardar nada).
   setInterval(aplicarHora, 300000);
 
@@ -2784,8 +2845,9 @@ var EndoAfetosV1 = (function () {
     pedir("/api/saude").then(function (resposta) {
       if (serie !== estado.serie) return;
       estado.saude = resposta.ok ? lerSaude(resposta.dados) : null;
-      if (estado.saude) telaAceite(null, focar);
-      else telaFalha(resposta.mensagem);
+      if (!estado.saude) telaFalha(resposta.mensagem);
+      else if (CONFIG.conversa_sem_conta) telaAceite(null, focar);
+      else telaChegada(focar);
     });
   }
 
@@ -2843,30 +2905,44 @@ var EndoAfetosV1 = (function () {
   // Bloco "Ja tenho conta" (26/11): e-mail e senha pela mesma rota das paginas da conta (POST /api/entrar). O
   // Turnstile so e pedido no toque em Entrar, nunca ao abrir a tela. Deu certo: o token fica nesta aba e a pessoa
   // vai para a conversa da conta. aceiteEmCurso() diz se o Comecar esta abrindo a conversa: os dois nao correm juntos.
-  function blocoDaEntrada(aceiteEmCurso) {
+  function blocoDaEntrada(aceiteEmCurso, comTitulo) {
     const textos = TEXTOS.entrada;
-    const secao = no("section", "entrada");
-    secao.setAttribute("aria-labelledby", "titulo-entrada");
-    const titulo = no("h2", "subtitulo", textos.titulo);
-    titulo.id = "titulo-entrada";
-    const gratuito = no("p", "dica", textos.gratuito);
-    gratuito.id = "dica-entrada";
+    // Na conversa sem conta (desligada desde 26/11), o bloco tem titulo proprio; na chegada so com conta, quem da o
+    // nome e a aba Entrar.
+    const secao = no(comTitulo ? "section" : "div", "entrada");
+    if (comTitulo) {
+      secao.setAttribute("aria-labelledby", "titulo-entrada");
+      const titulo = no("h2", "subtitulo", textos.titulo);
+      titulo.id = "titulo-entrada";
+      secao.appendChild(titulo);
+    }
     const formulario = no("form", "entrada__formulario");
     formulario.noValidate = true;
     const email = campoDeTexto("campo-email-entrada", textos.email_rotulo, "email", CONFIG.email_max);
     // Aparelho do estande e compartilhado: pede ao navegador para nao sugerir o e-mail de quem veio antes.
     email.entrada.setAttribute("autocomplete", "off");
     email.entrada.setAttribute("autocapitalize", "none");
-    email.entrada.setAttribute("aria-describedby", "dica-entrada status-entrada");
+    email.entrada.setAttribute("aria-describedby", "status-entrada");
     const senha = campoDeTexto("campo-senha-entrada", textos.senha_rotulo, "password", CONFIG.senha_max);
     senha.entrada.setAttribute("autocomplete", "off");
     senha.entrada.setAttribute("aria-describedby", "status-entrada");
+    // Mostrar senha (como no simulador Arara): so troca o tipo do campo, nada sai da pagina.
+    const mostrarSenha = caixaDeMarcar("mostrar-senha-entrada", textos.mostrar_senha);
+    mostrarSenha.rotulo.className = "caixa caixa--pequena";
+    mostrarSenha.entrada.addEventListener("change", function () {
+      senha.entrada.type = mostrarSenha.entrada.checked ? "text" : "password";
+    });
+    function esconderSenha() {
+      mostrarSenha.entrada.checked = false;
+      senha.entrada.type = "password";
+    }
     const caixaDesafio = no("div", "desafio");
     const status = linhaDeStatus("status-entrada");
     const botao = no("button", "btn btn--contorno", textos.botao);
     botao.type = "submit";
     formulario.appendChild(email.campo);
     formulario.appendChild(senha.campo);
+    formulario.appendChild(mostrarSenha.rotulo);
     formulario.appendChild(caixaDesafio);
     formulario.appendChild(status);
     formulario.appendChild(botao);
@@ -2874,8 +2950,6 @@ var EndoAfetosV1 = (function () {
     const ligacao = no("a", null, textos.esqueci);
     ligacao.href = CONFIG.recuperar_senha;
     esqueci.appendChild(ligacao);
-    secao.appendChild(titulo);
-    secao.appendChild(gratuito);
     secao.appendChild(formulario);
     secao.appendChild(esqueci);
 
@@ -2885,6 +2959,7 @@ var EndoAfetosV1 = (function () {
     function travar(travado) {
       email.entrada.disabled = travado;
       senha.entrada.disabled = travado;
+      mostrarSenha.entrada.disabled = travado;
       travarBotao(botao, travado);
     }
 
@@ -2915,6 +2990,7 @@ var EndoAfetosV1 = (function () {
         if (comToken && guardarTokenDaConta(dados)) {
           // O bloco fica travado ate a pagina sair, e o e-mail sai do campo: quem voltar pelo botao Voltar nao o ve.
           email.entrada.value = "";
+          esconderSenha();
           status.textContent = textos.indo;
           irParaConversaDaConta();
           return;
@@ -2934,6 +3010,7 @@ var EndoAfetosV1 = (function () {
         entrando = false;
         email.entrada.value = "";
         senha.entrada.value = "";
+        esconderSenha();
         status.textContent = "";
         travar(false);
       },
@@ -2941,6 +3018,133 @@ var EndoAfetosV1 = (function () {
         if (desafio) desafio.remover();
       }
     };
+  }
+
+  // Criar conta (26/11): Termo de Uso e Politica de Privacidade lidos na integra e aceitos, sem a caixa dos 18 anos.
+  // Enquanto os textos oficiais nao chegam, os dois aparecem "em breve", tudo desligado, e nada sai daqui. O PDF de
+  // cada um vai para CONFIG.documentos.
+  function blocoDoCadastro(contasAbertas) {
+    const textos = TEXTOS.chegada;
+    const caixa = no("div", "cadastro");
+    ["termo", "privacidade"].forEach(function (qual) {
+      const documento = textos.documentos[qual];
+      const cartao = no("div", "documento");
+      const cabeca = no("div", "documento__cabeca");
+      const tituloDoDocumento = no("h2", "documento__titulo", documento.titulo);
+      tituloDoDocumento.id = "documento-" + qual;
+      cabeca.appendChild(tituloDoDocumento);
+      const aviso = no("span", "documento__aviso", "(" + textos.em_breve + ")");
+      aviso.id = "documento-" + qual + "-aviso";
+      [textos.ler, textos.baixar].forEach(function (rotulo) {
+        const botao = no("button", "btn-mini", rotulo);
+        botao.type = "button";
+        botao.disabled = true;
+        botao.setAttribute("aria-describedby", aviso.id);
+        cabeca.appendChild(botao);
+      });
+      const rotulo = no("label", "caixa");
+      const marca = no("input");
+      marca.type = "checkbox";
+      marca.id = "aceite-" + qual;
+      marca.checked = false;
+      marca.disabled = true;
+      const texto = no("span", null, documento.aceite + " ");
+      texto.appendChild(aviso);
+      rotulo.appendChild(marca);
+      rotulo.appendChild(texto);
+      cartao.appendChild(cabeca);
+      cartao.appendChild(rotulo);
+      caixa.appendChild(cartao);
+    });
+    caixa.appendChild(no("p", "dica cadastro__nota", contasAbertas ? textos.cadastro_fechado + " " + textos.ja_tem_conta : textos.cadastro_fechado));
+    const criar = no("button", "btn", textos.botao_criar);
+    criar.type = "button";
+    criar.disabled = true;
+    criar.setAttribute("aria-disabled", "true");
+    caixa.appendChild(criar);
+    return caixa;
+  }
+
+  // 26/11 (Carlos: "Ninguem pode conversar sem conta cadastrada"): a chegada tem a apresentacao e duas abas, Entrar e
+  // Criar conta. Nenhuma conversa abre nesta pagina: quem entra vai para a conversa da conta.
+  function telaChegada(focar) {
+    avisarV1("tela", "chegada");
+    const demonstracao = !apiAtiva(CONFIG);
+    estado.sessao = null;
+    definirAvatar("acolhimento");
+    const textos = TEXTOS.chegada;
+    const titulo = tituloDaTela(textos.titulo);
+    // O emoji do titulo fica escondido do leitor de tela.
+    if (textos.titulo_emoji) {
+      titulo.appendChild(document.createTextNode(" "));
+      const flor = no("span", null, textos.titulo_emoji);
+      flor.setAttribute("aria-hidden", "true");
+      titulo.appendChild(flor);
+    }
+    const blocos = [titulo];
+    textos.paragrafos.forEach(function (texto) { blocos.push(no("p", "aceite__texto", texto)); });
+
+    const contasAbertas = !demonstracao && Boolean(estado.saude) && estado.saude.inscricao === true;
+    const entrada = contasAbertas ? blocoDaEntrada(function () { return false; }, false) : null;
+
+    const abas = no("div", "abas");
+    abas.setAttribute("role", "tablist");
+    abas.setAttribute("aria-label", textos.abas_rotulo);
+    const botoes = {};
+    const paineis = {};
+    const ORDEM = ["entrar", "criar"];
+    function escolher(qual, focarAba) {
+      ORDEM.forEach(function (outra) {
+        const escolhida = outra === qual;
+        botoes[outra].setAttribute("aria-selected", escolhida ? "true" : "false");
+        botoes[outra].tabIndex = escolhida ? 0 : -1;
+        paineis[outra].hidden = !escolhida;
+      });
+      if (focarAba) botoes[qual].focus();
+    }
+    [["entrar", textos.aba_entrar], ["criar", textos.aba_criar]].forEach(function (par) {
+      const qual = par[0];
+      const botao = no("button", "aba", par[1]);
+      botao.type = "button";
+      botao.id = "aba-" + qual;
+      botao.setAttribute("role", "tab");
+      botao.setAttribute("aria-controls", "painel-" + qual);
+      botao.addEventListener("click", function () { escolher(qual, false); });
+      const painel = no("div", "painel");
+      painel.id = "painel-" + qual;
+      painel.setAttribute("role", "tabpanel");
+      painel.setAttribute("aria-labelledby", botao.id);
+      // Painel sem nada focavel (o cadastro fechado, o aviso sem contas) tambem entra no Tab, como pede a WAI-ARIA.
+      painel.tabIndex = 0;
+      abas.appendChild(botao);
+      botoes[qual] = botao;
+      paineis[qual] = painel;
+    });
+    // Setas, Home e End trocam de aba, como pede o padrao de abas da WAI-ARIA.
+    abas.addEventListener("keydown", function (evento) {
+      const atual = botoes.entrar.getAttribute("aria-selected") === "true" ? 0 : 1;
+      let proxima = null;
+      if (evento.key === "ArrowRight" || evento.key === "ArrowLeft") proxima = ORDEM[(atual + 1) % ORDEM.length];
+      if (evento.key === "Home") proxima = ORDEM[0];
+      if (evento.key === "End") proxima = ORDEM[ORDEM.length - 1];
+      if (proxima === null) return;
+      evento.preventDefault();
+      escolher(proxima, true);
+    });
+
+    if (entrada) paineis.entrar.appendChild(entrada.secao);
+    else paineis.entrar.appendChild(no("p", "aviso", demonstracao ? TEXTOS.demo_aviso : textos.contas_fechadas));
+    paineis.criar.appendChild(blocoDoCadastro(contasAbertas));
+    // Com o cadastro fechado ate os textos oficiais chegarem, a chegada abre na aba Entrar.
+    escolher("entrar", false);
+    blocos.push(abas, paineis.entrar, paineis.criar);
+
+    mostrar(blocos, titulo, focar);
+    estado.aoSair = function () {
+      estado.aoVoltar = null;
+      if (entrada) entrada.remover();
+    };
+    estado.aoVoltar = entrada ? entrada.voltou : null;
   }
 
   function telaAceite(mensagem, focar) {
@@ -3001,7 +3205,7 @@ var EndoAfetosV1 = (function () {
     paragrafos.forEach(function (paragrafo) { blocos.push(paragrafo); });
     blocos.push(formulario);
     // Quem ja tem conta entra por aqui mesmo, depois do Comecar, so com as contas abertas no servidor.
-    const entrada = !demonstracao && estado.saude.inscricao === true ? blocoDaEntrada(function () { return abrindo; }) : null;
+    const entrada = !demonstracao && estado.saude.inscricao === true ? blocoDaEntrada(function () { return abrindo; }, true) : null;
     if (entrada) blocos.push(entrada.secao);
 
     let convite = null;
@@ -4720,7 +4924,8 @@ var EndoAfetosV1 = (function () {
 
   definirAvatar("acolhimento");
   if (apiAtiva(CONFIG)) telaCarregando(false);
-  else telaAceite(null, false);
+  else if (CONFIG.conversa_sem_conta) telaAceite(null, false);
+  else telaChegada(false);
 })();
 /* ==== PAGINA:FIM ==== */
 </script>

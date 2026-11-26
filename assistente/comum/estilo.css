@@ -158,48 +158,50 @@ html[data-cara="v1"] {
   --serif: 'Fraunces EndoAfetos', Georgia, 'Times New Roman', serif;
   --sans: 'Nunito EndoAfetos', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
-@media (prefers-color-scheme: dark) {
-  html[data-cara="v1"] {
-    --cream: #17152a;
-    --cream-2: #131225;
-    --surface: #24213a;
-    --rose: #f2a3c8;
-    --rose-dark: #f6bcd8;
-    --rose-mist: #33284a;
-    --gold-soft: #353055;
-    --lavender: #cdb7e0;
-    --lavender-soft: #353055;
-    --ink: #efeaf9;
-    --ink-soft: #c0bad6;
-    --line: #443d68;
-    --rosa-suave: #4a3558;
-    --lilas: #c3b3f3;
-    --ouro: #f4c95d;
-    --ouro-texto: #f4c95d;
-    --salvia: #a6cfb1;
-    --foco: #d6cbfa;
-    --acao: #f2a3c8;
-    --acao-texto: #2a1630;
-    --bf-contorno: #d77fae;
-    --bf-asa-sup: #a893e6;
-    --bf-asa-sup-luz: #bfaef2;
-    --bf-asa-inf: #cfaeea;
-    --bf-asa-inf-luz: #e0c9f5;
-    --bf-pinta: #f2a3c8;
-    --bf-cabeca: #fff8fb;
-    --bf-olho: #3d3566;
-  }
+html[data-cara="v1"] {
+  --cream: #17152a;
+  --cream-2: #131225;
+  --surface: #24213a;
+  --rose: #f2a3c8;
+  --rose-dark: #f6bcd8;
+  --rose-mist: #33284a;
+  --gold-soft: #353055;
+  --lavender: #cdb7e0;
+  --lavender-soft: #353055;
+  --ink: #efeaf9;
+  --ink-soft: #c0bad6;
+  --line: #443d68;
+  --rosa-suave: #4a3558;
+  --lilas: #c3b3f3;
+  --ouro: #f4c95d;
+  --ouro-texto: #f4c95d;
+  --salvia: #a6cfb1;
+  --foco: #d6cbfa;
+  --acao: #f2a3c8;
+  --acao-texto: #2a1630;
+  --bf-contorno: #d77fae;
+  --bf-asa-sup: #a893e6;
+  --bf-asa-sup-luz: #bfaef2;
+  --bf-asa-inf: #cfaeea;
+  --bf-asa-inf-luz: #e0c9f5;
+  --bf-pinta: #f2a3c8;
+  --bf-cabeca: #fff8fb;
+  --bf-olho: #3d3566;
 }
-/* Cara nova (v1) das páginas da conta: fontes da marca e a paleta do protótipo; com o modo escuro do aparelho, a
-   "luz baixa". Só vale com data-cara="v1" no <html>; na cara de hoje nada muda. */
-html[data-cara="v1"] { color-scheme: light; }
-@media (prefers-color-scheme: dark) {
-  html[data-cara="v1"] { color-scheme: dark; }
-  html[data-cara="v1"] .btn { color: var(--acao-texto); }
-  html[data-cara="v1"] .campo--erro input, html[data-cara="v1"] .campo--erro select { border-color: #f2a3c8; }
-  html[data-cara="v1"] .erro-campo { color: #f6bcd8; }
-}
+/* Cara nova (v1) das páginas da conta: fontes da marca e a paleta do protótipo, na luz baixa por padrão (decisão do
+   Carlos de 26/11: o escuro é o padrão na assistente e nas páginas da conta). Só vale com data-cara="v1" no <html>; na
+   cara de hoje nada muda. O verde dos avisos de sucesso ganha a versão escura aqui, porque fica fora da identidade. */
+html[data-cara="v1"] { color-scheme: dark; --ok: #8fd3ad; --ok-soft: #1d3a2d; }
+html[data-cara="v1"] .btn { color: var(--acao-texto); }
+/* O botão de contorno não tem fundo: a letra fica rosa clara, e não a escura do botão cheio. */
+html[data-cara="v1"] .btn--contorno { color: var(--rose-dark); }
+/* O logotipo continua no círculo claro, como na luz clara. */
+html[data-cara="v1"] .topo__logo { background: #fff; }
+html[data-cara="v1"] .campo--erro input, html[data-cara="v1"] .campo--erro select { border-color: #f2a3c8; }
+html[data-cara="v1"] .erro-campo { color: #f6bcd8; }
 @media print {
   html[data-cara="v1"], html[data-cara="v1"] body { color: #000 !important; background: #fff !important; }
+  /* No papel, todo texto preto sobre o branco: títulos, links, cartões e avisos. */
+  html[data-cara="v1"] * { color: #000 !important; background: transparent !important; box-shadow: none !important; }
 }
 /* ==== V1:FIM ==== */
