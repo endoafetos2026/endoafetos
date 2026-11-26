@@ -201,6 +201,43 @@ button { cursor: pointer; }
 .topo__textos { min-width: 0; }
 .topo__rotulo { display: block; font-size: .78rem; color: var(--tinta-suave); line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .topo__acoes { display: flex; gap: .35rem; flex: none; }
+/* Menu discreto da luz e do movimento, como o cantinho da conversa: ícones pequenos, alvo de toque de 44 px.
+   Sol com a luz clara, lua com a luz baixa; as ondas do movimento ganham um corte quando ele está desligado. */
+.chave-icone {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 44px; height: 44px; margin: 0; padding: 0;
+  color: var(--tinta-suave); background: none; border: 0; border-radius: 50%; cursor: pointer;
+}
+.chave-icone svg { display: block; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+/* Cor de passar o ponteiro só para quem tem ponteiro: no toque ela ficaria presa e pareceria "ligado". */
+@media (hover: hover) { .chave-icone:hover { color: var(--rosa-escuro); } }
+.chave-icone[aria-checked="true"] { color: var(--rosa-escuro); }
+.chave-icone--luz .chave-icone__sol circle { fill: currentColor; }
+.chave-icone--luz .chave-icone__lua path { fill: currentColor; }
+.chave-icone--luz .chave-icone__lua, .chave-icone--luz[aria-checked="true"] .chave-icone__sol { display: none; }
+.chave-icone--luz[aria-checked="true"] .chave-icone__lua { display: block; }
+.chave-icone__corte { display: none; }
+.chave-icone--movimento[aria-checked="false"] .chave-icone__corte { display: inline; }
+/* Antes de o script rodar, o desenho já segue a luz baixa que o topo da página aplicou. */
+:root[data-luz="baixa"] .chave-icone--luz { color: var(--rosa-escuro); }
+:root[data-luz="baixa"] .chave-icone--luz .chave-icone__sol { display: none; }
+:root[data-luz="baixa"] .chave-icone--luz .chave-icone__lua { display: block; }
+/* No computador o topo é uma coluna: o desenho dos ícones alinha com o nome, e o alvo continua com 44 px. */
+@media (min-width: 960px) { .topo__acoes { margin-left: -11px; } }
+/* No celular, o rodapé fica acima das abas e do compositor, também com a barra de baixo do iPhone. */
+@media (max-width: 959px) { .app .palco { padding-bottom: calc(13.5rem + env(safe-area-inset-bottom, 0px)); } }
+/* O nome da página quebra linha em vez de ser cortado. */
+.topo__rotulo { white-space: normal; }
+/* Sem o texto do momento, o botão da demonstração fica à direita. */
+.rota__demo { margin-left: auto; }
+/* Rodapé padrão do site, como o da conversa real: a frase da urgência, os canais de ajuda e a linha da EndoAfetos. */
+.rodape-site { max-width: 760px; margin: 2.2rem auto 0; color: var(--tinta); font-size: .95rem; }
+.rodape-site .urgencia { margin: 0 0 1.25rem; padding-top: 1rem; border-top: 1px solid var(--linha); }
+.rodape-site .urgencia__titulo { font-family: var(--serif); font-weight: 600; font-size: 1.05rem; margin: 0 0 .35rem; }
+.rodape-site .urgencia p { margin: 0 0 .35rem; }
+.rodape-site .urgencia__lista { margin: 0; padding: 0; list-style: none; }
+.rodape-site .urgencia__lista a { display: inline-flex; align-items: center; min-height: 44px; font-weight: 700; color: var(--rosa-escuro); text-underline-offset: .18em; }
+.rodape-site__linha { text-align: center; font-size: .9rem; color: var(--tinta-suave); }
 
 /* Nome: "Maria Flor" em tinta, "IA" em cor, broche de flor preso ao nome */
 .nome {
@@ -518,7 +555,7 @@ button { cursor: pointer; }
 :root[data-movimento="desligado"] .ramo .folhinha,
 :root[data-movimento="desligado"] .buque__flor { animation: none !important; }
 
-/* ---------- Painel "Luz da cabine" e apoio ---------- */
+/* ---------- Chaves da luz e do movimento ---------- */
 .cabine__linha { display: flex; align-items: center; justify-content: space-between; gap: .8rem; padding: .55rem 0; border-top: 1px solid var(--linha); }
 .folha__topo + .cabine__linha { border-top: 0; }
 .cabine__auto { border: 0; background: none; padding: .5rem 0; min-height: 44px; color: var(--rosa-escuro); font-weight: 800; font-size: .86rem; text-decoration: underline; }
@@ -886,9 +923,9 @@ textarea.campo { min-height: 5rem; resize: vertical; }
           <span class="topo__rotulo">Assistente virtual da EndoAfetos</span>
         </div>
       </div>
-      <div class="topo__acoes so-celular">
-        <button class="botao-icone botao-icone--apoio" type="button" data-abre="folha-apoio" aria-expanded="false" aria-label="Apoio agora: 192, 188 e 180"><svg aria-hidden="true"><use href="#i-apoio"/></svg></button>
-        <button class="botao-icone" type="button" data-abre="folha-cabine" aria-expanded="false" aria-label="Luz e movimento"><svg aria-hidden="true"><use href="#i-luz"/></svg></button>
+      <div class="topo__acoes" role="group" aria-label="Luz e movimento">
+        <button class="chave-icone chave-icone--luz" type="button" role="switch" aria-checked="false" aria-label="Luz baixa" title="Luz baixa" id="chave-luz"><svg class="chave-icone__sol" viewBox="0 0 24 24" width="22" height="22" focusable="false" aria-hidden="true"><circle cx="12" cy="12" r="4.4"/><path d="M12 2.6v2.6M12 18.8v2.6M2.6 12h2.6M18.8 12h2.6M5.4 5.4l1.8 1.8M16.8 16.8l1.8 1.8M5.4 18.6l1.8-1.8M16.8 7.2l1.8-1.8"/></svg><svg class="chave-icone__lua" viewBox="0 0 24 24" width="22" height="22" focusable="false" aria-hidden="true"><path d="M19.6 14.6A8.2 8.2 0 1 1 9.4 4.4a6.6 6.6 0 0 0 10.2 10.2z"/></svg></button>
+        <button class="chave-icone chave-icone--movimento" type="button" role="switch" aria-checked="true" aria-label="Movimento" title="Movimento" id="chave-movimento"><svg viewBox="0 0 24 24" width="22" height="22" focusable="false" aria-hidden="true"><path d="M3 9.5c3-3 6 3 9 0s6-3 9 0M3 15c3-3 6 3 9 0s6-3 9 0"/><path class="chave-icone__corte" d="M4.5 20.5l15-17"/></svg></button>
       </div>
     </header>
 
@@ -896,7 +933,7 @@ textarea.campo { min-height: 5rem; resize: vertical; }
       <div class="rota__trilho" aria-hidden="true">
         <span class="rota__ponto" data-trecho="inicio"></span><span class="rota__fio"></span><span class="rota__ponto" data-trecho="meio"></span><span class="rota__fio"></span><span class="rota__ponto" data-trecho="fim"></span>
       </div>
-      <p class="rota__texto">Momento: <strong id="rota-rotulo">Acolher</strong><span id="rota-hora"></span></p>
+      <p class="rota__texto" hidden>Momento: <strong id="rota-rotulo">Acolher</strong><span id="rota-hora"></span></p>
       <button class="rota__demo nao-imprime" type="button" data-abre="folha-demo" aria-expanded="false" id="demo-abrir" aria-label="Painel da demonstração"><span class="so-computador">Demonstração</span><span class="so-celular">Demo</span></button>
     </div>
 
@@ -906,35 +943,9 @@ textarea.campo { min-height: 5rem; resize: vertical; }
       <button class="aba" type="button" data-tela="relatorio"><svg aria-hidden="true"><use href="#i-relatorio"/></svg>Relatório</button>
     </nav>
 
-    <div class="lateral-fim">
-      <section class="folha folha--fixa" id="folha-apoio" data-modal aria-labelledby="apoio-titulo">
-        <div class="folha__topo">
-          <h2 class="folha__titulo" id="apoio-titulo">Apoio agora</h2>
-          <button class="botao-icone folha__fechar" type="button" data-fecha aria-label="Fechar"><svg aria-hidden="true"><use href="#i-fechar"/></svg></button>
-        </div>
-        <div class="canais">
-          <a class="canal" href="tel:192"><span class="canal__numero">192</span><span class="canal__texto"><strong>SAMU</strong><span class="canal__descricao">Emergência médica</span></span></a>
-          <a class="canal" href="tel:188"><span class="canal__numero">188</span><span class="canal__texto"><strong>CVV</strong><span class="canal__descricao">Apoio emocional, 24 horas</span></span></a>
-          <a class="canal" href="tel:180"><span class="canal__numero">180</span><span class="canal__texto"><strong>Ligue 180</strong><span class="canal__descricao">Violência contra a mulher</span></span></a>
-        </div>
-      </section>
-
-      <section class="folha folha--fixa" id="folha-cabine" data-modal aria-labelledby="cabine-titulo">
-        <div class="folha__topo">
-          <h2 class="folha__titulo" id="cabine-titulo">Luz da cabine</h2>
-          <button class="botao-icone folha__fechar" type="button" data-fecha aria-label="Fechar"><svg aria-hidden="true"><use href="#i-fechar"/></svg></button>
-        </div>
-        <div class="cabine__linha">
-          <span id="rotulo-luz">Luz baixa<span class="lembra__origem" id="luz-origem">Liga sozinha à noite</span></span>
-          <span class="chave-area"><button class="chave" type="button" role="switch" aria-checked="false" aria-labelledby="rotulo-luz" id="chave-luz"></button></span>
-        </div>
-        <div class="cabine__linha">
-          <span id="rotulo-movimento">Movimento<span class="lembra__origem">Borboleta, pétalas e vento</span></span>
-          <span class="chave-area"><button class="chave" type="button" role="switch" aria-checked="true" aria-labelledby="rotulo-movimento" id="chave-movimento"></button></span>
-        </div>
-        <button class="cabine__auto" type="button" id="luz-auto" hidden>Voltar à luz automática</button>
-        <p class="legenda">A cor mostra o momento da conversa (acolher, informar, orientar, cuidar da sua segurança) e a hora do seu dia. A assistente não lê seus sentimentos.</p>
-      </section>
+    <div hidden>
+      <span id="luz-origem"></span>
+      <button type="button" id="luz-auto" hidden>Voltar à luz automática</button>
     </div>
   </div>
 
@@ -967,7 +978,7 @@ textarea.campo { min-height: 5rem; resize: vertical; }
         <div class="chegada__data">
           <span class="etiqueta etiqueta--ouro etiqueta--longa">Demonstração: mensagens fictícias, nada é enviado</span>
           <span class="etiqueta" id="chip-data"></span>
-          <span class="etiqueta etiqueta--linha" id="chip-luz"></span>
+          <span class="etiqueta etiqueta--linha" id="chip-luz" hidden></span>
         </div>
       </div>
       <ol class="mensagens" id="mensagens" aria-live="polite" aria-relevant="additions"></ol>
@@ -1150,6 +1161,19 @@ textarea.campo { min-height: 5rem; resize: vertical; }
         <p class="apoio-texto" style="margin-top:.7rem">O relatório traz só fatos e o que você escreveu. Ele não mostra humor, não avalia risco e não interpreta os seus registros.</p>
       </div>
     </section>
+    <footer class="rodape-site nao-imprime" id="rodape">
+      <section class="urgencia" aria-labelledby="titulo-urgencia">
+        <h2 id="titulo-urgencia" class="urgencia__titulo">Precisa de ajuda agora?</h2>
+        <p>Se precisar de atendimento médico de urgência, procure um serviço de saúde ou ligue 192 (SAMU).</p>
+        <ul class="urgencia__lista">
+          <li><a href="tel:192">SAMU 192: emergência médica</a></li>
+          <li><a href="tel:188">CVV 188: apoio emocional, 24 horas</a></li>
+          <li><a href="tel:180">Central de Atendimento à Mulher 180</a></li>
+          <li><a href="tel:190">Polícia 190</a></li>
+        </ul>
+      </section>
+      <p class="rodape-site__linha">EndoAfetos | Conhecer para cuidar.</p>
+    </footer>
   </main>
 </div>
 
@@ -1186,7 +1210,7 @@ textarea.campo { min-height: 5rem; resize: vertical; }
     </div>
   </div>
   <div class="demo__grupo"><h3>Flor do broche</h3><div class="pilulas" id="demo-flores"></div></div>
-  <p class="demo__nota">Este painel só existe na demonstração. As mensagens são fictícias, nada é enviado e nada é guardado. Os textos ainda passam pela revisão da equipe.</p>
+  <p class="demo__nota">Este painel só existe na demonstração. As mensagens são fictícias, nada é enviado e nada é guardado. A cor da tela acompanha a fase da conversa e a hora do dia; a assistente não lê sentimentos. Os textos ainda passam pela revisão da equipe.</p>
 </section>
 
 <div class="cortina" id="cortina"></div>
