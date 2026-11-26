@@ -1,12 +1,11 @@
 <!doctype html>
-<html lang="pt-BR" data-luz="clara" data-hora="tarde" data-cena="embarque" data-fundo="embarque">
+<html lang="pt-BR" data-luz="baixa" data-hora="tarde" data-cena="embarque" data-fundo="embarque">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
 <meta name="theme-color" content="#b3427a">
 <title>Maria FlorIA | demonstração da nova cara</title>
-<script>(function () { var raiz = document.documentElement, h = new Date().getHours(), escuro = false; try { escuro = Boolean(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches); } catch (e) {} if (escuro || h >= 19 || h < 5) raiz.setAttribute('data-luz', 'baixa'); })();</script>
 <!-- Demonstração da nova cara da Maria FlorIA, montada a partir do protótipo de identidade.
      Mensagens e dados fictícios; nada é enviado nem guardado. As fontes são as do próprio site. -->
 <style>
@@ -218,26 +217,39 @@ button { cursor: pointer; }
 .chave-icone--luz[aria-checked="true"] .chave-icone__lua { display: block; }
 .chave-icone__corte { display: none; }
 .chave-icone--movimento[aria-checked="false"] .chave-icone__corte { display: inline; }
-/* Antes de o script rodar, o desenho já segue a luz baixa que o topo da página aplicou. */
+/* O <html> já sai com a luz baixa: o desenho mostra a lua antes de o script rodar. */
 :root[data-luz="baixa"] .chave-icone--luz { color: var(--rosa-escuro); }
 :root[data-luz="baixa"] .chave-icone--luz .chave-icone__sol { display: none; }
 :root[data-luz="baixa"] .chave-icone--luz .chave-icone__lua { display: block; }
 /* No computador o topo é uma coluna: o desenho dos ícones alinha com o nome, e o alvo continua com 44 px. */
 @media (min-width: 960px) { .topo__acoes { margin-left: -11px; } }
-/* No celular, o rodapé fica acima das abas e do compositor, também com a barra de baixo do iPhone. */
-@media (max-width: 959px) { .app .palco { padding-bottom: calc(13.5rem + env(safe-area-inset-bottom, 0px)); } }
 /* O nome da página quebra linha em vez de ser cortado. */
 .topo__rotulo { white-space: normal; }
 /* Sem o texto do momento, o botão da demonstração fica à direita. */
 .rota__demo { margin-left: auto; }
-/* Rodapé padrão do site, como o da conversa real: a frase da urgência, os canais de ajuda e a linha da EndoAfetos. */
-.rodape-site { max-width: 760px; margin: 2.2rem auto 0; color: var(--tinta); font-size: .95rem; }
-.rodape-site .urgencia { margin: 0 0 1.25rem; padding-top: 1rem; border-top: 1px solid var(--linha); }
-.rodape-site .urgencia__titulo { font-family: var(--serif); font-weight: 600; font-size: 1.05rem; margin: 0 0 .35rem; }
-.rodape-site .urgencia p { margin: 0 0 .35rem; }
-.rodape-site .urgencia__lista { margin: 0; padding: 0; list-style: none; }
-.rodape-site .urgencia__lista a { display: inline-flex; align-items: center; min-height: 44px; font-weight: 700; color: var(--rosa-escuro); text-underline-offset: .18em; }
-.rodape-site__linha { text-align: center; font-size: .9rem; color: var(--tinta-suave); }
+/* Rodapé institucional: os canais de emergência com símbolo e legenda, discretos (visíveis, em segundo plano).
+   Os desenhos são os do quiz, recortados pela cor do texto: no escuro e no claro ficam no mesmo tom apagado. */
+.rodape-site { max-width: 760px; margin: 2.5rem auto 0; padding-top: 1.1rem; border-top: 1px solid var(--linha); color: var(--tinta-suave); font-size: .85rem; line-height: 1.4; }
+.emergencia__titulo { font-family: var(--sans); font-size: .9rem; font-weight: 700; color: var(--tinta-suave); margin: 0 0 .2rem; }
+.emergencia__intro { margin: 0 0 .6rem; }
+.emergencia__lista { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(13.5rem, 1fr)); gap: .1rem 1rem; }
+.emergencia__canal { display: flex; align-items: flex-start; gap: .6rem; min-height: 44px; padding: .4rem 0; color: inherit; text-decoration: none; }
+.emergencia__icone { flex: none; width: 20px; height: 20px; margin-top: .1rem; opacity: .7; }
+@supports ((mask-image: none) or (-webkit-mask-image: none)) {
+  .emergencia__icone { background-color: currentColor; -webkit-mask: var(--icone) center / contain no-repeat; mask: var(--icone) center / contain no-repeat; }
+}
+/* Com as cores forçadas do aparelho (alto contraste), os desenhos continuam na cor do texto. */
+@media (forced-colors: active) { .emergencia__icone { background-color: CanvasText; forced-color-adjust: none; } }
+.emergencia__icone--cruz { --icone: url("data:image/svg+xml,%3Csvg xmlns='http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg' viewBox='0 0 24 24'%3E%3Cpath d='M9 3h6v6h6v6h-6v6H9v-6H3V9h6z' fill='%238c2f5f'/%3E%3C/svg%3E"); }
+.emergencia__icone--escudo { --icone: url("data:image/svg+xml,%3Csvg xmlns='http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2 4 5v6c0 5 3.4 9.3 8 11 4.6-1.7 8-6 8-11V5z' fill='none' stroke='%238c2f5f' stroke-width='2' stroke-linejoin='round'/%3E%3C/svg%3E"); }
+.emergencia__icone--mulher { --icone: url("data:image/svg+xml,%3Csvg xmlns='http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='9' r='5' fill='none' stroke='%238c2f5f' stroke-width='2'/%3E%3Cpath d='M12 14v8M8.5 18.5h7' stroke='%238c2f5f' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E"); }
+.emergencia__icone--pessoas { --icone: url("data:image/svg+xml,%3Csvg xmlns='http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg' viewBox='0 0 24 24'%3E%3Ccircle cx='8' cy='8' r='3' fill='%238c2f5f'/%3E%3Ccircle cx='16.5' cy='9.5' r='2.5' fill='%238c2f5f'/%3E%3Cpath d='M2.5 20c0-3.6 2.5-6 5.5-6s5.5 2.4 5.5 6zM13.5 20c.3-2.9 1.6-5 3.5-5 2.3 0 4.5 2 4.5 5z' fill='%238c2f5f'/%3E%3C/svg%3E"); }
+.emergencia__icone--conversa { --icone: url("data:image/svg+xml,%3Csvg xmlns='http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg' viewBox='0 0 24 24'%3E%3Cpath d='M4 4h16v11H9l-5 4z' fill='none' stroke='%238c2f5f' stroke-width='2' stroke-linejoin='round'/%3E%3Cpath d='M12 13s-3.5-2.1-3.5-4.2A1.9 1.9 0 0 1 12 8a1.9 1.9 0 0 1 3.5.8c0 2.1-3.5 4.2-3.5 4.2z' fill='%238c2f5f'/%3E%3C/svg%3E"); }
+.emergencia__nome { display: block; font-weight: 700; color: var(--tinta); }
+.emergencia__legenda { display: block; font-size: .8rem; }
+@media (hover: hover) { .emergencia__canal:hover .emergencia__nome { text-decoration: underline; } }
+.emergencia__canal:focus-visible { outline: 2px solid var(--foco); outline-offset: 2px; border-radius: 6px; }
+.rodape-site__linha { margin-top: 1rem; text-align: center; font-size: .8rem; color: var(--tinta-suave); }
 
 /* Nome: "Maria Flor" em tinta, "IA" em cor, broche de flor preso ao nome */
 .nome {
@@ -836,6 +848,22 @@ textarea.campo { min-height: 5rem; resize: vertical; }
   .nome__ia { background: none; -webkit-text-fill-color: #000; color: #000; }
 }
 
+/* A caixa de escrever não cobre a conversa nem o rodapé (pedido do Carlos de 26/11: "o quadro do chat não pode se
+   sobreposicionar"). No computador a área da conversa termina acima da caixa; no celular, a folga de baixo é a altura
+   da caixa, mais as abas e a barra do aparelho. --altura-compositor vem do script curto logo depois da caixa. */
+/* Só na tela: na impressão do relatório vale o que o bloco de impressão já diz. */
+@media screen and (min-width: 960px) {
+  .palco { height: calc(100vh - var(--altura-compositor, 7rem)); padding-bottom: 1.5rem; }
+  :root[data-demo="aberta"] .palco { padding-bottom: 1.5rem; }
+  .msg, :root[data-demo="aberta"] .msg { scroll-margin-bottom: 1rem; }
+}
+@media screen and (max-width: 959px) {
+  .palco { padding-bottom: calc(var(--altura-compositor, 6.5rem) + 58px + env(safe-area-inset-bottom, 0px) + 1.5rem); }
+  .msg { scroll-margin-bottom: calc(var(--altura-compositor, 6.5rem) + 58px + env(safe-area-inset-bottom, 0px) + .75rem); }
+  /* Com o painel da demonstração aberto, a caixa fica acima dele (44vh): a folga soma os dois. */
+  :root[data-demo="aberta"] .palco { padding-bottom: calc(44vh + var(--altura-compositor, 6.5rem) + 1.5rem); }
+  :root[data-demo="aberta"] .msg { scroll-margin-bottom: calc(44vh + var(--altura-compositor, 6.5rem) + .75rem); }
+}
 </style>
 </head>
 <body>
@@ -1162,14 +1190,15 @@ textarea.campo { min-height: 5rem; resize: vertical; }
       </div>
     </section>
     <footer class="rodape-site nao-imprime" id="rodape">
-      <section class="urgencia" aria-labelledby="titulo-urgencia">
-        <h2 id="titulo-urgencia" class="urgencia__titulo">Precisa de ajuda agora?</h2>
-        <p>Se precisar de atendimento médico de urgência, procure um serviço de saúde ou ligue 192 (SAMU).</p>
-        <ul class="urgencia__lista">
-          <li><a href="tel:192">SAMU 192: emergência médica</a></li>
-          <li><a href="tel:188">CVV 188: apoio emocional, 24 horas</a></li>
-          <li><a href="tel:180">Central de Atendimento à Mulher 180</a></li>
-          <li><a href="tel:190">Polícia 190</a></li>
+      <section class="emergencia" aria-labelledby="titulo-emergencia">
+        <h2 id="titulo-emergencia" class="emergencia__titulo">Precisa de ajuda agora?</h2>
+        <p class="emergencia__intro">Se precisar de atendimento médico de urgência, procure um serviço de saúde ou ligue 192 (SAMU).</p>
+        <ul class="emergencia__lista">
+          <li><a class="emergencia__canal" href="tel:192"><span class="emergencia__icone emergencia__icone--cruz" aria-hidden="true"></span><span class="emergencia__texto"><span class="emergencia__nome">SAMU 192</span><span class="emergencia__legenda">Emergência médica</span></span></a></li>
+          <li><a class="emergencia__canal" href="tel:190"><span class="emergencia__icone emergencia__icone--escudo" aria-hidden="true"></span><span class="emergencia__texto"><span class="emergencia__nome">Polícia 190</span><span class="emergencia__legenda">Perigo imediato ou violência acontecendo agora</span></span></a></li>
+          <li><a class="emergencia__canal" href="tel:180"><span class="emergencia__icone emergencia__icone--mulher" aria-hidden="true"></span><span class="emergencia__texto"><span class="emergencia__nome">Ligue 180</span><span class="emergencia__legenda">Violência contra a mulher: orientação e denúncia</span></span></a></li>
+          <li><a class="emergencia__canal" href="tel:100"><span class="emergencia__icone emergencia__icone--pessoas" aria-hidden="true"></span><span class="emergencia__texto"><span class="emergencia__nome">Disque 100</span><span class="emergencia__legenda">Direitos humanos: violência contra crianças, adolescentes, pessoas idosas e outros grupos</span></span></a></li>
+          <li><a class="emergencia__canal" href="tel:188"><span class="emergencia__icone emergencia__icone--conversa" aria-hidden="true"></span><span class="emergencia__texto"><span class="emergencia__nome">CVV 188</span><span class="emergencia__legenda">Apoio emocional e prevenção do suicídio, 24 horas</span></span></a></li>
         </ul>
       </section>
       <p class="rodape-site__linha">EndoAfetos | Conhecer para cuidar.</p>
@@ -1188,6 +1217,18 @@ textarea.campo { min-height: 5rem; resize: vertical; }
     <span class="so-celular">Nesta demonstração, prefira digitar.</span>
   </div>
 </form>
+<script>
+// A caixa de escrever não cobre a conversa: a altura dela vira --altura-compositor, e a área da conversa termina acima.
+(function () {
+  var raiz = document.documentElement;
+  var caixa = document.getElementById('compositor');
+  if (!caixa || typeof caixa.getBoundingClientRect !== 'function') return;
+  function medir() { raiz.style.setProperty('--altura-compositor', Math.ceil(caixa.getBoundingClientRect().height) + 'px'); }
+  medir();
+  if (typeof window.ResizeObserver === 'function') new window.ResizeObserver(medir).observe(caixa);
+  window.addEventListener('resize', medir);
+})();
+</script>
 
 <section class="folha folha--demo" id="folha-demo" aria-labelledby="demo-titulo">
   <div class="folha__topo">
@@ -1605,7 +1646,7 @@ function diaDaSemanaCurto(mes, dia) {
   var estado = {
     horaReal: agora.getHours(),
     horaEscolhida: null,   // só a demonstração troca a hora
-    luzEscolha: null,      // null = automática (hora ou sistema); 'clara' ou 'baixa' = a pessoa escolheu
+    luzEscolha: 'baixa',   // abre sempre na luz baixa (pedido do Carlos de 26/11); null = automática (hora ou sistema)
     sistemaEscuro: consulta('(prefers-color-scheme: dark)'),
     movimento: !consulta('(prefers-reduced-motion: reduce)'),
     memoria: { houveSeguranca: false },
@@ -1977,7 +2018,7 @@ function diaDaSemanaCurto(mes, dia) {
 
   function canais() {
     var caixa = criar('div', 'canais');
-    [['192', 'SAMU', 'Emergência médica'], ['188', 'CVV', 'Apoio emocional, 24 horas'], ['180', 'Ligue 180', 'Violência contra a mulher']].forEach(function (c) {
+    [['192', 'SAMU', 'Emergência médica'], ['188', 'CVV', 'Apoio emocional e prevenção do suicídio, 24 horas'], ['180', 'Ligue 180', 'Violência contra a mulher: orientação e denúncia']].forEach(function (c) {
       var a = criar('a', 'canal');
       a.href = 'tel:' + c[0];
       a.appendChild(criar('span', 'canal__numero', c[0]));
@@ -2430,7 +2471,7 @@ function diaDaSemanaCurto(mes, dia) {
       pilula($('#demo-flores'), f[1], 'flor', f[0], function () { trocarFlor(f[0]); });
     });
     $('#demo-proximo').addEventListener('click', function () { tocar(estado.passo + 1); });
-    $('#demo-recomecar').addEventListener('click', reiniciar);
+    $('#demo-recomecar').addEventListener('click', function () { estado.luzEscolha = 'baixa'; estado.horaEscolhida = null; reiniciar(); });
     $('#demo-voar').addEventListener('click', passear);
     $('#demo-ouvir').addEventListener('click', falar);
     $('#demo-vento').addEventListener('click', function () { rajada(10); });
