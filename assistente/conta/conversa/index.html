@@ -39,6 +39,7 @@
   <h1 id="titulo" tabindex="-1">Conversa</h1>
   <p class="dica">A assistente informa e acolhe com conteúdo revisado pela equipe. Ela não faz diagnóstico, não interpreta exames e não indica remédios. Esta conversa não fica guardada: ao sair, ela some desta tela.</p>
   <p id="sem-sessao" class="aviso" hidden>Para conversar, entre na sua conta. <a href="../">Entrar</a></p>
+  <p id="aceite-pendente" class="aviso" hidden>Para conversar, é preciso ler e aceitar o Termo de Uso e a Política de Privacidade em vigor. Entre de novo para aceitar. <a href="../../">Ler e aceitar</a></p>
   <div id="registro" class="registro" role="log" aria-live="polite" aria-relevant="additions" aria-label="Mensagens da conversa"></div>
   <form id="escrita" class="escrita cartao" novalidate hidden>
     <label class="legenda" for="campo">Escreva sua pergunta</label>
@@ -89,6 +90,13 @@ var AUTOR_DA_ASSISTENTE = "Maria FlorIA";
     formulario.hidden = true;
     document.getElementById("sem-sessao").hidden = false;
   }
+  // Aceite por versão (26/11): a conta que ainda não aceitou os documentos em vigor não conversa. O aceite é feito na
+  // chegada (../../), depois da entrada: aqui a entrada é esquecida, o campo some e a página leva a pessoa até lá.
+  function aceitePendente() {
+    C.esquecerToken();
+    formulario.hidden = true;
+    document.getElementById("aceite-pendente").hidden = false;
+  }
   if (!token) {
     document.getElementById("sem-sessao").hidden = false;
     return;
@@ -99,6 +107,7 @@ var AUTOR_DA_ASSISTENTE = "Maria FlorIA";
   // Se a consulta falhar, a conversa segue, e o contador aparece depois da primeira resposta.
   var uso = null;
   C.pedir("GET", "/api/conta", undefined, token).then(function (resposta) {
+    if (resposta.ok && resposta.json.aceite_em_dia === false) return aceitePendente();
     if (resposta.ok && resposta.json.uso && typeof resposta.json.uso === "object") {
       uso = resposta.json.uso;
       return mostrarRestantes(uso.restantes);
@@ -174,6 +183,7 @@ var AUTOR_DA_ASSISTENTE = "Maria FlorIA";
         return;
       }
       if (dados.erro === "token_invalido") return semEntrada();
+      if (dados.erro === "aceite_pendente") return aceitePendente();
       if (dados.erro === "assinatura_inativa" || dados.erro === "inscricao_desligada") {
         formulario.hidden = true;
         return mensagem("msg--assistente", AUTOR_DA_ASSISTENTE, C.frase(dados.erro));

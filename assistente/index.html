@@ -456,6 +456,7 @@ main > .rodape-canais { max-width: none; margin-left: 0; margin-right: 0; }
 .documento__cabeca { display: flex; flex-wrap: wrap; align-items: center; }
 .documento__titulo { flex: 1 1 auto; margin: 0 .75rem .5rem 0; font-family: var(--serif); font-size: 1.15rem; font-weight: 600; color: var(--ink); }
 .documento .btn-mini[disabled] { opacity: .6; cursor: default; }
+.documento a.btn-mini { text-decoration: none; }
 .documento__aviso { font-weight: 700; color: var(--rose-dark); }
 .cadastro__nota { margin: 0 0 1rem; }
 .btn[disabled] { opacity: .65; cursor: default; transform: none; }
@@ -911,6 +912,17 @@ const CONFIG = {
     termo: "../assets/documentos/termo-de-uso.pdf",
     privacidade: "../assets/documentos/politica-de-privacidade.pdf"
   },
+  // Aceite por versao (26/11): campo em que a versao lida de cada documento vai em POST /api/conta/aceite, como o
+  // Worker espera (src/config.mjs, DOCUMENTOS_DO_ACEITE).
+  campos_do_aceite: {
+    termo_de_uso: "versao_termo",
+    politica_de_privacidade: "versao_politica",
+    dados_de_saude_e_ia: "versao_consentimento_saude"
+  },
+  // Criar conta aberto: so com esta chave ligada E com o aceite por versao ligado no servidor (documentos_do_aceite em
+  // /api/saude). Desligada, a aba Criar conta fica como esta desde 26/11: fechada, com "em breve". Ligar e decisao do
+  // Carlos, depois dos PDFs publicados em CONFIG.documentos.
+  cadastro_aberto: false,
   // Mostra no cartao de conversao o bloco do brinde do estande (BTX Salvador).
   evento_btx: true,
   // Blocos de pre-lancamento, desligados por padrao. A pre-inscricao so aparece com coleta true em /api/saude.
@@ -1006,7 +1018,46 @@ const TEXTOS = {
     em_breve: "texto oficial em breve",
     cadastro_fechado: "O cadastro abre quando o Termo de Uso e a Política de Privacidade oficiais forem publicados.",
     ja_tem_conta: "Quem já tem conta pode entrar.",
-    botao_criar: "Criar minha conta"
+    botao_criar: "Criar minha conta",
+    // Criar conta aberto (26/11, provisorio, para o juridico). A resposta do servidor e a mesma, exista a conta ou nao.
+    cadastro: {
+      email_rotulo: "E-mail",
+      nome_rotulo: "Como podemos chamar você? (opcional)",
+      falta_email: "Confira o e-mail.",
+      falta_marcar: "Marque todas as caixas para continuar.",
+      enviando: "Enviando.",
+      enviado: "Pronto. Confira o seu e-mail: enviamos o link para você criar a sua senha. Se você já tinha conta, use a aba Entrar."
+    }
+  },
+  // Aceite por versao (26/11, pedido do Carlos, provisorio, para o juridico): depois da entrada, a conta que ainda nao
+  // aceitou a versao em vigor de algum documento le e aceita antes de conversar. "arquivo" e a chave do PDF em
+  // CONFIG.documentos; o consentimento de dado de saude nao tem PDF: o texto dele aparece inteiro no cartao.
+  novo_aceite: {
+    titulo: "Antes de continuar",
+    intro: "Para conversar com a {assistente}, leia e aceite os documentos abaixo. Sempre que um deles mudar, pedimos o seu aceite de novo.",
+    documentos: {
+      termo_de_uso: { arquivo: "termo", titulo: "Termo de Uso", aceite: "Li e aceito o Termo de Uso" },
+      politica_de_privacidade: { arquivo: "privacidade", titulo: "Política de Privacidade", aceite: "Li e concordo com a Política de Privacidade" },
+      dados_de_saude_e_ia: {
+        arquivo: null,
+        titulo: "Dados de saúde e inteligência artificial",
+        texto: [
+          "O que você escrever sobre a sua saúde é usado só para gerar as respostas da {assistente}.",
+          "Para isso, o seu texto é enviado a um serviço de inteligência artificial e pode ser processado fora do Brasil. A EndoAfetos não guarda a conversa nesta versão.",
+          "Você pode retirar este consentimento quando quiser. Sem ele, a {assistente} não pode conversar com você."
+        ],
+        aceite: "Autorizo o uso do que eu escrever sobre a minha saúde para gerar as respostas, e o envio desse texto ao serviço de inteligência artificial, inclusive fora do Brasil"
+      }
+    },
+    ler: "Ler na íntegra",
+    baixar: "Baixar (PDF)",
+    botao: "Aceitar e continuar",
+    agora_nao: "Agora não",
+    falta_marcar: "Marque todas as caixas para continuar.",
+    enviando: "Registrando o seu aceite.",
+    mudou: "Os documentos mudaram enquanto você lia. Confira de novo e aceite.",
+    venceu: "A entrada venceu. Toque em Agora não e entre de novo.",
+    desatualizada: "Esta página está desatualizada. Recarregue a página e entre de novo."
   },
   // Gratuito com cadastro (24/11, provisorio, para o juridico): o nome completo e o e-mail entram so no cadastro; na
   // conversa continua valendo nao escrever o nome completo. A caixa de 18 anos fica separada do aceite.
@@ -1287,6 +1338,8 @@ function lerRespostaApi(status, corpo) {
   // Cadastro do gratuito (24/11): o campo recusado e, com sinal de risco no nome, a mensagem de seguranca.
   if (valido && typeof corpo.campo === "string") lida.campo = corpo.campo;
   if (valido && textoOuNulo(corpo.seguranca)) lida.seguranca = corpo.seguranca;
+  // Aceite por versao (26/11): a recusa traz os documentos em vigor (aceite_invalido, aceite_pendente).
+  if (valido && Array.isArray(corpo.documentos)) lida.documentos = corpo.documentos;
   return lida;
 }
 
@@ -1297,6 +1350,8 @@ function lerSaude(dados) {
   if (dados.cadastro_gratuito === true) saude.cadastro_gratuito = true;
   // Contas abertas (INSCRICAO): a tela de chegada mostra o bloco "Ja tenho conta".
   if (dados.inscricao === true) saude.inscricao = true;
+  // Aceite por versao (26/11): os documentos em vigor e a versao de cada um. A lista e conferida por quem a usa.
+  if (Array.isArray(dados.documentos_do_aceite)) saude.documentos_do_aceite = dados.documentos_do_aceite;
   return saude;
 }
 
@@ -1877,6 +1932,40 @@ function fraseDaEntrada(textos, resposta) {
   const erros = textos.entrada.erros;
   if (resposta && typeof resposta.erro === "string" && Object.prototype.hasOwnProperty.call(erros, resposta.erro)) return erros[resposta.erro];
   return resposta && resposta.status === 0 ? erros.rede : erros.indisponivel;
+}
+
+// Aceite por versao (26/11): o que o servidor diz que falta aceitar. Devolve a lista [{documento, versao}] (vazia
+// quando a conta esta em dia ou o servidor nao usa o aceite por versao), ou null quando a lista vem fora do formato
+// ou traz documento que esta pagina nao conhece (pagina desatualizada).
+function lerPendenciasDoAceite(lista, conhecidos) {
+  if (lista === undefined || lista === null) return [];
+  if (!Array.isArray(lista)) return null;
+  const saida = [];
+  for (let i = 0; i < lista.length; i += 1) {
+    const item = lista[i];
+    if (!item || typeof item.documento !== "string" || typeof item.versao !== "string" || item.versao === "") return null;
+    if (!Object.prototype.hasOwnProperty.call(conhecidos, item.documento)) return null;
+    saida.push({ documento: item.documento, versao: item.versao });
+  }
+  return saida;
+}
+
+// Corpo de POST /api/conta/aceite: a caixa marcada e a versao lida de cada documento pendente.
+function corpoDoNovoAceite(pendencias, campos) {
+  const aceites = {};
+  pendencias.forEach(function (pendencia) {
+    aceites[pendencia.documento] = true;
+    aceites[campos[pendencia.documento]] = pendencia.versao;
+  });
+  return { aceites: aceites };
+}
+
+// Corpo de POST /api/inscricoes do Criar conta (26/11): e-mail, o nome so quando preenchido, o plano gratuito, uma
+// caixa e a versao lida de cada documento em vigor, e a ficha do Turnstile. Sem a caixa dos 18 anos: a idade esta no Termo.
+function corpoDoCadastroDaConta(dados) {
+  const corpo = { email: dados.email, plano: "gratuito", aceites: corpoDoNovoAceite(dados.documentos, dados.campos).aceites, turnstile: dados.turnstile };
+  if (dados.nome) corpo.nome = dados.nome;
+  return corpo;
 }
 /* ==== PURAS:FIM ==== */
 
@@ -3008,6 +3097,20 @@ var EndoAfetosV1 = (function () {
         senha.entrada.value = "";
         const dados = resposta.ok ? resposta.dados : null;
         const comToken = Boolean(dados) && Boolean(textoOuNulo(dados.token));
+        // Aceite por versao (26/11): com documento pendente, nada e guardado, e a pessoa le e aceita antes de conversar.
+        const pendencias = comToken ? lerPendenciasDoAceite(dados.aceite_pendente, TEXTOS.novo_aceite.documentos) : [];
+        if (comToken && pendencias === null) {
+          entrando = false;
+          travar(false);
+          status.textContent = TEXTOS.novo_aceite.desatualizada;
+          return;
+        }
+        if (comToken && pendencias.length > 0) {
+          email.entrada.value = "";
+          esconderSenha();
+          telaDoNovoAceite(dados, pendencias, null, true);
+          return;
+        }
         if (comToken && guardarTokenDaConta(dados)) {
           // O bloco fica travado ate a pagina sair, e o e-mail sai do campo: quem voltar pelo botao Voltar nao o ve.
           email.entrada.value = "";
@@ -3044,7 +3147,141 @@ var EndoAfetosV1 = (function () {
   // Criar conta (26/11): Termo de Uso e Politica de Privacidade lidos na integra e aceitos, sem a caixa dos 18 anos.
   // Enquanto os textos oficiais nao chegam, os dois aparecem "em breve", tudo desligado, e nada sai daqui. O PDF de
   // cada um vai para CONFIG.documentos.
+  // Cartao de um documento do aceite por versao: titulo, os dois links para o PDF do proprio site (um abre em outra
+  // aba, o outro baixa) ou, sem PDF, o texto inteiro, e a caixa de aceite. Serve ao dialogo do aceite e ao Criar conta.
+  function cartaoDoDocumento(pendencia, prefixo, idDoStatus) {
+    const textos = TEXTOS.novo_aceite;
+    const documento = textos.documentos[pendencia.documento];
+    const cartao = no("div", "documento");
+    const cabeca = no("div", "documento__cabeca");
+    cabeca.appendChild(no("h2", "documento__titulo", documento.titulo));
+    const caminho = documento.arquivo ? CONFIG.documentos[documento.arquivo] : null;
+    if (caminho) {
+      const ler = no("a", "btn-mini", textos.ler);
+      ler.href = caminho;
+      ler.target = "_blank";
+      ler.rel = "noopener";
+      const baixar = no("a", "btn-mini", textos.baixar);
+      baixar.href = caminho;
+      baixar.setAttribute("download", "");
+      cabeca.appendChild(ler);
+      cabeca.appendChild(baixar);
+    }
+    cartao.appendChild(cabeca);
+    (documento.texto || []).forEach(function (paragrafo) { cartao.appendChild(no("p", "aceite__texto", paragrafo)); });
+    const caixa = caixaDeMarcar(prefixo + pendencia.documento, documento.aceite);
+    caixa.entrada.setAttribute("aria-describedby", idDoStatus);
+    cartao.appendChild(caixa.rotulo);
+    return { cartao: cartao, marca: caixa.entrada };
+  }
+
+  // Criar conta aberto (26/11, desligado por CONFIG.cadastro_aberto): e-mail, nome opcional e uma caixa por documento
+  // em vigor, com a versao que /api/saude informou. O Turnstile so e pedido no toque em Criar minha conta. O servidor
+  // manda o link da senha por e-mail e responde igual, exista a conta ou nao: a pagina nunca diz se o e-mail ja tem conta.
+  function blocoDoCadastroAberto(documentos) {
+    const textos = TEXTOS.chegada.cadastro;
+    const formulario = no("form", "cadastro");
+    formulario.noValidate = true;
+    const email = campoDeTexto("campo-email-cadastro", textos.email_rotulo, "email", CONFIG.email_max);
+    email.entrada.setAttribute("autocomplete", "off");
+    email.entrada.setAttribute("autocapitalize", "none");
+    email.entrada.setAttribute("aria-describedby", "status-cadastro");
+    const nome = campoDeTexto("campo-nome-cadastro", textos.nome_rotulo, "text", CONFIG.nome_max);
+    nome.entrada.setAttribute("autocomplete", "off");
+    formulario.appendChild(email.campo);
+    formulario.appendChild(nome.campo);
+    const marcas = [];
+    documentos.forEach(function (pendencia) {
+      const peca = cartaoDoDocumento(pendencia, "aceite-", "status-cadastro");
+      marcas.push(peca.marca);
+      formulario.appendChild(peca.cartao);
+    });
+    const caixaDesafio = no("div", "desafio");
+    const status = linhaDeStatus("status-cadastro");
+    const botao = no("button", "btn", TEXTOS.chegada.botao_criar);
+    botao.type = "submit";
+    formulario.appendChild(caixaDesafio);
+    formulario.appendChild(status);
+    formulario.appendChild(botao);
+
+    let desafio = null;
+    let enviando = false;
+    function travar(travado) {
+      email.entrada.disabled = travado;
+      nome.entrada.disabled = travado;
+      marcas.forEach(function (marca) { marca.disabled = travado; });
+      travarBotao(botao, travado);
+    }
+    function limpar() {
+      email.entrada.value = "";
+      nome.entrada.value = "";
+      marcas.forEach(function (marca) { marca.checked = false; });
+    }
+    formulario.addEventListener("submit", function (evento) {
+      evento.preventDefault();
+      if (enviando) return;
+      const endereco = valorDe(email.entrada).trim();
+      if (!emailValido(endereco, CONFIG.email_max)) {
+        status.textContent = textos.falta_email;
+        email.entrada.focus();
+        return;
+      }
+      const falta = marcas.filter(function (marca) { return !marca.checked; })[0];
+      if (falta) {
+        status.textContent = textos.falta_marcar;
+        falta.focus();
+        return;
+      }
+      enviando = true;
+      travar(true);
+      status.textContent = textos.enviando;
+      const serie = estado.serie;
+      if (!desafio) desafio = criarDesafio(caixaDesafio);
+      desafio.pedirFicha().then(function (ficha) {
+        return pedir("/api/inscricoes", {
+          corpo: corpoDoCadastroDaConta({
+            email: endereco, nome: limparNome(valorDe(nome.entrada), CONFIG.nome_max), documentos: documentos,
+            campos: CONFIG.campos_do_aceite, turnstile: ficha
+          })
+        });
+      }, function () {
+        return { ok: false, erro: "turnstile_invalido" };
+      }).then(function (resposta) {
+        if (serie !== estado.serie) return;
+        enviando = false;
+        travar(false);
+        if (resposta.ok) {
+          limpar();
+          status.textContent = textos.enviado;
+          return;
+        }
+        // Versao trocada no servidor depois de a pagina abrir: so recarregando a pessoa le o texto certo.
+        status.textContent = resposta.erro === "aceite_invalido" ? TEXTOS.novo_aceite.desatualizada : fraseDaEntrada(TEXTOS, resposta);
+      });
+    });
+
+    return {
+      caixa: formulario,
+      // De volta pelo botao Voltar (aparelho do estande): o formulario solta, vazio, para a pessoa seguinte.
+      voltou: function () {
+        enviando = false;
+        limpar();
+        status.textContent = "";
+        travar(false);
+      },
+      remover: function () {
+        if (desafio) desafio.remover();
+      }
+    };
+  }
+
   function blocoDoCadastro(contasAbertas) {
+    // Aberto so com a chave desta pagina, as contas abertas e os documentos em vigor informados pelo servidor, todos
+    // conhecidos desta pagina. Em qualquer outro caso, o bloco fechado de sempre.
+    const emVigor = contasAbertas && CONFIG.cadastro_aberto === true && estado.saude
+      ? lerPendenciasDoAceite(estado.saude.documentos_do_aceite, TEXTOS.novo_aceite.documentos)
+      : null;
+    if (emVigor && emVigor.length > 0) return blocoDoCadastroAberto(emVigor);
     const textos = TEXTOS.chegada;
     const caixa = no("div", "cadastro");
     ["termo", "privacidade"].forEach(function (qual) {
@@ -3083,7 +3320,99 @@ var EndoAfetosV1 = (function () {
     criar.disabled = true;
     criar.setAttribute("aria-disabled", "true");
     caixa.appendChild(criar);
-    return caixa;
+    return { caixa: caixa, voltou: function () {}, remover: function () {} };
+  }
+
+  // Aceite por versao (26/11, pedido do Carlos: "Quando atualizar devera solicitar assentimento aos usuarios novamente
+  // para usar a assistente"). Depois da entrada, a conta que ainda nao aceitou a versao em vigor de algum documento le e
+  // aceita aqui, antes de conversar. O token da entrada fica so na memoria desta tela: nada e guardado ate o aceite, e
+  // quem sai (Agora nao, ou o botao Voltar do navegador) perde a entrada. O servidor e quem fecha a conversa de quem
+  // nao aceitou; esta tela so mostra o que falta e manda o aceite.
+  function telaDoNovoAceite(sessao, pendencias, mensagem, focar) {
+    avisarV1("tela", "chegada");
+    const textos = TEXTOS.novo_aceite;
+    definirAvatar("acolhimento");
+    const titulo = tituloDaTela(textos.titulo);
+    const formulario = no("form", "cadastro");
+    formulario.noValidate = true;
+    const marcas = [];
+    pendencias.forEach(function (pendencia) {
+      const peca = cartaoDoDocumento(pendencia, "novo-aceite-", "status-novo-aceite");
+      marcas.push(peca.marca);
+      formulario.appendChild(peca.cartao);
+    });
+    const status = linhaDeStatus("status-novo-aceite");
+    if (mensagem) status.textContent = mensagem;
+    const botao = no("button", "btn", textos.botao);
+    botao.type = "submit";
+    const agoraNao = no("button", "btn btn--contorno", textos.agora_nao);
+    agoraNao.type = "button";
+    formulario.appendChild(status);
+    formulario.appendChild(botao);
+    formulario.appendChild(agoraNao);
+
+    let enviando = false;
+    function travar(travado) {
+      marcas.forEach(function (marca) { marca.disabled = travado; });
+      travarBotao(botao, travado);
+      travarBotao(agoraNao, travado);
+    }
+    agoraNao.addEventListener("click", function () {
+      if (!enviando) telaChegada(true);
+    });
+    formulario.addEventListener("submit", function (evento) {
+      evento.preventDefault();
+      if (enviando) return;
+      const falta = marcas.filter(function (marca) { return !marca.checked; })[0];
+      if (falta) {
+        status.textContent = textos.falta_marcar;
+        falta.focus();
+        return;
+      }
+      enviando = true;
+      travar(true);
+      status.textContent = textos.enviando;
+      const serie = estado.serie;
+      pedir("/api/conta/aceite", { token: sessao.token, corpo: corpoDoNovoAceite(pendencias, CONFIG.campos_do_aceite) }).then(function (resposta) {
+        if (serie !== estado.serie) return;
+        const dados = resposta.ok ? resposta.dados : null;
+        const comToken = Boolean(dados) && Boolean(textoOuNulo(dados.token));
+        // O que ainda falta: na resposta certa, a lista da propria resposta; na recusa da versao, a lista em vigor.
+        const restam = lerPendenciasDoAceite(comToken ? dados.aceite_pendente : resposta.documentos, textos.documentos);
+        if (comToken && restam !== null && restam.length === 0) {
+          if (guardarTokenDaConta(dados)) {
+            status.textContent = TEXTOS.entrada.indo;
+            irParaConversaDaConta();
+            return;
+          }
+          enviando = false;
+          travar(false);
+          status.textContent = TEXTOS.entrada.sem_armazenamento;
+          return;
+        }
+        if (restam === null) {
+          enviando = false;
+          travar(false);
+          status.textContent = textos.desatualizada;
+          return;
+        }
+        // Os documentos mudaram enquanto a pessoa lia: a tela recomeca com a lista nova, e as caixas voltam vazias.
+        if (restam.length > 0 && (comToken || resposta.erro === "aceite_invalido")) {
+          telaDoNovoAceite(comToken ? dados : sessao, restam, textos.mudou, true);
+          return;
+        }
+        enviando = false;
+        travar(false);
+        status.textContent = resposta.erro === "token_invalido" ? textos.venceu : fraseDaEntrada(TEXTOS, resposta);
+      });
+    });
+
+    mostrar([titulo, no("p", "aceite__texto", textos.intro), formulario], titulo, focar);
+    estado.aoSair = function () {
+      estado.aoVoltar = null;
+    };
+    // De volta pelo botao Voltar (aparelho do estande, compartilhado): a entrada em memoria se perde e a chegada recomeca.
+    estado.aoVoltar = function () { telaChegada(false); };
   }
 
   // 26/11 (Carlos: "Ninguem pode conversar sem conta cadastrada"): a chegada tem a apresentacao e duas abas, Entrar e
@@ -3155,7 +3484,8 @@ var EndoAfetosV1 = (function () {
 
     if (entrada) paineis.entrar.appendChild(entrada.secao);
     else paineis.entrar.appendChild(no("p", "aviso", demonstracao ? TEXTOS.demo_aviso : textos.contas_fechadas));
-    paineis.criar.appendChild(blocoDoCadastro(contasAbertas));
+    const cadastro = blocoDoCadastro(contasAbertas);
+    paineis.criar.appendChild(cadastro.caixa);
     // Com o cadastro fechado ate os textos oficiais chegarem, a chegada abre na aba Entrar.
     escolher("entrar", false);
     blocos.push(abas, paineis.entrar, paineis.criar);
@@ -3164,8 +3494,12 @@ var EndoAfetosV1 = (function () {
     estado.aoSair = function () {
       estado.aoVoltar = null;
       if (entrada) entrada.remover();
+      cadastro.remover();
     };
-    estado.aoVoltar = entrada ? entrada.voltou : null;
+    estado.aoVoltar = function () {
+      if (entrada) entrada.voltou();
+      cadastro.voltou();
+    };
   }
 
   function telaAceite(mensagem, focar) {
