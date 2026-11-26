@@ -101,3 +101,105 @@ fieldset { border: 0; padding: 0; margin: 0 0 1rem; }
   .grade > .cartao { display: flex; flex-direction: column; flex: 1 1 30%; margin: 0 .5rem 1.25rem; }
   .grade > .cartao .btn { margin: auto 0 .25rem; }
 }
+/* ==== V1:INICIO ==== */
+@font-face {
+  font-family: "Fraunces EndoAfetos";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("../../assets/fontes/fraunces-600.woff2") format("woff2");
+  unicode-range: U+0020-007E, U+00A0-00FF, U+2013-2014, U+2018-2019, U+201C-201D, U+2022, U+2026;
+}
+@font-face {
+  font-family: "Fraunces EndoAfetos";
+  font-style: italic;
+  font-weight: 600;
+  font-display: swap;
+  src: url("../../assets/fontes/fraunces-600-italico-flor.woff2") format("woff2");
+  unicode-range: U+0046, U+006C, U+006F, U+0072;
+}
+@font-face {
+  font-family: "Nunito EndoAfetos";
+  font-style: normal;
+  font-weight: 400 800;
+  font-display: swap;
+  src: url("../../assets/fontes/nunito-400-800.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+html[data-cara="v1"] {
+  --cream: #f8f4f2;
+  --cream-2: #efe8ec;
+  --surface: #ffffff;
+  --rose: #b3427a;
+  --rose-dark: #8c2f5f;
+  --rose-mist: #f9eef3;
+  --gold-soft: #e7e0f6;
+  --lavender: #8a62a3;
+  --lavender-soft: #e4dbef;
+  --ink: #3f4470;
+  --ink-soft: #575672;
+  --line: #e6dde3;
+  --rosa-suave: #eccbdb;
+  --lilas: #7459c4;
+  --ouro: #f4c95d;
+  --ouro-texto: #7a5407;
+  --salvia: #3f6b4d;
+  --foco: #5a3fb5;
+  --acao: #8c2f5f;
+  --acao-texto: #ffffff;
+  --bf-contorno: #8c2f5f;
+  --bf-asa-sup: #b9a5ef;
+  --bf-asa-sup-luz: #cdbdf6;
+  --bf-asa-inf: #dcc0f2;
+  --bf-asa-inf-luz: #ead8f8;
+  --bf-pinta: #e59fc2;
+  --bf-cabeca: #fff8fb;
+  --bf-olho: #3d3566;
+  --serif: 'Fraunces EndoAfetos', Georgia, 'Times New Roman', serif;
+  --sans: 'Nunito EndoAfetos', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  html[data-cara="v1"] {
+    --cream: #17152a;
+    --cream-2: #131225;
+    --surface: #24213a;
+    --rose: #f2a3c8;
+    --rose-dark: #f6bcd8;
+    --rose-mist: #33284a;
+    --gold-soft: #353055;
+    --lavender: #cdb7e0;
+    --lavender-soft: #353055;
+    --ink: #efeaf9;
+    --ink-soft: #c0bad6;
+    --line: #443d68;
+    --rosa-suave: #4a3558;
+    --lilas: #c3b3f3;
+    --ouro: #f4c95d;
+    --ouro-texto: #f4c95d;
+    --salvia: #a6cfb1;
+    --foco: #d6cbfa;
+    --acao: #f2a3c8;
+    --acao-texto: #2a1630;
+    --bf-contorno: #d77fae;
+    --bf-asa-sup: #a893e6;
+    --bf-asa-sup-luz: #bfaef2;
+    --bf-asa-inf: #cfaeea;
+    --bf-asa-inf-luz: #e0c9f5;
+    --bf-pinta: #f2a3c8;
+    --bf-cabeca: #fff8fb;
+    --bf-olho: #3d3566;
+  }
+}
+/* Cara nova (v1) das páginas da conta: fontes da marca e a paleta do protótipo; com o modo escuro do aparelho, a
+   "luz baixa". Só vale com data-cara="v1" no <html>; na cara de hoje nada muda. */
+html[data-cara="v1"] { color-scheme: light; }
+@media (prefers-color-scheme: dark) {
+  html[data-cara="v1"] { color-scheme: dark; }
+  html[data-cara="v1"] .btn { color: var(--acao-texto); }
+  html[data-cara="v1"] .campo--erro input, html[data-cara="v1"] .campo--erro select { border-color: #f2a3c8; }
+  html[data-cara="v1"] .erro-campo { color: #f6bcd8; }
+}
+@media print {
+  html[data-cara="v1"], html[data-cara="v1"] body { color: #000 !important; background: #fff !important; }
+}
+/* ==== V1:FIM ==== */

@@ -1,0 +1,14 @@
+Fontes da EndoAfetos (cara nova da assistente, v1)
+
+Arquivos baixados uma vez do Google Fonts em 25/11/2026 e servidos pelo próprio site: nenhuma página chama o
+Google na hora de abrir.
+
+- fraunces-600.woff2: Fraunces, peso 600, só os caracteres ASCII, o Latin-1 e a pontuação tipográfica
+  (títulos e o nome da assistente). 20.008 bytes.
+- fraunces-600-italico-flor.woff2: Fraunces itálico, peso 600, só as letras de "Flor". 1.572 bytes.
+- nunito-400-800.woff2: Nunito, pesos de 400 a 800 (fonte variável), subconjunto latino. 39.128 bytes.
+
+Total: 60.708 bytes (59,3 KiB).
+
+As duas famílias são da SIL Open Font License 1.1 (OFL-Fraunces.txt e OFL-Nunito.txt). Nas páginas elas têm os
+nomes "Fraunces EndoAfetos" e "Nunito EndoAfetos", como pede a licença para versões modificadas (recortes).

@@ -276,6 +276,67 @@ a.btn { text-decoration: none; }
   *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
   .btn:hover { transform: none; }
 }
+/* ==== V1:INICIO ==== */
+@font-face {
+  font-family: "Fraunces EndoAfetos";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("../assets/fontes/fraunces-600.woff2") format("woff2");
+  unicode-range: U+0020-007E, U+00A0-00FF, U+2013-2014, U+2018-2019, U+201C-201D, U+2022, U+2026;
+}
+@font-face {
+  font-family: "Fraunces EndoAfetos";
+  font-style: italic;
+  font-weight: 600;
+  font-display: swap;
+  src: url("../assets/fontes/fraunces-600-italico-flor.woff2") format("woff2");
+  unicode-range: U+0046, U+006C, U+006F, U+0072;
+}
+@font-face {
+  font-family: "Nunito EndoAfetos";
+  font-style: normal;
+  font-weight: 400 800;
+  font-display: swap;
+  src: url("../assets/fontes/nunito-400-800.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+html[data-cara="v1"] {
+  --cream: #f8f4f2;
+  --cream-2: #efe8ec;
+  --surface: #ffffff;
+  --rose: #b3427a;
+  --rose-dark: #8c2f5f;
+  --rose-mist: #f9eef3;
+  --gold-soft: #e7e0f6;
+  --lavender: #8a62a3;
+  --lavender-soft: #e4dbef;
+  --ink: #3f4470;
+  --ink-soft: #575672;
+  --line: #e6dde3;
+  --rosa-suave: #eccbdb;
+  --lilas: #7459c4;
+  --ouro: #f4c95d;
+  --ouro-texto: #7a5407;
+  --salvia: #3f6b4d;
+  --foco: #5a3fb5;
+  --acao: #8c2f5f;
+  --acao-texto: #ffffff;
+  --bf-contorno: #8c2f5f;
+  --bf-asa-sup: #b9a5ef;
+  --bf-asa-sup-luz: #cdbdf6;
+  --bf-asa-inf: #dcc0f2;
+  --bf-asa-inf-luz: #ead8f8;
+  --bf-pinta: #e59fc2;
+  --bf-cabeca: #fff8fb;
+  --bf-olho: #3d3566;
+  --serif: 'Fraunces EndoAfetos', Georgia, 'Times New Roman', serif;
+  --sans: 'Nunito EndoAfetos', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+/* Cara nova (v1) do quiz: fontes da marca e a paleta do protótipo, em luz clara (o modo escuro do quiz fica para
+   depois). Só vale com data-cara="v1" no <html>; na cara de hoje nada muda. */
+html[data-cara="v1"] { color-scheme: light; }
+/* ==== V1:FIM ==== */
 </style>
 </head>
 <body>
@@ -334,6 +395,8 @@ const CONFIG = {
   link_conhecer: "../#contato",
   // Vazio enquanto a assistente estiver em teste fechado; no BTX: "../assistente/".
   link_assistente: "",
+  // Cara nova (v1, B8): so com a chave ligada (data-cara="v1"), o quiz mostra o link para a assistente.
+  link_assistente_v1: "../assistente/",
   // Mostra o bloco do brinde do estande (BTX Salvador).
   evento_btx: true,
   nome_max: 40,
@@ -633,6 +696,41 @@ function montarEnvio(dados) {
 }
 /* ==== PURAS:FIM ==== */
 
+/* ==== CARA:INICIO ==== */
+// Chave da cara da pagina: "atual" (a de hoje) ou "v1" (a cara nova, para conferencia). O padrao vem gravado no
+// proprio <html> pelo gerador (ferramentas/gerar-paginas.mjs): sem atributo e a de hoje; data-cara="v1" e a nova. O
+// endereco com ?cara=v1 ou ?cara=atual
+// troca so nesta visita, e os links da propria pagina levam a escolha adiante. Nada e guardado no navegador.
+(function () {
+  "use strict";
+  if (typeof document === "undefined" || !document.documentElement || typeof window === "undefined") return;
+  var raiz = document.documentElement;
+  var busca = "";
+  try {
+    busca = String((window.location && window.location.search) || "");
+  } catch (erro) {
+    busca = "";
+  }
+  var pedido = /(?:^\?|&)cara=(v1|atual)(?:&|$)/.exec(busca);
+  if (!pedido || pedido[1] === (raiz.getAttribute("data-cara") || "atual")) return;
+  var escolha = pedido[1];
+  raiz.setAttribute("data-cara", escolha);
+  // Leva a escolha para os links do proprio site (caminho relativo), na hora do toque: vale tambem para os links
+  // que o script cria depois. Link de fora, de telefone, de e-mail ou da mesma pagina (#) fica como esta.
+  document.addEventListener("click", function (evento) {
+    var alvo = evento.target;
+    while (alvo && alvo.nodeType === 1 && String(alvo.nodeName).toLowerCase() !== "a") alvo = alvo.parentNode;
+    if (!alvo || alvo.nodeType !== 1 || !alvo.getAttribute) return;
+    var destino = alvo.getAttribute("href");
+    if (typeof destino !== "string" || destino === "" || destino.charAt(0) === "#") return;
+    if (/^[a-z][a-z0-9+.-]*:/i.test(destino) || destino.indexOf("//") === 0 || /[?&]cara=/.test(destino)) return;
+    var marca = destino.indexOf("#");
+    var antes = marca === -1 ? destino : destino.slice(0, marca);
+    var depois = marca === -1 ? "" : destino.slice(marca);
+    alvo.setAttribute("href", antes + (antes.indexOf("?") === -1 ? "?" : "&") + "cara=" + escolha + depois);
+  }, true);
+})();
+/* ==== CARA:FIM ==== */
 /* ==== PAGINA:INICIO ==== */
 (function () {
   "use strict";
@@ -904,9 +1002,12 @@ function montarEnvio(dados) {
       botao.appendChild(seta);
       secao.appendChild(botao);
     }
-    if (CONFIG.link_assistente) {
+    const raizDaPagina = document.documentElement;
+    const linkDaAssistente = CONFIG.link_assistente ||
+      (raizDaPagina && raizDaPagina.getAttribute && raizDaPagina.getAttribute("data-cara") === "v1" ? CONFIG.link_assistente_v1 : "");
+    if (linkDaAssistente) {
       const ligacao = no("a", "ligacao-simples", TEXTOS.assistente_link);
-      ligacao.href = CONFIG.link_assistente;
+      ligacao.href = linkDaAssistente;
       secao.appendChild(ligacao);
     }
     return secao;
