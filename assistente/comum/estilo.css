@@ -106,6 +106,11 @@ fieldset { border: 0; padding: 0; margin: 0 0 1rem; }
 .rodape-canais__canal:hover .rodape-canais__nome, .rodape-canais__canal:focus-visible .rodape-canais__nome { text-decoration-thickness: 2px; }
 .rodape-canais__canal:focus-visible { outline: 2px solid currentColor; outline-offset: 2px; }
 main > .rodape-canais { max-width: none; margin-left: 0; margin-right: 0; }
+.rodape-documentos { max-width: 40rem; margin: 0 auto 1.25rem; text-align: left; font-size: .8rem; line-height: 1.4; color: var(--ink); }
+.rodape-documentos__documento { display: inline-flex; align-items: center; min-height: 44px; color: inherit; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }
+.rodape-documentos__documento:hover, .rodape-documentos__documento:focus-visible { color: inherit; text-decoration-thickness: 2px; }
+.rodape-documentos__documento:focus-visible { outline: 2px solid currentColor; outline-offset: 2px; }
+main > .rodape-documentos { max-width: none; margin-left: 0; margin-right: 0; }
 /* ==== EMERGENCIA:FIM ==== */
 .rodape { text-align: center; font-size: .9rem; color: var(--ink); padding: 1rem; }
 @media (min-width: 720px) {
