@@ -34,9 +34,10 @@
     <h2>Entrar</h2>
     <div class="campo"><label for="en-email">E-mail</label><input id="en-email" type="email" autocomplete="username" maxlength="254"></div>
     <div class="campo"><label for="en-senha">Senha</label><input id="en-senha" type="password" autocomplete="current-password" maxlength="200"></div>
+    <label class="caixa" for="en-mostrar"><input id="en-mostrar" type="checkbox"><span>Mostrar senha</span></label>
+    <button class="btn" type="submit">Entrar</button>
     <div id="en-desafio"></div>
     <p id="en-status" class="status" role="status" aria-live="polite"></p>
-    <button class="btn" type="submit">Entrar</button>
     <button id="ir-recuperar" class="btn btn--contorno" type="button">Esqueci minha senha</button>
   </form>
 
@@ -44,9 +45,9 @@
     <h2>Criar uma senha nova</h2>
     <p>Mandamos para o seu e-mail um link para criar uma senha nova, se houver uma conta com ele.</p>
     <div class="campo"><label for="re-email">E-mail</label><input id="re-email" type="email" autocomplete="email" maxlength="254"></div>
+    <button class="btn" type="submit">Enviar o link</button>
     <div id="re-desafio"></div>
     <p id="re-status" class="status" role="status" aria-live="polite"></p>
-    <button class="btn" type="submit">Enviar o link</button>
     <button id="voltar-entrar" class="btn btn--contorno" type="button">Voltar</button>
   </form>
 
@@ -76,6 +77,11 @@
       <h2>Pagamento e reembolso</h2>
       <p id="arrependimento"></p>
       <a id="ir-pagamento" class="btn btn--contorno" href="../pagamento/">Renovar ou pedir reembolso</a>
+    </div>
+    <div class="cartao" id="bloco-equipe" hidden>
+      <h2>Painel da equipe</h2>
+      <p>Este acesso aparece só nas contas de administração. O painel pede de novo a entrada e o código do segundo fator.</p>
+      <a id="ir-painel" class="btn btn--contorno" target="_blank" rel="noopener noreferrer">Abrir o painel da equipe (nova aba)</a>
     </div>
     <button id="sair" class="btn btn--contorno" type="button">Sair</button>
   </section>
@@ -143,6 +149,10 @@
     document.getElementById("bloco-planos").hidden = !gratuito;
     document.getElementById("bloco-bitacora").hidden = gratuito;
     document.getElementById("bloco-pagamento").hidden = gratuito || admin;
+    // 27/11 (Carlos): o acesso ao painel da equipe saiu da página pública e aparece só aqui, nas contas de
+    // administração. Quem diz que a conta é de admin é o servidor (/api/conta); o endereço sai de CONFIG.api.
+    document.getElementById("bloco-equipe").hidden = !admin;
+    if (admin) document.getElementById("ir-painel").href = C.CONFIG.api + "/admin";
     if (conta.relatorios_por_mes === 0) {
       document.getElementById("titulo-relatorio").hidden = true;
       document.getElementById("texto-relatorio").hidden = true;
@@ -203,6 +213,17 @@
   document.getElementById("tentar").addEventListener("click", abrir);
   abrir();
 
+  // 27/11 (Carlos): a ordem da chegada também aqui (e-mail, senha, mostrar senha, o botão, a verificação de segurança
+  // e a mensagem), e o botão diz o que está fazendo enquanto trava. Mostrar senha só troca o tipo do campo.
+  var mostrarSenha = document.getElementById("en-mostrar");
+  function esconderSenha() {
+    mostrarSenha.checked = false;
+    document.getElementById("en-senha").type = "password";
+  }
+  mostrarSenha.addEventListener("change", function () {
+    document.getElementById("en-senha").type = mostrarSenha.checked ? "text" : "password";
+  });
+
   formEntrar.addEventListener("submit", function (evento) {
     evento.preventDefault();
     var status = document.getElementById("en-status");
@@ -211,12 +232,15 @@
     var senha = document.getElementById("en-senha").value;
     if (email === "" || senha === "") return C.anunciar(status, "Preencha o e-mail e a senha.", "");
     botao.disabled = true;
-    C.anunciar(status, "Entrando.", "");
+    botao.textContent = "Entrando…";
+    C.anunciar(status, "Entrando. Se a verificação de segurança logo acima pedir, toque nela.", "");
     C.fichaDoTurnstile(document.getElementById("en-desafio"), status).then(function (ficha) {
       return C.pedir("POST", "/api/entrar", { email: email, senha: senha, turnstile: ficha });
     }, function () { return { ok: false, json: { erro: "turnstile_invalido" } }; }).then(function (resposta) {
       botao.disabled = false;
+      botao.textContent = "Entrar";
       document.getElementById("en-senha").value = "";
+      esconderSenha();
       if (!resposta.ok) return C.anunciar(status, C.frase(resposta.json.erro), "");
       C.guardarToken(resposta.json);
       C.anunciar(status, "", "");
@@ -231,11 +255,13 @@
     var status = document.getElementById("re-status");
     var botao = formRecuperar.querySelector('button[type="submit"]');
     botao.disabled = true;
-    C.anunciar(status, "Enviando.", "");
+    botao.textContent = "Enviando…";
+    C.anunciar(status, "Enviando. Se a verificação de segurança logo acima pedir, toque nela.", "");
     C.fichaDoTurnstile(document.getElementById("re-desafio"), status).then(function (ficha) {
       return C.pedir("POST", "/api/entrar/recuperar", { email: document.getElementById("re-email").value.trim(), turnstile: ficha });
     }, function () { return { ok: false, json: { erro: "turnstile_invalido" } }; }).then(function (resposta) {
       botao.disabled = false;
+      botao.textContent = "Enviar o link";
       // A resposta é sempre a mesma, exista a conta ou não.
       if (resposta.ok) return C.anunciar(status, "Se houver uma conta com este e-mail, o link chega em alguns minutos. Confira também a caixa de spam.", "ok");
       C.anunciar(status, C.frase(resposta.json.erro), "");
