@@ -397,8 +397,10 @@ const CONFIG = {
   link_assistente: "",
   // Cara nova (v1, B8): so com a chave ligada (data-cara="v1"), o quiz mostra o link para a assistente.
   link_assistente_v1: "../assistente/",
-  // Mostra o bloco do brinde do estande (BTX Salvador).
-  evento_btx: true,
+  // Mostra o bloco do brinde do estande (BTX Salvador). Desligado fora do evento: desde 26/11 o quiz tem link na
+  // pagina inicial e qualquer visitante chega a tela final (decisao do Carlos: "Mudar o quiz junto"). Ligar (true)
+  // so nos dias do BTX, 05 a 07/12, e desligar depois.
+  evento_btx: false,
   nome_max: 40,
   email_max: 254,
   tentativas_envio: 3,
@@ -412,7 +414,7 @@ const CONFIG = {
 // PROVISORIO: todos os textos abaixo aguardam aprovacao da equipe.
 const TEXTOS = {
   provisorio: true,
-  versao: "provisorio-2026-11-26",
+  versao: "provisorio-2026-11-26b",
   titulo: "Quiz EndoAfetos",
   subtitulo: "Conhecer para cuidar",
   abertura: "São {total} perguntas rápidas sobre endometriose. Depois de cada resposta, você vê a explicação.",
@@ -438,13 +440,13 @@ const TEXTOS = {
   encerramento: "Obrigada por participar dessa conversa sobre endometriose. Informação, escuta e acolhimento fazem diferença nessa jornada.",
   conheca_titulo: "Conheça a EndoAfetos!",
   conheca_texto: "Um espaço de informação, acolhimento e conexão. Venha conhecer nossa proposta, conversar com nossa equipe e descobrir como podemos caminhar juntas.",
-  ofertas_intro: "Em breve, a {assistente}, nossa assistente virtual, pode acompanhar você de dois jeitos:",
+  ofertas_intro: "A {assistente}, nossa assistente virtual, está em versão beta e pode acompanhar você de dois jeitos:",
   ofertas: [
-    { titulo: "Apoio educativo no dia a dia", texto: "Para tirar dúvidas sobre endometriose quando você precisar, com informação revisada por profissionais de saúde." },
-    { titulo: "Diário e relatório para a consulta", texto: "Para registrar como você está no dia a dia e gerar um relatório que ajuda na consulta médica ou no atendimento profissional." }
+    { titulo: "Apoio educativo no dia a dia", texto: "Para tirar dúvidas sobre endometriose quando você precisar, com conteúdo educativo preparado pela equipe da EndoAfetos. Para conversar, é preciso ter conta." },
+    { titulo: "Diário e relatório para a consulta (em breve)", texto: "Para registrar como você está no dia a dia e gerar um relatório que ajuda na consulta médica ou no atendimento profissional." }
   ],
   conheca_botao: "Conhecer a EndoAfetos",
-  assistente_link: "Conversar agora com a {assistente}",
+  assistente_link: "Conhecer a {assistente}",
   evento_titulo: "Está na BTX Salvador?",
   brinde_emoji: "🎁",
   brinde_destaque: "Tem um presente esperando por você!",
