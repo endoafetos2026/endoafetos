@@ -50,6 +50,21 @@ a { color: var(--rose-dark); }
 /* Margem à direita, não à esquerda: quando as ligações descem para a linha de baixo, ficam alinhadas com a marca. */
 .topo__ligacoes a { display: inline-flex; align-items: center; min-height: 44px; margin-right: 1rem; font-weight: 700; }
 .topo__ligacoes a:last-child { margin-right: 0; }
+/* Barra do painel (27/11): nas páginas de dentro da conta, a marca da assistente, sem ligação para o site (pedido do
+   Carlos: a pessoa não sai do app por acaso), e as abas do painel numa linha própria, logo abaixo. */
+.so-leitor { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); border: 0; }
+.topo__nome em { font-style: normal; color: var(--rose); }
+.nome__flor { font-style: italic; }
+.abas { display: flex; flex-wrap: wrap; flex: 1 1 100%; margin: .35rem -.3rem 0; }
+.aba { display: inline-flex; align-items: center; min-height: 44px; margin: 0 .3rem; padding: .3rem .45rem; border-bottom: 3px solid transparent; color: var(--ink); font-weight: 700; text-decoration: none; }
+.aba__icone { flex: none; width: 22px; height: 22px; margin-right: .4rem; }
+.aba[aria-current="page"] { color: var(--rose-dark); border-bottom-color: var(--rose); }
+@media (max-width: 599px) {
+  /* No celular, as cinco abas dividem a linha: o desenho em cima e o nome embaixo, em letra menor. */
+  .abas { margin-left: 0; margin-right: 0; }
+  .aba { flex: 1 1 0; flex-direction: column; justify-content: center; min-width: 0; margin: 0; padding: .3rem .1rem; font-size: .78rem; line-height: 1.2; text-align: center; }
+  .aba__icone { margin: 0 0 .15rem; }
+}
 main { max-width: 760px; margin: 0 auto; padding: 1.5rem 1rem 3rem; }
 h1, h2, h3 { font-family: var(--serif); color: var(--ink); line-height: 1.25; }
 h1 { font-size: 1.85rem; margin: .5rem 0 1rem; }

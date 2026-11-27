@@ -7,7 +7,7 @@
 <!-- ==== TITULO:INICIO ==== -->
 <title>Inscrição | Maria FlorIA | EndoAfetos</title>
 <!-- ==== TITULO:FIM ==== -->
-<link rel="stylesheet" href="../comum/estilo.css?v=5e5bbd30e3">
+<link rel="stylesheet" href="../comum/estilo.css?v=055a60633a">
 </head>
 <body>
 <a class="pular" href="#conteudo">Pular para o conteúdo</a>
@@ -15,7 +15,7 @@
 <header class="topo">
   <div class="topo__dentro">
     <a class="topo__marca" href="../../"><img class="topo__logo" src="../../assets/logo.png" alt="" width="40" height="40" onerror="this.hidden=true">EndoAfetos</a>
-    <nav class="topo__ligacoes" aria-label="Conta">
+    <nav class="topo__ligacoes" aria-label="Conta" data-painel="../conta/conversa/">
       <a class="topo__voltar" href="../planos/"><span aria-hidden="true">‹ </span>Voltar aos planos</a>
       <a href="../conta/">Minha conta</a>
     </nav>
@@ -25,14 +25,14 @@
 <main id="conteudo" tabindex="-1">
   <h1>Inscrição</h1>
   <p class="intro">Pedimos só o que é preciso para criar sua conta: nome completo e e-mail. Nada sobre a sua saúde.</p>
-  <p id="fechada" class="aviso aviso--breve" role="status" aria-live="polite" hidden>As inscrições abrem em breve. Volte daqui a alguns dias ou <a href="../../#contato">fale com a equipe</a>.</p>
+  <p id="fechada" class="aviso aviso--breve" role="status" aria-live="polite" hidden>As inscrições abrem em breve. Volte daqui a alguns dias ou <a href="../../#contato" data-site>fale com a equipe</a>.</p>
 
   <form id="formulario" class="cartao" novalidate>
     <fieldset class="opcoes">
       <legend class="legenda">Plano</legend>
-      <label><input type="radio" name="plano" value="gratuito"> <span><strong>Gratuito</strong>: sem pagamento, 3 perguntas escritas por semana (renovam na sexta-feira)</span></label>
-      <label><input type="radio" name="plano" value="essencial"> <span><strong>Essencial</strong>: <span data-preco="essencial">R$ 14,90</span> por mês, 10 perguntas por dia</span></label>
-      <label><input type="radio" name="plano" value="completo"> <span><strong>Completo</strong>: <span data-preco="completo">R$ 24,90</span> por mês, 20 perguntas por dia e relatório (em breve)</span></label>
+      <label><input type="radio" name="plano" value="gratuito"> <span><strong>Gratuito</strong>: sem pagamento, 3 perguntas escritas por semana (renovam na sexta-feira, às 00h01)</span></label>
+      <label><input type="radio" name="plano" value="essencial"> <span><strong>Essencial</strong>: <span data-preco="essencial">R$ 14,90</span> por mês, 10 perguntas por dia, que acumulam na semana</span></label>
+      <label><input type="radio" name="plano" value="completo"> <span><strong>Completo</strong>: <span data-preco="completo">R$ 24,90</span> por mês, 15 perguntas por dia, que acumulam na semana, bitácora e até 2 relatórios por mês</span></label>
     </fieldset>
     <p class="dica">Toda inscrição já abre a sua conta no plano gratuito. Nos planos pagos, o período (mensal ou anual, que vale 10 mensalidades) você escolhe na hora do pagamento, e o plano passa a valer quando o pagamento for aprovado.</p>
     <div class="campo">
@@ -83,7 +83,7 @@
   <!-- ==== CANAIS:FIM ==== -->
 </main>
 <p class="rodape">EndoAfetos, Salvador, Bahia</p>
-<script src="../comum/conta.js?v=3a99ae23e3"></script>
+<script src="../comum/conta.js?v=859d165391"></script>
 <script>
 (function () {
   "use strict";
