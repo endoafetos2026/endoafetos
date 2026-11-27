@@ -250,20 +250,61 @@
 
   document.getElementById("ir-recuperar").addEventListener("click", function () { mostrar(formRecuperar); });
   document.getElementById("voltar-entrar").addEventListener("click", function () { mostrar(formEntrar); });
+  // 27/11 (Carlos): "acrescentar no botão de envio de link bloqueio após enviado email". Depois do envio, o botão
+  // fica travado com "Link enviado" e a contagem à vista, e só volta depois de 2 minutos, para o caso de o e-mail não
+  // chegar. O servidor aceita poucos pedidos por e-mail por dia e responde igual depois disso: sem a trava, cada clique
+  // gastava um pedido e mandava outro e-mail. O botão diz "Pedido enviado", e não "Link enviado", porque a resposta é a
+  // mesma exista a conta ou não. A contagem vem do relógio, e não do número de voltas, porque a aba em segundo plano
+  // atrasa as voltas; o relógio é o do navegador (performance.now), que não volta quando o aparelho acerta a hora.
+  // Num erro, o botão volta na hora, para a pessoa tentar de novo.
+  var ESPERA_DO_LINK_MS = 120000;
+  var linkTravado = false;
+  var linkJaPedido = false;
+  function agoraMs() {
+    return typeof performance !== "undefined" && performance && typeof performance.now === "function" ? performance.now() : Date.now();
+  }
+  function contagemDoLink(restamMs) {
+    var segundos = Math.max(0, Math.min(ESPERA_DO_LINK_MS / 1000, Math.ceil(restamMs / 1000)));
+    var resto = segundos % 60;
+    return "Pedido enviado (" + Math.floor(segundos / 60) + ":" + (resto < 10 ? "0" : "") + resto + ")";
+  }
+  function travarDepoisDoEnvio(botao) {
+    var fim = agoraMs() + ESPERA_DO_LINK_MS;
+    botao.disabled = true;
+    botao.textContent = contagemDoLink(ESPERA_DO_LINK_MS);
+    var relogio = setInterval(function () {
+      var restam = fim - agoraMs();
+      if (restam > 0) {
+        botao.textContent = contagemDoLink(restam);
+        return;
+      }
+      clearInterval(relogio);
+      linkTravado = false;
+      botao.disabled = false;
+      botao.textContent = "Enviar o link de novo";
+    }, 1000);
+  }
   formRecuperar.addEventListener("submit", function (evento) {
     evento.preventDefault();
+    if (linkTravado) return;
     var status = document.getElementById("re-status");
     var botao = formRecuperar.querySelector('button[type="submit"]');
+    linkTravado = true;
     botao.disabled = true;
     botao.textContent = "Enviando…";
     C.anunciar(status, "Enviando. Se a verificação de segurança logo acima pedir, toque nela.", "");
     C.fichaDoTurnstile(document.getElementById("re-desafio"), status).then(function (ficha) {
       return C.pedir("POST", "/api/entrar/recuperar", { email: document.getElementById("re-email").value.trim(), turnstile: ficha });
     }, function () { return { ok: false, json: { erro: "turnstile_invalido" } }; }).then(function (resposta) {
-      botao.disabled = false;
-      botao.textContent = "Enviar o link";
       // A resposta é sempre a mesma, exista a conta ou não.
-      if (resposta.ok) return C.anunciar(status, "Se houver uma conta com este e-mail, o link chega em alguns minutos. Confira também a caixa de spam.", "ok");
+      if (resposta.ok) {
+        linkJaPedido = true;
+        travarDepoisDoEnvio(botao);
+        return C.anunciar(status, "Se houver uma conta com este e-mail, o link costuma chegar em até 2 minutos. Confira também a caixa de spam. Se pedir de novo, use só o link do e-mail mais recente: o pedido novo invalida o link anterior.", "ok");
+      }
+      linkTravado = false;
+      botao.disabled = false;
+      botao.textContent = linkJaPedido ? "Enviar o link de novo" : "Enviar o link";
       C.anunciar(status, C.frase(resposta.json.erro), "");
     });
   });
