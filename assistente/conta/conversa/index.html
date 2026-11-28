@@ -5,10 +5,28 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
 <!-- ==== TITULO:INICIO ==== -->
-<title>Conversa | Maria FlorIA | EndoAfetos</title>
+<title>Meu painel | Maria FlorIA | EndoAfetos</title>
 <!-- ==== TITULO:FIM ==== -->
-<link rel="stylesheet" href="../../comum/estilo.css?v=5e5bbd30e3">
+<link rel="stylesheet" href="../../comum/estilo.css?v=055a60633a">
 <style>
+/* Painel pessoal (27/11/2026): conversa, bitácora, relatório e plano. Os tokens e as classes comuns são os de
+   comum/estilo.css (a cara v1, na luz baixa). Regras das páginas da conta: espaço por margem (sem gap), nunca
+   position fixed, nada de linha que não quebra, sem animação nem transição, alvos de 44 px. */
+:root { --dor-leve: #e7e0f6; --dor-media: #d9a9c6; --dor-media-texto: #2a1630; --dor-forte: #8c2f5f; --dor-forte-texto: #ffffff; }
+html[data-cara="v1"] { --dor-leve: #353055; --dor-media: #7a4d70; --dor-media-texto: #ffffff; --dor-forte: #f2a3c8; --dor-forte-texto: #2a1630; }
+/* A barra do painel acompanha a rolagem (numa conversa longa, as abas ficam à mão), como o topo da chegada: só onde
+   o navegador sabe descontar a altura dela ao rolar até uma mensagem ou um campo (iOS 14.5 em diante). Nos mais
+   antigos ela fica parada e nada é encoberto. Fundo opaco, para o texto não passar por baixo. Em tela baixa (o
+   celular deitado), volta a ficar parada, para não tomar a tela. */
+@supports (scroll-margin-top: 1px) {
+  html { scroll-padding-top: 9rem; }
+  .topo { position: sticky; top: 0; z-index: 5; background: var(--surface); }
+}
+@media (max-height: 480px) {
+  html { scroll-padding-top: 0; }
+  .topo { position: static; }
+}
+.tela > h1 { margin-top: .25rem; }
 .registro { margin: 0 0 1rem; }
 .msg { padding: .85rem 1rem; border-radius: var(--radius-sm); margin: 0 0 .75rem; background: var(--surface); border: 1px solid var(--line); }
 .msg--pessoa { background: var(--rose-mist); margin-left: 2rem; }
@@ -21,6 +39,97 @@
 .saber-mais .msg__texto { margin: 0 0 1rem; padding-top: .75rem; border-top: 1px solid var(--line); }
 .saber-mais__nota { font-size: .85rem; color: var(--ink-soft); }
 .escrita textarea { width: 100%; min-height: 96px; padding: .6rem .75rem; border: 2px solid var(--ink-soft); border-radius: var(--radius-sm); font: inherit; color: var(--ink); }
+.btn--pequeno { min-height: 44px; padding: .4rem 1rem; font-size: .95rem; }
+.btn--icone { min-width: 48px; margin: 0; padding: .5rem .9rem; font-size: 1.3rem; line-height: 1; }
+
+/* Bitácora: o formulário do dia. */
+.linha { margin: 0 0 1rem; }
+.dor-escala { display: flex; align-items: center; }
+.dor-escala input { flex: 1 1 auto; min-width: 0; min-height: 44px; margin: 0 .75rem 0 0; accent-color: var(--rose); }
+.dor-escala output { flex: none; min-width: 2.2em; font-family: var(--serif); font-size: 1.6rem; font-weight: 600; text-align: center; }
+.pilulas { display: flex; flex-wrap: wrap; margin: 0 -.25rem; }
+.pilula { display: inline-flex; align-items: center; min-height: 44px; margin: 0 .25rem .5rem; padding: .35rem .85rem .35rem .6rem; border: 2px solid var(--line); border-radius: 999px; background: var(--surface); font-weight: 700; cursor: pointer; }
+.pilula input { flex: none; width: 20px; height: 20px; margin: 0 .5rem 0 0; accent-color: var(--rose); }
+.campo textarea { min-height: 96px; }
+
+/* Bitácora: o mês num olhar. A faixa da dor: leve até 3, média até 6, forte de 7. */
+.mes { display: flex; align-items: center; justify-content: space-between; }
+.mes h2 { flex: 1 1 auto; margin: 0 .5rem; font-size: 1.2rem; text-align: center; }
+.calendario { width: 100%; border-collapse: collapse; table-layout: fixed; margin: .5rem 0 .75rem; }
+.calendario th { padding: 0 0 .25rem; font-size: .75rem; font-weight: 800; text-align: center; }
+.calendario abbr { text-decoration: none; }
+.calendario td { padding: 2px; vertical-align: top; text-align: center; }
+.dia { display: flex; flex-direction: column; align-items: center; width: 100%; min-height: 48px; margin: 0; padding: .2rem 0; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); color: var(--ink); font: inherit; font-size: .8rem; line-height: 1.2; }
+button.dia { cursor: pointer; }
+.dia--fora { border-style: dashed; }
+.dia--hoje { border: 2px solid var(--ink); }
+.dia--escolhido { border: 2px solid var(--rose); }
+.dia__numero { font-weight: 700; }
+.dia__dor { display: inline-block; min-width: 1.6em; margin-top: .15rem; padding: 0 .2rem; border-radius: 6px; font-weight: 800; text-align: center; }
+.dor--leve { background: var(--dor-leve); color: var(--ink); }
+.dor--media { background: var(--dor-media); color: var(--dor-media-texto); }
+.dor--forte { background: var(--dor-forte); color: var(--dor-forte-texto); }
+.dia__ciclo { display: inline-block; width: 9px; height: 9px; margin-top: .2rem; border-radius: 0 50% 50% 50%; background: var(--rose); transform: rotate(45deg); }
+.legenda-cal { display: flex; flex-wrap: wrap; margin: 0 -.5rem; padding: 0; list-style: none; font-size: .85rem; }
+.legenda-cal li { display: inline-flex; align-items: center; margin: 0 .5rem .35rem; }
+.legenda-cal .dia__dor, .legenda-cal .dia__ciclo { margin: 0 .35rem 0 0; }
+
+/* Bitácora e relatório: as listas. */
+.registros { margin: 0; padding: 0; list-style: none; }
+.registro-dia { padding: .75rem 0; border-top: 1px solid var(--line); }
+.registro-dia:first-child { border-top: 0; }
+.registro-dia h3 { margin: 0 0 .25rem; font-size: 1.05rem; }
+.registro-dia p { margin: 0 0 .25rem; }
+.registro-dia__fala { padding-left: .7rem; border-left: 3px solid var(--rose); font-style: italic; }
+.acoes { display: flex; flex-wrap: wrap; margin: .25rem 0 0; }
+
+/* Relatório: a folha para levar à consulta. */
+.rel-cabeca { padding-bottom: .75rem; border-bottom: 2px solid var(--ink); }
+.rel-cabeca h2 { margin: 0 0 .25rem; }
+.rel-cabeca p { margin: 0 0 .25rem; }
+.rel-assinatura { font-size: .9rem; }
+.rel-dados { display: flex; flex-wrap: wrap; margin: .75rem -.5rem 0; }
+.rel-dados div { flex: 1 1 12rem; margin: 0 .5rem .6rem; }
+.rel-dados dt { font-size: .8rem; font-weight: 800; text-transform: uppercase; letter-spacing: .04em; }
+.rel-dados dd { margin: 0; }
+.rel-bloco { margin-top: 1.25rem; }
+.rel-bloco h3 { padding-bottom: .3rem; border-bottom: 1px solid var(--line); }
+.rel-lista { margin: .25rem 0 0; padding: 0; list-style: none; }
+.rel-lista li { padding: .5rem 0; border-top: 1px solid var(--line); }
+.rel-lista li:first-child { border-top: 0; }
+.rel-lista p { margin: 0; }
+.rel-fala { font-style: italic; }
+.rel-perguntas { margin: .5rem 0 0; padding-left: 1.4rem; }
+.rel-perguntas li { margin-bottom: .35rem; }
+.rel-tabela { width: 100%; border-collapse: collapse; margin-top: .5rem; font-size: .92rem; }
+.rel-tabela th, .rel-tabela td { padding: .4rem .5rem .4rem 0; border-top: 1px solid var(--line); text-align: left; vertical-align: top; }
+.rel-tabela thead th { border-top: 0; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+.barras { display: flex; align-items: flex-end; height: 96px; margin-top: .75rem; border-bottom: 2px solid var(--ink); }
+.barra { display: flex; flex-direction: column; justify-content: flex-end; flex: 1 1 0; min-width: 0; height: 100%; margin: 0 1px; }
+.barra__coluna { display: block; min-height: 2px; border-radius: 3px 3px 0 0; background: var(--lavender); }
+.barra--forte .barra__coluna { background: var(--dor-forte); }
+.barra--vazia .barra__coluna { min-height: 0; background: transparent; }
+.barra--ciclo { border-bottom: 4px solid var(--rose); }
+.barras__eixo { display: flex; justify-content: space-between; margin: .35rem 0 .5rem; font-size: .8rem; }
+.rel-rodape { margin-top: 1.25rem; padding-top: .75rem; border-top: 2px solid var(--ink); font-size: .9rem; }
+
+/* Plano: os cartões, com o plano em vigor marcado. */
+.selo { display: inline-block; margin: 0 0 .75rem; padding: .1rem .7rem; border-radius: 999px; background: var(--lavender-soft); color: var(--ink); font-size: .9rem; font-weight: 700; }
+
+/* No papel, com um relatório aberto, só o relatório. */
+@media print {
+  html[data-imprime="relatorio"] body > *:not(main),
+  html[data-imprime="relatorio"] main > *:not(#tela-relatorio),
+  html[data-imprime="relatorio"] #tela-relatorio > *:not(#rel-vista),
+  .nao-imprime { display: none !important; }
+  html[data-imprime="relatorio"] main { max-width: none; padding: 0; }
+  html[data-imprime="relatorio"] #rel-vista { margin: 0; padding: 0; border: 0; box-shadow: none; }
+  .barra__coluna, html[data-cara="v1"] .barra__coluna { background: #777 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .barra--forte .barra__coluna, html[data-cara="v1"] .barra--forte .barra__coluna { background: #000 !important; }
+  .barra--vazia .barra__coluna, html[data-cara="v1"] .barra--vazia .barra__coluna { background: transparent !important; }
+  .barra--ciclo, html[data-cara="v1"] .barra--ciclo { border-bottom-color: #000 !important; }
+  .rel-tabela, .rel-lista li, .rel-bloco { break-inside: avoid; }
+}
 </style>
 </head>
 <body>
@@ -28,28 +137,342 @@
 <!-- ==== TOPO:INICIO ==== -->
 <header class="topo">
   <div class="topo__dentro">
-    <a class="topo__marca" href="../../../"><img class="topo__logo" src="../../../assets/logo.png" alt="" width="40" height="40" onerror="this.hidden=true">EndoAfetos</a>
-    <nav class="topo__ligacoes" aria-label="Conta">
-      <a class="topo__voltar" href="../"><span aria-hidden="true">‹ </span>Voltar à minha conta</a>
+    <p class="topo__marca"><img class="topo__logo" src="../../../assets/logo.png" alt="" width="40" height="40" onerror="this.hidden=true"><span class="topo__nome"><span aria-hidden="true">Maria <span class="nome__flor">Flor</span><em>IA</em></span><span class="so-leitor">Maria Flor</span></span></p>
+    <nav class="abas" aria-label="Painel">
+      <a class="aba" id="aba-conversa" href="#conversa" aria-current="page"><svg class="aba__icone" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" focusable="false"><path d="M4 6.5A2.5 2.5 0 0 1 6.5 4h11A2.5 2.5 0 0 1 20 6.5v7a2.5 2.5 0 0 1-2.5 2.5H11l-4.5 4v-4A2.5 2.5 0 0 1 4 13.5z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg><span class="aba__nome">Conversa</span></a>
+      <a class="aba" id="aba-bitacora" href="#bitacora"><svg class="aba__icone" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" focusable="false"><path d="M6.5 3.5h10A1.5 1.5 0 0 1 18 5v14a1.5 1.5 0 0 1-1.5 1.5h-10zM6.5 3.5v17M9.5 8h5.5M9.5 12h5.5M4.5 7.5h2M4.5 12h2M4.5 16.5h2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="aba__nome">Bitácora</span></a>
+      <a class="aba" id="aba-relatorio" href="#relatorio"><svg class="aba__icone" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" focusable="false"><path d="M7 3.5h7l4 4V19a1.5 1.5 0 0 1-1.5 1.5h-9.5A1.5 1.5 0 0 1 5.5 19V5A1.5 1.5 0 0 1 7 3.5zM14 3.5v4h4M8.5 16.5v-3M12 16.5v-6M15.5 16.5v-4.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="aba__nome">Relatório</span></a>
+      <a class="aba" id="aba-plano" href="#plano"><svg class="aba__icone" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" focusable="false"><path d="M12 4 3.5 8.5 12 13l8.5-4.5zM3.5 12.5 12 17l8.5-4.5M3.5 16.5 12 21l8.5-4.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="aba__nome">Plano</span></a>
+      <a class="aba" id="aba-conta" href="../"><svg class="aba__icone" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" focusable="false"><circle cx="12" cy="8.5" r="3.6" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M5 20c.8-3.6 3.6-5.6 7-5.6s6.2 2 7 5.6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><span class="aba__nome">Minha conta</span></a>
     </nav>
   </div>
 </header>
 <!-- ==== TOPO:FIM ==== -->
 <main id="conteudo" tabindex="-1">
-  <h1 id="titulo" tabindex="-1">Conversa</h1>
-  <p class="dica">A assistente informa e acolhe com conteúdo revisado pela equipe. Ela não faz diagnóstico, não interpreta exames e não indica remédios. Esta conversa não fica guardada: ao sair, ela some desta tela.</p>
-  <p id="sem-sessao" class="aviso" hidden>Para conversar, entre na sua conta. <a href="../">Entrar</a></p>
+  <p id="sem-sessao" class="aviso" hidden>Para usar o painel, entre na sua conta. <a href="../">Entrar</a></p>
   <p id="aceite-pendente" class="aviso" hidden>Para conversar, é preciso ler e aceitar o Termo de Uso e a Política de Privacidade em vigor. Entre de novo para aceitar. <a href="../../">Ler e aceitar</a></p>
-  <div id="registro" class="registro" role="log" aria-live="polite" aria-relevant="additions" aria-label="Mensagens da conversa"></div>
-  <form id="escrita" class="escrita cartao" novalidate hidden>
-    <label class="legenda" for="campo">Escreva sua pergunta</label>
-    <textarea id="campo" maxlength="1000" autocomplete="off" aria-describedby="dica-microfone restantes status"></textarea>
-    <p id="dica-microfone" class="dica">Para falar em vez de digitar, toque no microfone do teclado do celular.</p>
-    <p id="restantes" class="dica" role="status" aria-live="polite"></p>
-    <p id="status" class="status" role="status" aria-live="polite"></p>
-    <button class="btn" type="submit">Enviar</button>
-    <button id="encerrar" class="btn btn--contorno" type="button">Encerrar conversa</button>
-  </form>
+  <p id="carregando" class="dica" role="status" hidden>Carregando o seu painel.</p>
+  <div id="sem-resposta" class="aviso" role="alert" hidden>
+    <p id="sem-resposta-texto"></p>
+    <button id="tentar" class="btn btn--contorno" type="button">Tentar de novo</button>
+  </div>
+
+  <!-- Conversa: a de antes, com o contador da semana e o aviso do plano escolhido. -->
+  <section id="tela-conversa" class="tela" aria-labelledby="titulo-conversa" hidden>
+    <h1 id="titulo-conversa" tabindex="-1">Conversa</h1>
+    <p class="dica">A assistente informa e acolhe com conteúdo revisado pela equipe. Ela não faz diagnóstico, não interpreta exames e não indica remédios. Esta conversa não fica guardada: ao sair, ela some desta tela.</p>
+    <p id="aviso-escolha" class="aviso aviso--breve" hidden><span id="aviso-escolha-texto"></span> <a id="escolha-pagamento" href="../../pagamento/">Ir ao pagamento</a><span aria-hidden="true"> · </span><a href="#plano">Trocar de plano</a></p>
+    <div id="registro" class="registro" role="log" aria-live="polite" aria-relevant="additions" aria-label="Mensagens da conversa"></div>
+    <form id="escrita" class="escrita cartao" novalidate hidden>
+      <label class="legenda" for="campo">Escreva sua pergunta</label>
+      <textarea id="campo" maxlength="1000" autocomplete="off" aria-describedby="dica-microfone restantes status"></textarea>
+      <p id="dica-microfone" class="dica">Para falar em vez de digitar, toque no microfone do teclado do celular.</p>
+      <p id="restantes" class="dica" role="status" aria-live="polite"></p>
+      <p id="status" class="status" role="status" aria-live="polite"></p>
+      <button class="btn" type="submit">Enviar</button>
+      <button id="encerrar" class="btn btn--contorno" type="button">Encerrar conversa</button>
+    </form>
+    <div id="oferta-bitacora" class="cartao" hidden>
+      <p>Quer registrar como você está hoje na bitácora?</p>
+      <a class="btn btn--contorno" href="#bitacora">Registrar na bitácora</a>
+    </div>
+  </section>
+
+  <!-- Bitácora: só no plano Completo, com a autorização própria. Nada dela vai à inteligência artificial. -->
+  <section id="tela-bitacora" class="tela" aria-labelledby="titulo-bitacora" hidden>
+    <h1 id="titulo-bitacora" tabindex="-1">Bitácora</h1>
+    <p id="bit-carregando" class="dica" role="status" hidden>Carregando a sua bitácora.</p>
+    <p id="bit-aviso" class="status" role="status" aria-live="polite"></p>
+    <button id="bit-tentar" class="btn btn--contorno" type="button" hidden>Tentar de novo</button>
+
+    <div id="bit-fora" class="cartao" hidden>
+      <h2>Um diário guiado do seu dia a dia</h2>
+      <p>Em menos de um minuto, você registra a dor do dia, de 0 a 10, onde doeu, se estava menstruada, o que isso afetou e o remédio que tomou, com as suas palavras. Com os registros, você monta relatórios para levar à consulta.</p>
+      <p>A bitácora faz parte do plano Completo.</p>
+      <a class="btn" href="#plano">Conhecer o plano Completo</a>
+      <a class="btn btn--contorno" href="../../demonstracao/" target="_blank" rel="noopener">Ver um exemplo (abre em outra aba)</a>
+    </div>
+
+    <div id="bit-em-breve" class="cartao" hidden>
+      <h2>A bitácora <span class="em-breve">em breve</span></h2>
+      <p>A bitácora é um diário guiado para registrar como você está no dia a dia e montar relatórios para a consulta. Ela chega em breve no plano Completo.</p>
+      <a class="btn btn--contorno" href="../../demonstracao/" target="_blank" rel="noopener">Ver um exemplo (abre em outra aba)</a>
+    </div>
+
+    <form id="bit-consentimento" class="cartao" novalidate hidden>
+      <h2>Antes de começar</h2>
+      <div id="bit-consentimento-texto">
+        <p>O que você registra na bitácora é dado de saúde. Ele fica guardado cifrado, ligado à sua conta, e serve só para a bitácora e para os seus relatórios.</p>
+        <p>Os registros não vão para a inteligência artificial e não aparecem no painel da equipe.</p>
+        <p>Você pode apagar um dia ou a bitácora inteira, a qualquer hora.</p>
+      </div>
+      <label class="caixa"><input id="bit-consentimento-caixa" type="checkbox" aria-describedby="bit-consentimento-texto"> <span>Autorizo guardar os dados de saúde que eu registrar na bitácora para montar os meus relatórios</span></label>
+      <p id="bit-consentimento-status" class="status" role="status" aria-live="polite"></p>
+      <button class="btn" type="submit">Começar a bitácora</button>
+    </form>
+
+    <div id="bit-aberta" hidden>
+      <p id="bit-ilegiveis" class="aviso aviso--breve" hidden>Alguns registros não puderam ser abertos. Avise a equipe da EndoAfetos.</p>
+      <form id="bit-form" class="cartao" novalidate aria-labelledby="bit-form-titulo">
+        <h2 id="bit-form-titulo" tabindex="-1">Como você está hoje</h2>
+        <p class="dica">Leva menos de um minuto. Preencha só o que quiser.</p>
+        <div class="linha">
+          <label class="legenda" for="bit-dor">Dor agora, de 0 a 10</label>
+          <div class="dor-escala">
+            <input id="bit-dor" type="range" min="0" max="10" step="1" value="0" aria-describedby="bit-dor-faixa">
+            <output id="bit-dor-valor" for="bit-dor">0</output>
+          </div>
+          <p id="bit-dor-faixa" class="dica">Sem dor</p>
+        </div>
+        <fieldset class="linha">
+          <legend class="legenda">Onde ou quando dói</legend>
+          <div class="pilulas">
+            <label class="pilula"><input type="checkbox" name="onde" value="pelve"> <span>Pelve</span></label>
+            <label class="pilula"><input type="checkbox" name="onde" value="lombar"> <span>Lombar</span></label>
+            <label class="pilula"><input type="checkbox" name="onde" value="ao_evacuar"> <span>Ao evacuar</span></label>
+            <label class="pilula"><input type="checkbox" name="onde" value="ao_urinar"> <span>Ao urinar</span></label>
+            <label class="pilula"><input type="checkbox" name="onde" value="na_relacao"> <span>Na relação sexual</span></label>
+          </div>
+        </fieldset>
+        <fieldset class="linha">
+          <legend class="legenda">Menstruação</legend>
+          <div class="pilulas">
+            <label class="pilula"><input id="bit-ciclo" type="checkbox"> <span id="bit-ciclo-texto">Estou menstruada hoje</span></label>
+          </div>
+        </fieldset>
+        <fieldset class="linha">
+          <legend class="legenda">Isso afetou</legend>
+          <div class="pilulas">
+            <label class="pilula"><input type="checkbox" name="afetou" value="trabalho"> <span>Trabalho ou estudo</span></label>
+            <label class="pilula"><input type="checkbox" name="afetou" value="sono"> <span>Sono</span></label>
+            <label class="pilula"><input type="checkbox" name="afetou" value="intimidade"> <span>Intimidade</span></label>
+          </div>
+        </fieldset>
+        <div class="campo">
+          <label for="bit-remedio">Remédio que tomei (se tomei)</label>
+          <input id="bit-remedio" type="text" maxlength="80" autocomplete="off">
+        </div>
+        <div class="campo">
+          <label for="bit-fala">Com as minhas palavras</label>
+          <textarea id="bit-fala" maxlength="280" rows="3" aria-describedby="bit-fala-dica"></textarea>
+          <p id="bit-fala-dica" class="dica">Até 280 caracteres. Só você e os seus relatórios leem.</p>
+        </div>
+        <p id="bit-status" class="status" role="status" aria-live="polite"></p>
+        <p id="bit-alerta" class="aviso" hidden>Se você precisar de ajuda agora, os canais de ajuda estão no fim da página. <button id="bit-ir-canais" class="btn btn--contorno btn--pequeno" type="button">Ver os canais de ajuda</button></p>
+        <button class="btn" type="submit">Guardar registro</button>
+        <button id="bit-cancelar" class="btn btn--contorno" type="button" hidden>Voltar ao dia de hoje</button>
+      </form>
+
+      <div class="cartao">
+        <div class="mes">
+          <button id="bit-mes-anterior" class="btn btn--contorno btn--icone" type="button" aria-label="Mês anterior"><span aria-hidden="true">‹</span></button>
+          <h2 id="bit-mes-titulo" aria-live="polite"></h2>
+          <button id="bit-mes-seguinte" class="btn btn--contorno btn--icone" type="button" aria-label="Mês seguinte"><span aria-hidden="true">›</span></button>
+        </div>
+        <p class="dica">O número é a dor que você mesma informou, de 0 a 10. Toque num dia dos últimos 60 para registrar ou corrigir.</p>
+        <table class="calendario" aria-labelledby="bit-mes-titulo">
+          <thead><tr><th scope="col"><abbr title="domingo">dom</abbr></th><th scope="col"><abbr title="segunda-feira">seg</abbr></th><th scope="col"><abbr title="terça-feira">ter</abbr></th><th scope="col"><abbr title="quarta-feira">qua</abbr></th><th scope="col"><abbr title="quinta-feira">qui</abbr></th><th scope="col"><abbr title="sexta-feira">sex</abbr></th><th scope="col"><abbr title="sábado">sáb</abbr></th></tr></thead>
+          <tbody id="bit-calendario"></tbody>
+        </table>
+        <ul class="legenda-cal">
+          <li><span class="dia__dor dor--leve" aria-hidden="true">2</span> dor leve (0 a 3)</li>
+          <li><span class="dia__dor dor--media" aria-hidden="true">5</span> dor média (4 a 6)</li>
+          <li><span class="dia__dor dor--forte" aria-hidden="true">8</span> dor forte (7 a 10)</li>
+          <li><span class="dia__ciclo" aria-hidden="true"></span> menstruação</li>
+        </ul>
+      </div>
+
+      <div class="cartao">
+        <h2>Registros do mês</h2>
+        <p id="bit-sem-registros" class="dica" hidden>Nenhum registro neste mês.</p>
+        <ul id="bit-registros" class="registros"></ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- Apagar toda a bitácora: na bitácora aberta, na tela da autorização e também com o aceite dos documentos
+       pendente (o servidor aceita o apagar só com a entrada da conta). Fica fora das telas para aparecer nos três. -->
+  <section id="apagar-bitacora" class="cartao" aria-labelledby="apagar-bitacora-titulo" hidden>
+    <h2 id="apagar-bitacora-titulo" tabindex="-1">Apagar a bitácora</h2>
+    <p id="apagar-bitacora-texto">Apaga todos os registros, os relatórios e a sua autorização. Não dá para desfazer.</p>
+    <button id="bit-apagar-tudo" class="btn btn--contorno" type="button">Apagar toda a bitácora</button>
+    <div id="bit-confirmar-tudo" class="aviso" hidden tabindex="-1">
+      <p>Tem certeza? Tudo o que você registrou e os relatórios somem agora, de vez.</p>
+      <button id="bit-sim-apagar-tudo" class="btn" type="button">Sim, apagar tudo</button>
+      <button id="bit-nao-apagar-tudo" class="btn btn--contorno" type="button">Não apagar</button>
+    </div>
+    <p id="bit-tudo-status" class="status" role="status" aria-live="polite"></p>
+  </section>
+
+  <!-- Relatório: até 2 por mês, montados com a bitácora. O nome no papel nunca sai da página. -->
+  <section id="tela-relatorio" class="tela" aria-labelledby="titulo-relatorio" hidden>
+    <h1 id="titulo-relatorio" tabindex="-1">Relatório para a consulta</h1>
+    <p id="rel-carregando" class="dica" role="status" hidden>Carregando os seus relatórios.</p>
+    <p id="rel-aviso" class="status" role="status" aria-live="polite"></p>
+    <button id="rel-tentar" class="btn btn--contorno" type="button" hidden>Tentar de novo</button>
+
+    <div id="rel-fora" class="cartao" hidden>
+      <h2>Uma página para levar à consulta</h2>
+      <p>Com o que você registrar na bitácora, o relatório junta num papel só os dias de dor, onde doeu, a menstruação, o que isso afetou, os remédios e as perguntas que você quer fazer. Ele traz só fatos e as suas palavras.</p>
+      <p>Os relatórios fazem parte do plano Completo: até 2 por mês.</p>
+      <a class="btn" href="#plano">Conhecer o plano Completo</a>
+      <a class="btn btn--contorno" href="../../demonstracao/" target="_blank" rel="noopener">Ver um exemplo (abre em outra aba)</a>
+    </div>
+
+    <div id="rel-em-breve" class="cartao" hidden>
+      <h2>O relatório <span class="em-breve">em breve</span></h2>
+      <p>O relatório para a consulta, montado com a bitácora, chega em breve no plano Completo: até 2 por mês.</p>
+      <a class="btn btn--contorno" href="../../demonstracao/" target="_blank" rel="noopener">Ver um exemplo (abre em outra aba)</a>
+    </div>
+
+    <div id="rel-sem-autorizacao" class="cartao" hidden>
+      <h2>Antes, a bitácora</h2>
+      <p>O relatório é montado com o que você registra na bitácora. Para gerar relatórios, comece a bitácora e autorize o registro dos seus dados de saúde.</p>
+      <a class="btn" href="#bitacora">Começar a bitácora</a>
+    </div>
+
+    <div id="rel-aberto" hidden>
+      <form id="rel-form" class="cartao" novalidate aria-labelledby="rel-form-titulo">
+        <h2 id="rel-form-titulo">Gerar um relatório</h2>
+        <p id="rel-contagem"></p>
+        <div class="campo">
+          <label for="rel-inicio">Do dia</label>
+          <input id="rel-inicio" type="date">
+        </div>
+        <div class="campo">
+          <label for="rel-fim">Até o dia</label>
+          <input id="rel-fim" type="date" aria-describedby="rel-periodo-dica">
+          <p id="rel-periodo-dica" class="dica">O padrão são os últimos 30 dias. O período vai até 62 dias e termina hoje, no máximo.</p>
+        </div>
+        <fieldset>
+          <legend class="legenda">Perguntas para a consulta (opcionais, até 5)</legend>
+          <div class="campo"><label for="rel-pergunta-1">Pergunta 1</label><input id="rel-pergunta-1" type="text" maxlength="200" autocomplete="off"></div>
+          <div class="campo"><label for="rel-pergunta-2">Pergunta 2</label><input id="rel-pergunta-2" type="text" maxlength="200" autocomplete="off"></div>
+          <div class="campo"><label for="rel-pergunta-3">Pergunta 3</label><input id="rel-pergunta-3" type="text" maxlength="200" autocomplete="off"></div>
+          <div class="campo"><label for="rel-pergunta-4">Pergunta 4</label><input id="rel-pergunta-4" type="text" maxlength="200" autocomplete="off"></div>
+          <div class="campo"><label for="rel-pergunta-5">Pergunta 5</label><input id="rel-pergunta-5" type="text" maxlength="200" autocomplete="off"></div>
+        </fieldset>
+        <div class="campo">
+          <label for="rel-nome">Nome no papel (opcional)</label>
+          <input id="rel-nome" type="text" maxlength="120" autocomplete="off" aria-describedby="rel-nome-dica">
+          <p id="rel-nome-dica" class="dica">Aparece só no papel que você imprimir. Não é enviado nem guardado.</p>
+        </div>
+        <p id="rel-status" class="status" role="status" aria-live="polite"></p>
+        <button id="rel-gerar" class="btn" type="submit" aria-describedby="rel-gerar-dica">Gerar relatório</button>
+        <p id="rel-gerar-dica" class="dica">Cada relatório gerado conta 1 dos 2 do mês.</p>
+      </form>
+
+      <div class="cartao">
+        <h2>Relatórios gerados</h2>
+        <p id="rel-sem-lista" class="dica" hidden>Você ainda não gerou nenhum relatório.</p>
+        <ul id="rel-lista" class="registros"></ul>
+      </div>
+    </div>
+
+    <article id="rel-vista" class="cartao folha-relatorio" hidden tabindex="-1" aria-labelledby="rel-vista-titulo">
+      <header class="rel-cabeca">
+        <h2 id="rel-vista-titulo">Relatório para a consulta</h2>
+        <p id="rel-vista-periodo"></p>
+        <p id="rel-vista-nome" hidden></p>
+        <p id="rel-assinatura" class="rel-assinatura"></p>
+      </header>
+      <dl id="rel-resumo" class="rel-dados"></dl>
+
+      <section class="rel-bloco" aria-labelledby="rel-t-relevantes">
+        <h3 id="rel-t-relevantes">O que marcou o período</h3>
+        <p id="rel-sem-relevantes" hidden>Nada de destaque no período.</p>
+        <ul id="rel-relevantes" class="rel-lista"></ul>
+      </section>
+
+      <section class="rel-bloco" aria-labelledby="rel-t-dor">
+        <h3 id="rel-t-dor">Dor por dia</h3>
+        <div id="rel-barras" class="barras" aria-hidden="true"></div>
+        <p class="barras__eixo" aria-hidden="true"><span id="rel-barras-inicio"></span><span id="rel-barras-fim"></span></p>
+        <p class="dica">Dor que informei, de 0 a 10, em cada dia do período. O traço embaixo marca os dias de menstruação; dia sem barra é dia sem registro.</p>
+        <ul id="rel-dias-leitor" class="so-leitor"></ul>
+      </section>
+
+      <section id="rel-bloco-sintomas" class="rel-bloco" aria-labelledby="rel-t-sintomas">
+        <h3 id="rel-t-sintomas">Onde ou quando doeu</h3>
+        <table class="rel-tabela">
+          <thead><tr><th scope="col">Onde ou quando</th><th scope="col">Dias</th><th scope="col">Maior dor</th><th scope="col">Quando</th></tr></thead>
+          <tbody id="rel-sintomas"></tbody>
+        </table>
+      </section>
+
+      <section id="rel-bloco-impacto" class="rel-bloco" aria-labelledby="rel-t-impacto">
+        <h3 id="rel-t-impacto">O que isso afetou</h3>
+        <table class="rel-tabela">
+          <thead><tr><th scope="col">Afetou</th><th scope="col">Dias</th><th scope="col">Quando</th></tr></thead>
+          <tbody id="rel-impacto"></tbody>
+        </table>
+      </section>
+
+      <section id="rel-bloco-remedios" class="rel-bloco" aria-labelledby="rel-t-remedios">
+        <h3 id="rel-t-remedios">Remédios que registrei</h3>
+        <ul id="rel-remedios" class="rel-lista"></ul>
+      </section>
+
+      <section id="rel-bloco-perguntas" class="rel-bloco" aria-labelledby="rel-t-perguntas">
+        <h3 id="rel-t-perguntas">O que quero perguntar na consulta</h3>
+        <ol id="rel-perguntas" class="rel-perguntas"></ol>
+      </section>
+
+      <footer class="rel-rodape">
+        <p id="rel-vista-gerado"></p>
+        <p>Preparado pela própria pessoa, com o que ela registrou, com apoio de uma assistente educativa. Não é laudo, diagnóstico nem prontuário.</p>
+      </footer>
+      <p class="nao-imprime">
+        <button id="rel-imprimir" class="btn" type="button">Imprimir ou salvar em PDF</button>
+        <button id="rel-fechar" class="btn btn--contorno" type="button">Fechar o relatório</button>
+      </p>
+    </article>
+  </section>
+
+  <!-- Plano: no primeiro acesso, a escolha; depois, os mesmos cartões com o plano em vigor e o uso. -->
+  <section id="tela-plano" class="tela" aria-labelledby="titulo-plano" hidden>
+    <h1 id="titulo-plano" tabindex="-1">Seu plano</h1>
+    <p id="plano-intro"></p>
+    <p id="plano-uso" class="dica" hidden></p>
+    <p id="plano-aviso" class="aviso aviso--breve" hidden></p>
+    <div class="grade">
+      <section id="cartao-gratuito" class="cartao" aria-labelledby="plano-nome-gratuito">
+        <h2 id="plano-nome-gratuito">Gratuito</h2>
+        <p class="preco">R$ 0</p>
+        <ul class="itens">
+          <li>3 perguntas escritas por semana</li>
+          <li>Renovam toda sexta-feira, às 00h01</li>
+          <li>Nada da conversa fica guardado</li>
+        </ul>
+        <p id="selo-gratuito" class="selo" hidden></p>
+        <button id="escolher-gratuito" class="btn btn--contorno" type="button">Escolher o Gratuito</button>
+      </section>
+      <section id="cartao-essencial" class="cartao" aria-labelledby="plano-nome-essencial">
+        <h2 id="plano-nome-essencial">Essencial</h2>
+        <p class="preco"><span id="preco-essencial">R$ 14,90</span> <span class="preco__periodo">por mês</span></p>
+        <ul class="itens">
+          <li>10 perguntas escritas por dia</li>
+          <li>Acumulam na semana: o que sobra de um dia passa para o seguinte</li>
+          <li>Renovam toda sexta-feira, às 00h01</li>
+        </ul>
+        <p id="selo-essencial" class="selo" hidden></p>
+        <button id="escolher-essencial" class="btn" type="button">Escolher o Essencial</button>
+      </section>
+      <section id="cartao-completo" class="cartao" aria-labelledby="plano-nome-completo">
+        <h2 id="plano-nome-completo">Completo</h2>
+        <p class="preco"><span id="preco-completo">R$ 24,90</span> <span class="preco__periodo">por mês</span></p>
+        <ul class="itens">
+          <li>15 perguntas escritas por dia, na mesma regra do Essencial</li>
+          <li>Bitácora diária</li>
+          <li>Até 2 relatórios por mês para levar à consulta</li>
+        </ul>
+        <p id="selo-completo" class="selo" hidden></p>
+        <button id="escolher-completo" class="btn" type="button">Escolher o Completo</button>
+      </section>
+    </div>
+    <p id="plano-status" class="status" role="status" aria-live="polite"></p>
+    <p>Os detalhes da assinatura, o período anual e o arrependimento em 7 dias estão em <a href="../../planos/">Jeitos de conversar com a assistente</a>.</p>
+  </section>
   <!-- ==== CANAIS:INICIO ==== -->
   <section class="rodape-canais" aria-labelledby="titulo-canais">
     <h2 id="titulo-canais" class="rodape-canais__titulo">Precisa de ajuda agora?</h2>
@@ -67,56 +490,256 @@
   </nav>
   <!-- ==== CANAIS:FIM ==== -->
 </main>
-<script src="../../comum/conta.js?v=3a99ae23e3"></script>
+<script src="../../comum/conta.js?v=859d165391"></script>
 <script>
 /* ==== AUTOR:INICIO ==== */
 // Autor das falas da assistente. Gerado a partir da identidade: nao edite o que esta entre os marcadores.
 var AUTOR_DA_ASSISTENTE = "Maria FlorIA";
 /* ==== AUTOR:FIM ==== */
+// Painel pessoal da assistente (27/11/2026, pedido do Carlos): a conversa de antes e, nas abas, a bitácora, o
+// relatório para a consulta e o plano. As abas são âncoras da própria página (#conversa, #bitacora, #relatorio,
+// #plano): o Voltar do navegador volta à aba anterior. No primeiro acesso, a página abre na escolha do plano.
+// Todo texto vindo do servidor entra por textContent. Nada fica guardado no navegador além da entrada da conta, que é
+// do script comum e só vale nesta aba. Escrito para navegador antigo: var, function, sem "?." nem "??".
 (function () {
   "use strict";
   var C = window.EndoConta;
   var MAX_TURNOS = 6;
   var MAX_CARACTERES_DO_HISTORICO = 4000;
   var FALHA = "Tive um problema para responder agora, e esta pergunta não contou no seu limite. Você pode tentar de novo daqui a pouco.";
+  var TELAS = ["conversa", "bitacora", "relatorio", "plano"];
+  var PLANOS = ["gratuito", "essencial", "completo"];
+  var NOMES_DOS_PLANOS = { gratuito: "Gratuito", essencial: "Essencial", completo: "Completo" };
+  var ESTADOS = ["disponivel", "em_breve", "fora_do_plano"];
+  // A versão do texto da autorização da bitácora que esta página mostra. Se o servidor pedir outra, a página é antiga:
+  // a pessoa recarrega para ler o texto novo antes de autorizar.
+  var VERSAO_DO_CONSENTIMENTO = "consentimento-bitacora-beta-1";
+  var ONDE = { pelve: "Pelve", lombar: "Lombar", ao_evacuar: "Ao evacuar", ao_urinar: "Ao urinar", na_relacao: "Na relação sexual" };
+  var AFETOU = { trabalho: "Trabalho ou estudo", sono: "Sono", intimidade: "Intimidade" };
+  var MESES = ["janeiro", "fevereiro", "março", "abril", "maio", "junho", "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"];
+  var DIAS_DA_SEMANA = ["domingo", "segunda-feira", "terça-feira", "quarta-feira", "quinta-feira", "sexta-feira", "sábado"];
+  // O servidor aceita gravar ou corrigir de 60 dias atrás até hoje, e relatórios de até 62 dias.
+  var JANELA_DE_CORRECAO = 60;
+  var MAXIMO_DO_PERIODO = 62;
+  var DIA_ISO = /^\d{4}-\d{2}-\d{2}$/;
+  var MES_ISO = /^\d{4}-\d{2}$/;
+
+  var telas = {
+    conversa: document.getElementById("tela-conversa"), bitacora: document.getElementById("tela-bitacora"),
+    relatorio: document.getElementById("tela-relatorio"), plano: document.getElementById("tela-plano")
+  };
+  var titulos = {
+    conversa: document.getElementById("titulo-conversa"), bitacora: document.getElementById("titulo-bitacora"),
+    relatorio: document.getElementById("titulo-relatorio"), plano: document.getElementById("titulo-plano")
+  };
+  var abas = {
+    conversa: document.getElementById("aba-conversa"), bitacora: document.getElementById("aba-bitacora"),
+    relatorio: document.getElementById("aba-relatorio"), plano: document.getElementById("aba-plano")
+  };
+  var carregando = document.getElementById("carregando");
+  var semResposta = document.getElementById("sem-resposta");
   var registro = document.getElementById("registro");
   var formulario = document.getElementById("escrita");
   var campo = document.getElementById("campo");
   var status = document.getElementById("status");
+  var ofertaBitacora = document.getElementById("oferta-bitacora");
   var turnos = [];
   var enviando = false;
   var token = C.tokenGuardado();
+  // A conta como /api/conta responde, e o uso da semana. Sem a leitura (sem internet), a conversa segue e as outras
+  // abas pedem para tentar de novo.
+  var conta = null;
+  var uso = null;
+  var erroDaConta = "indisponivel";
+  var liberado = false;
+  var bloqueado = false;
+  // Com o aceite dos documentos pendente, a página fica bloqueada, mas o apagar da bitácora continua valendo (o servidor
+  // o aceita só com a entrada da conta, que fica na memória desta página até ela fechar).
+  var semAceite = false;
+  var telaAtual = "conversa";
 
-  // Sem entrada válida: o campo some e a página leva a pessoa a entrar de novo.
+  // ----- Datas, no fuso de Salvador (o servidor manda o dia de hoje; sem ele, vale o relógio do aparelho)
+
+  function dois(n) { return n < 10 ? "0" + n : String(n); }
+  function isoDe(data) { return data.getUTCFullYear() + "-" + dois(data.getUTCMonth() + 1) + "-" + dois(data.getUTCDate()); }
+  function hojeEmSalvador() { return isoDe(new Date(Date.now() - 3 * 60 * 60 * 1000)); }
+  function partesDe(iso) { var p = iso.split("-"); return [Number(p[0]), Number(p[1]), Number(p[2])]; }
+  function emDias(iso) { var p = partesDe(iso); return Date.UTC(p[0], p[1] - 1, p[2]) / 86400000; }
+  function somarDias(iso, quantos) { var p = partesDe(iso); return isoDe(new Date(Date.UTC(p[0], p[1] - 1, p[2] + quantos))); }
+  function diasEntre(de, ate) { return Math.round(emDias(ate) - emDias(de)); }
+  function curta(iso) { return iso.slice(8, 10) + "/" + iso.slice(5, 7); }
+  function comAno(iso) { return curta(iso) + "/" + iso.slice(0, 4); }
+  function porExtenso(iso) {
+    var p = partesDe(iso);
+    var nome = DIAS_DA_SEMANA[new Date(Date.UTC(p[0], p[1] - 1, p[2])).getUTCDay()];
+    return nome.charAt(0).toUpperCase() + nome.slice(1) + ", " + curta(iso);
+  }
+  function plural(quantos, um, varios) { return quantos === 1 ? "1 " + um : quantos + " " + varios; }
+  function limpar(no) { while (no.firstChild) no.removeChild(no.firstChild); }
+  function numero(valor) { return typeof valor === "number" && isFinite(valor) ? valor : null; }
+
+  // ----- Entrada, aceite e as telas
+
+  // Sem entrada válida: as telas somem e a página leva a pessoa a entrar de novo.
   function semEntrada() {
     C.esquecerToken();
-    formulario.hidden = true;
-    document.getElementById("sem-sessao").hidden = false;
+    semAceite = false;
+    document.getElementById("aceite-pendente").hidden = true;
+    bloquear("sem-sessao");
   }
   // Aceite por versão (26/11): a conta que ainda não aceitou os documentos em vigor não conversa. O aceite é feito na
-  // chegada (../../), depois da entrada: aqui a entrada é esquecida, o campo some e a página leva a pessoa até lá.
+  // chegada (../../), depois da entrada: aqui a entrada é esquecida, as telas somem e a página leva a pessoa até lá.
   function aceitePendente() {
     C.esquecerToken();
-    formulario.hidden = true;
-    document.getElementById("aceite-pendente").hidden = false;
+    semAceite = true;
+    bloquear("aceite-pendente");
   }
+  function bloquear(aviso) {
+    bloqueado = true;
+    formulario.hidden = true;
+    carregando.hidden = true;
+    semResposta.hidden = true;
+    TELAS.forEach(function (nome) { telas[nome].hidden = true; });
+    document.getElementById(aviso === "sem-sessao" ? "sem-sessao" : "aceite-pendente").hidden = false;
+    atualizarApagarTudo();
+  }
+
+  // A tela pedida no endereço: null quando a âncora é de dentro da página (os canais de ajuda, o conteúdo).
+  function telaDoEndereco() {
+    var pedido = String(window.location.hash || "").replace(/^#/, "");
+    if (pedido === "campo") return "conversa";
+    return TELAS.indexOf(pedido) !== -1 ? pedido : null;
+  }
+  function marcarAba(nome) {
+    TELAS.forEach(function (outra) {
+      if (outra === nome) abas[outra].setAttribute("aria-current", "page");
+      else abas[outra].removeAttribute("aria-current");
+    });
+  }
+  // Troca o endereço sem criar um passo a mais no Voltar (o primeiro acesso abre direto na escolha do plano).
+  function trocarEndereco(nome) {
+    try {
+      if (window.history && typeof window.history.replaceState === "function") window.history.replaceState(null, "", "#" + nome);
+    } catch (e) { /* fica o endereço de antes */ }
+  }
+  function mostrarTela(nome, focar) {
+    telaAtual = nome;
+    marcarAba(nome);
+    if (bloqueado || !liberado) return;
+    TELAS.forEach(function (outra) { telas[outra].hidden = outra !== nome; });
+    semResposta.hidden = !(conta === null && nome !== "conversa");
+    if (!semResposta.hidden) document.getElementById("sem-resposta-texto").textContent = C.frase(erroDaConta);
+    if (nome !== "conversa") ofertaBitacora.hidden = true;
+    // A aba aberta de um dia para o outro: a bitácora e os relatórios lidos ontem recomeçam antes de aparecer.
+    if (nome === "bitacora" || nome === "relatorio") conferirDia();
+    if (nome === "bitacora") mostrarBitacora();
+    if (nome === "relatorio") abrirRelatorio();
+    if (nome === "plano") abrirPlano();
+    atualizarApagarTudo();
+    atualizarImpressao();
+    if (focar === "campo") campo.focus();
+    else if (focar) titulos[nome].focus();
+  }
+  window.addEventListener("hashchange", function () {
+    var nome = telaDoEndereco();
+    if (nome === null) return;
+    mostrarTela(nome, window.location.hash === "#campo" ? "campo" : true);
+  });
+
+  ["essencial", "completo"].forEach(function (plano) {
+    var preco = document.getElementById(plano === "essencial" ? "preco-essencial" : "preco-completo");
+    preco.textContent = C.dinheiro(C.CONFIG.planos[plano].mensal);
+  });
+
   if (!token) {
+    bloqueado = true;
+    marcarAba(telaDoEndereco() || "conversa");
     document.getElementById("sem-sessao").hidden = false;
     return;
   }
-  formulario.hidden = false;
 
-  // Ao abrir, a conta diz quantas perguntas restam e quando renovam: o contador aparece antes da primeira pergunta.
-  // Se a consulta falhar, a conversa segue, e o contador aparece depois da primeira resposta.
-  var uso = null;
-  C.pedir("GET", "/api/conta", undefined, token).then(function (resposta) {
-    if (resposta.ok && resposta.json.aceite_em_dia === false) return aceitePendente();
-    if (resposta.ok && resposta.json.uso && typeof resposta.json.uso === "object") {
-      uso = resposta.json.uso;
-      return mostrarRestantes(uso.restantes);
+  // Ao abrir, a conta diz o plano, o uso da semana e o que cada aba mostra. O contador aparece antes da primeira
+  // pergunta. Se a leitura falhar, a conversa segue, e o contador aparece depois da primeira resposta.
+  // O servidor de antes (sem a bitácora) não manda "bitacora" nem "relatorio": com valor fora da lista, as abas
+  // mostram "em breve" no plano com relatórios e "fora do plano" nos outros, em vez de ficarem em branco.
+  function normalizarConta(lida) {
+    var padrao = lida.relatorios_por_mes > 0 ? "em_breve" : "fora_do_plano";
+    if (ESTADOS.indexOf(lida.bitacora) === -1) lida.bitacora = padrao;
+    if (ESTADOS.indexOf(lida.relatorio) === -1) lida.relatorio = padrao;
+    return lida;
+  }
+  // A frase da leitura que falhou: sem internet, muitas tentativas ou o serviço fora do ar.
+  function erroDaLeitura(codigo) {
+    return codigo === "rede" || codigo === "muitas_requisicoes" ? codigo : "indisponivel";
+  }
+
+  function lerConta() {
+    carregando.hidden = false;
+    semResposta.hidden = true;
+    return C.pedir("GET", "/api/conta", undefined, token).then(function (resposta) {
+      carregando.hidden = true;
+      if (resposta.ok && resposta.json.aceite_em_dia === false) {
+        // A conta lida diz se a bitácora estava aberta: com ela, o apagar fica à vista mesmo sem o aceite.
+        conta = normalizarConta(resposta.json);
+        return aceitePendente();
+      }
+      if (resposta.json.erro === "token_invalido") return semEntrada();
+      if (resposta.json.erro === "aceite_pendente") return aceitePendente();
+      if (resposta.ok) {
+        conta = normalizarConta(resposta.json);
+        uso = conta.uso && typeof conta.uso === "object" ? conta.uso : null;
+      } else {
+        erroDaConta = erroDaLeitura(resposta.json.erro);
+      }
+      liberado = true;
+      formulario.hidden = false;
+      mostrarRestantes();
+      atualizarAvisoDaEscolha();
+      if (conta && conta.primeiro_acesso === true) {
+        trocarEndereco("plano");
+        return mostrarTela("plano", false);
+      }
+      mostrarTela(telaDoEndereco() || "conversa", false);
+    });
+  }
+  document.getElementById("tentar").addEventListener("click", function () { lerConta(); });
+
+  // A aba que volta a aparecer (o celular desbloqueado, a pessoa que volta de outra aba): a conta é lida de novo,
+  // para o contador e o que cada aba mostra; se o dia mudou, a bitácora e os relatórios recomeçam.
+  function relerConta() {
+    C.pedir("GET", "/api/conta", undefined, token).then(function (resposta) {
+      if (bloqueado) return;
+      if (resposta.json.erro === "token_invalido") return semEntrada();
+      if (resposta.json.erro === "aceite_pendente") return aceitePendente();
+      if (!resposta.ok) return;
+      if (resposta.json.aceite_em_dia === false) {
+        conta = normalizarConta(resposta.json);
+        return aceitePendente();
+      }
+      var primeira = conta === null;
+      conta = normalizarConta(resposta.json);
+      uso = conta.uso && typeof conta.uso === "object" ? conta.uso : null;
+      mostrarRestantes();
+      atualizarAvisoDaEscolha();
+      if (primeira || telaAtual !== "conversa") mostrarTela(telaAtual, false);
+    });
+  }
+  if (typeof document.addEventListener === "function") {
+    document.addEventListener("visibilitychange", function () {
+      if (document.visibilityState !== "visible" || bloqueado || !liberado) return;
+      conferirDia();
+      relerConta();
+    });
+  }
+  // Volta pelo Voltar do navegador a uma página guardada (de pagamento para cá): os botões dos planos destravam.
+  window.addEventListener("pageshow", function (evento) {
+    if (evento && evento.persisted) {
+      escolhendo = false;
+      travarPlanos(false);
     }
-    if (resposta.json.erro === "token_invalido") semEntrada();
   });
+
+  // ----- Conversa
 
   function historico() {
     var lista = turnos.slice(-MAX_TURNOS);
@@ -149,17 +772,52 @@ var AUTOR_DA_ASSISTENTE = "Maria FlorIA";
     return caixa;
   }
 
+  // O contador (comum/conta.js, textoDoUso): a semana renova na sexta às 00h01; nos planos pagos as perguntas do dia
+  // acumulam. Sem a conta lida, vale o plano guardado na entrada.
+  function usoDoContador() {
+    if (uso) return uso;
+    return C.planoGuardado() === "gratuito" ? { janela: "semana" } : { janela: "semana", acumula: true };
+  }
   function mostrarRestantes(restantes) {
-    if (typeof restantes !== "number") return;
-    // Plano gratuito: perguntas por semana, que renovam na sexta-feira. O total e a data vêm da conta, lida ao abrir;
-    // sem ela, vale o plano guardado na entrada.
-    var semanal = uso ? uso.janela === "semana" : C.planoGuardado() === "gratuito";
-    var total = uso && typeof uso.limite === "number" ? " de " + uso.limite : "";
-    var renovacao = uso && uso.renova_em ? C.data(uso.renova_em) : "";
-    var dia = renovacao ? ", dia " + renovacao.slice(0, 5) : "";
-    document.getElementById("restantes").textContent = semanal
-      ? "Perguntas escritas que restam nesta semana: " + restantes + total + ". Elas renovam na sexta-feira" + dia + "."
-      : "Perguntas escritas que restam hoje: " + restantes + total + ". Elas renovam à meia-noite.";
+    if (uso && typeof restantes === "number") {
+      uso.restantes = restantes;
+      if (typeof uso.limite === "number") uso.usadas = Math.max(0, uso.limite - restantes);
+    }
+    document.getElementById("restantes").textContent = C.textoDoUso(usoDoContador(), restantes);
+  }
+
+  function nomeDoPlano(codigo) { return Object.prototype.hasOwnProperty.call(NOMES_DOS_PLANOS, codigo) ? NOMES_DOS_PLANOS[codigo] : ""; }
+  // O plano que vale agora: o gratuito, o da assinatura ou nenhum (a conta de administração tem tudo).
+  function planoEmVigor() {
+    if (!conta) return null;
+    if (conta.tipo === "gratuito") return "gratuito";
+    if (conta.tipo === "admin") return null;
+    return conta.plano === "essencial" || conta.plano === "completo" ? conta.plano : null;
+  }
+  function escolhaPendente() {
+    var escolha = conta ? conta.escolha_pendente : null;
+    return escolha === "essencial" || escolha === "completo" ? escolha : null;
+  }
+  // Plano pago escolhido que ainda não vale: um aviso discreto na conversa, com o pagamento e a troca de plano.
+  function atualizarAvisoDaEscolha() {
+    var aviso = document.getElementById("aviso-escolha");
+    var texto = document.getElementById("aviso-escolha-texto");
+    var escolha = escolhaPendente();
+    if (escolha === null) {
+      aviso.hidden = true;
+      return;
+    }
+    var agora = planoEmVigor();
+    var noPlano = agora && agora !== "gratuito" ? "no plano " + nomeDoPlano(agora) : "no plano gratuito";
+    texto.textContent = "Você escolheu o plano " + nomeDoPlano(escolha) + ". O pagamento on-line abre em breve; enquanto isso, você conversa " + noPlano + ".";
+    document.getElementById("escolha-pagamento").setAttribute("href", "../../pagamento/?plano=" + encodeURIComponent(escolha));
+    aviso.hidden = false;
+    // Com o pagamento já aberto, o aviso diz o que falta, sem o "em breve".
+    C.saude().then(function (saude) {
+      if (saude && saude.pagamento === true && escolhaPendente() === escolha) {
+        texto.textContent = "Você escolheu o plano " + nomeDoPlano(escolha) + ". Ele passa a valer quando o pagamento for aprovado; enquanto isso, você conversa " + noPlano + ".";
+      }
+    });
   }
 
   formulario.addEventListener("submit", function (evento) {
@@ -169,6 +827,7 @@ var AUTOR_DA_ASSISTENTE = "Maria FlorIA";
     if (texto === "") return C.anunciar(status, "Escreva uma pergunta antes de enviar.", "");
     if (texto.length > 1000) return C.anunciar(status, "A pergunta passou de 1000 caracteres. Encurte para enviar.", "");
     enviando = true;
+    ofertaBitacora.hidden = true;
     C.anunciar(status, "Um instante, estou preparando a resposta.", "");
     var corpo = { mensagem: texto, historico: historico() };
     turnos.push({ papel: "pessoa", texto: texto, assinatura: null });
@@ -197,14 +856,997 @@ var AUTOR_DA_ASSISTENTE = "Maria FlorIA";
     });
   });
 
-  // Encerrar apaga a conversa desta tela e da memória da página.
+  // Encerrar apaga a conversa desta tela e da memória da página. Com a bitácora aberta para a conta, a página oferece
+  // registrar o dia (sem inteligência artificial: é só o formulário da bitácora).
   document.getElementById("encerrar").addEventListener("click", function () {
     turnos = [];
     while (registro.firstChild) registro.removeChild(registro.firstChild);
     campo.value = "";
     C.anunciar(status, "Conversa encerrada. Nada dela ficou guardado.", "ok");
-    document.getElementById("titulo").focus();
+    ofertaBitacora.hidden = !(conta && conta.bitacora === "disponivel");
+    titulos.conversa.focus();
   });
+
+  // ----- Plano
+
+  var botoesDePlano = {
+    gratuito: document.getElementById("escolher-gratuito"), essencial: document.getElementById("escolher-essencial"),
+    completo: document.getElementById("escolher-completo")
+  };
+  var cartoesDePlano = {
+    gratuito: document.getElementById("cartao-gratuito"), essencial: document.getElementById("cartao-essencial"),
+    completo: document.getElementById("cartao-completo")
+  };
+  var selosDePlano = {
+    gratuito: document.getElementById("selo-gratuito"), essencial: document.getElementById("selo-essencial"),
+    completo: document.getElementById("selo-completo")
+  };
+  var planoStatus = document.getElementById("plano-status");
+  var escolhendo = false;
+
+  function abrirPlano() {
+    var primeiro = Boolean(conta && conta.primeiro_acesso === true);
+    titulos.plano.textContent = primeiro ? "Escolha o seu plano" : "Seu plano";
+    var intro = document.getElementById("plano-intro");
+    var linhaDoUso = document.getElementById("plano-uso");
+    var aviso = document.getElementById("plano-aviso");
+    var agora = planoEmVigor();
+    var escolha = escolhaPendente();
+    if (!conta) intro.textContent = "";
+    else if (primeiro) intro.textContent = "Comece pelo plano que combina com você. Dá para trocar depois, nesta mesma aba.";
+    else if (conta.tipo === "admin") intro.textContent = "Esta é uma conta de administração: ela tem todos os recursos do plano Completo.";
+    else if (agora === "gratuito" || agora === null) intro.textContent = "Você está no plano gratuito.";
+    else intro.textContent = "Você está no plano " + nomeDoPlano(agora) + (conta.institucional ? ", pela sua instituição." : ".");
+    linhaDoUso.textContent = uso ? C.textoDoUso(uso) : "";
+    linhaDoUso.hidden = primeiro || !uso;
+    aviso.textContent = escolha ? "Você escolheu o plano " + nomeDoPlano(escolha) + ". Ele passa a valer quando o pagamento for aprovado." : "";
+    aviso.hidden = !escolha;
+    PLANOS.forEach(function (plano) {
+      var vale = !primeiro && plano === agora;
+      cartoesDePlano[plano].className = "cartao" + (vale ? " cartao--destaque" : "");
+      selosDePlano[plano].textContent = vale ? "Seu plano agora" : plano === escolha ? "Escolhido: falta o pagamento" : "";
+      selosDePlano[plano].hidden = !(vale || plano === escolha);
+      botoesDePlano[plano].textContent = (vale ? "Continuar no " : "Escolher o ") + nomeDoPlano(plano);
+    });
+  }
+
+  function travarPlanos(travar) {
+    PLANOS.forEach(function (plano) { botoesDePlano[plano].disabled = travar; });
+  }
+  // Tocar num cartão grava a escolha. O gratuito (e o plano que já vale) vai à conversa; o pago que ainda não vale vai
+  // ao pagamento, nesta mesma aba. A escolha não libera nada: o acesso pago vem só da inscrição liberada.
+  function escolherPlano(plano) {
+    if (escolhendo) return;
+    escolhendo = true;
+    travarPlanos(true);
+    C.anunciar(planoStatus, "Guardando a sua escolha.", "");
+    C.pedir("POST", "/api/conta/plano", { plano: plano }, token).then(function (resposta) {
+      var proximo = resposta.json.proximo === "pagamento" ? "pagamento" : "conversa";
+      // A caminho do pagamento os botões ficam travados até a página sair (ou voltar pelo Voltar: ver "pageshow").
+      if (!resposta.ok || proximo !== "pagamento") {
+        escolhendo = false;
+        travarPlanos(false);
+      }
+      if (!resposta.ok) {
+        if (resposta.json.erro === "token_invalido") return semEntrada();
+        if (resposta.json.erro === "aceite_pendente") return aceitePendente();
+        // O servidor de antes não tem esta rota (404, nao_encontrado): é o serviço que está fora, não uma inscrição.
+        return C.anunciar(planoStatus, C.frase(resposta.json.erro === "nao_encontrado" ? "indisponivel" : resposta.json.erro), "");
+      }
+      if (conta) {
+        conta.primeiro_acesso = false;
+        conta.plano_escolhido = typeof resposta.json.plano_escolhido === "string" ? resposta.json.plano_escolhido : plano;
+        conta.escolha_pendente = proximo === "pagamento" ? plano : null;
+      }
+      atualizarAvisoDaEscolha();
+      if (proximo === "pagamento") {
+        C.anunciar(planoStatus, "Abrindo a página do pagamento.", "");
+        window.location.assign("../../pagamento/?plano=" + encodeURIComponent(plano));
+        return;
+      }
+      C.anunciar(planoStatus, "", "");
+      if (window.location.hash === "#conversa") mostrarTela("conversa", true);
+      else window.location.hash = "#conversa";
+    });
+  }
+  PLANOS.forEach(function (plano) {
+    botoesDePlano[plano].addEventListener("click", function () { escolherPlano(plano); });
+  });
+
+  // ----- Bitácora (plano Completo): o dia, o mês e a lista, pelas rotas de /api/bitacora
+
+  var bitAviso = document.getElementById("bit-aviso");
+  var bitCarregando = document.getElementById("bit-carregando");
+  var bitConsentimento = document.getElementById("bit-consentimento");
+  var bitCaixa = document.getElementById("bit-consentimento-caixa");
+  var bitConsentimentoStatus = document.getElementById("bit-consentimento-status");
+  var bitAberta = document.getElementById("bit-aberta");
+  var bitForm = document.getElementById("bit-form");
+  var bitFormTitulo = document.getElementById("bit-form-titulo");
+  var bitDor = document.getElementById("bit-dor");
+  var bitDorValor = document.getElementById("bit-dor-valor");
+  var bitDorFaixa = document.getElementById("bit-dor-faixa");
+  var bitCiclo = document.getElementById("bit-ciclo");
+  var bitRemedio = document.getElementById("bit-remedio");
+  var bitFala = document.getElementById("bit-fala");
+  var bitStatus = document.getElementById("bit-status");
+  var bitAlerta = document.getElementById("bit-alerta");
+  var bitCancelar = document.getElementById("bit-cancelar");
+  var bitCalendario = document.getElementById("bit-calendario");
+  var bitAnterior = document.getElementById("bit-mes-anterior");
+  var bitSeguinte = document.getElementById("bit-mes-seguinte");
+  var bitLista = document.getElementById("bit-registros");
+  var bitApagarTudo = document.getElementById("bit-apagar-tudo");
+  var bitConfirmarTudo = document.getElementById("bit-confirmar-tudo");
+  var bitSimApagarTudo = document.getElementById("bit-sim-apagar-tudo");
+  var bitTudoStatus = document.getElementById("bit-tudo-status");
+
+  // O estado da bitácora nesta página. `lidaEm` é o dia de Salvador, pelo relógio do aparelho, em que o servidor foi
+  // lido: quando ele muda (a aba aberta de um dia para o outro), tudo recomeça. É o dia do aparelho, e não o do
+  // servidor, para um relógio adiantado ou atrasado não fazer a página recomeçar sem parar. `registroDeHoje` guarda o
+  // registro de hoje à parte: `registros` tem só o mês na tela.
+  function bitacoraNova() {
+    return {
+      carregada: false, carregando: false, lidaEm: null, mes: null, hoje: null, registros: [], registroDeHoje: null, ilegiveis: 0,
+      consentimento: null, diaDoFormulario: null, confirmarApagar: null, apagandoDia: false, gravando: false, rascunho: null, diaDoRascunho: null
+    };
+  }
+  var bit = bitacoraNova();
+  // Cada leitura leva um número: a resposta de uma leitura velha (de antes de apagar tudo, de outro mês pedido depois)
+  // não sobrescreve a nova.
+  var leiturasDaBitacora = 0;
+  var bitTentar = document.getElementById("bit-tentar");
+
+  function faixa(dor) { return dor <= 3 ? "leve" : dor <= 6 ? "media" : "forte"; }
+  function nomeDaFaixa(dor) { return dor <= 3 ? "leve" : dor <= 6 ? "média" : "forte"; }
+  function lista(valor, rotulos) {
+    if (!Array.isArray(valor)) return [];
+    return valor.filter(function (item) { return typeof item === "string" && Object.prototype.hasOwnProperty.call(rotulos, item); });
+  }
+  function rotulosDe(codigos, rotulos) { return codigos.map(function (codigo) { return rotulos[codigo]; }).join(", "); }
+  // O registro como a página usa, ou null se ele vier fora da forma.
+  function normalizarRegistro(dado) {
+    if (!dado || typeof dado !== "object" || typeof dado.dia !== "string" || !DIA_ISO.test(dado.dia) || numero(dado.dor) === null) return null;
+    return {
+      dia: dado.dia, dor: Math.max(0, Math.min(10, Math.round(dado.dor))), ciclo: dado.ciclo === true,
+      onde: lista(dado.onde, ONDE), afetou: lista(dado.afetou, AFETOU),
+      remedio: typeof dado.remedio === "string" ? dado.remedio : "", fala: typeof dado.fala === "string" ? dado.fala : ""
+    };
+  }
+  function registroDoDia(dia) {
+    for (var i = 0; i < bit.registros.length; i += 1) if (bit.registros[i].dia === dia) return bit.registros[i];
+    return null;
+  }
+  function corrigivel(dia) { return dia <= bit.hoje && diasEntre(dia, bit.hoje) <= JANELA_DE_CORRECAO; }
+
+  // Recusas das rotas da bitácora e dos relatórios: a entrada, o aceite, a porta da bitácora e a autorização.
+  function recusaDaBitacora(resposta, saida) {
+    var erro = resposta.json.erro;
+    if (erro === "token_invalido") { semEntrada(); return true; }
+    if (erro === "aceite_pendente") { aceitePendente(); return true; }
+    if (erro === "bitacora_indisponivel") {
+      var estado = ESTADOS.indexOf(resposta.json.estado) !== -1 && resposta.json.estado !== "disponivel" ? resposta.json.estado : "em_breve";
+      if (conta) { conta.bitacora = estado; conta.relatorio = estado; }
+      bit = bitacoraNova();
+      rel = relatoriosNovos();
+      if (telaAtual === "bitacora") mostrarBitacora();
+      if (telaAtual === "relatorio") abrirRelatorio();
+      return true;
+    }
+    if (erro === "consentimento_pendente") {
+      // Sem a autorização em vigor, nem a bitácora nem os relatórios abrem: a bitácora volta ao texto da autorização,
+      // e o relatório diz que é preciso começar por ela.
+      bit.consentimento = { versao: typeof resposta.json.versao === "string" ? resposta.json.versao : (bit.consentimento ? bit.consentimento.versao : ""), aceito: false };
+      rel.consentido = false;
+      if (telaAtual === "bitacora") mostrarBitacora();
+      if (telaAtual === "relatorio") abrirRelatorio();
+      // O formulário que pediu some: o aviso vai para o alto da tela.
+      C.anunciar(telaAtual === "bitacora" ? bitAviso : telaAtual === "relatorio" ? relAviso : saida, "Antes, é preciso autorizar a bitácora a guardar os seus registros.", "");
+      return true;
+    }
+    if (erro === "nao_encontrado") { C.anunciar(saida, "Não encontramos este relatório nesta conta.", ""); return true; }
+    C.anunciar(saida, C.frase(erro), "");
+    return false;
+  }
+
+  function carregarBitacora(mes) {
+    if (bit.carregando) return;
+    var alvo = bit;
+    var numeroDaLeitura = ++leiturasDaBitacora;
+    alvo.carregando = true;
+    bitCarregando.hidden = false;
+    bitTentar.hidden = true;
+    C.pedir("GET", "/api/bitacora" + (mes && MES_ISO.test(mes) ? "?mes=" + mes : ""), undefined, token).then(function (resposta) {
+      alvo.carregando = false;
+      if (numeroDaLeitura !== leiturasDaBitacora || alvo !== bit) return;
+      bitCarregando.hidden = true;
+      if (!resposta.ok) {
+        // Falha que não muda a tela (sem internet, muitas tentativas, serviço fora): a frase e o "Tentar de novo".
+        if (!recusaDaBitacora(resposta, bitAviso)) bitTentar.hidden = false;
+        return;
+      }
+      var dados = resposta.json;
+      C.anunciar(bitAviso, "", "");
+      if (dados.estado !== "disponivel") {
+        if (conta) conta.bitacora = ESTADOS.indexOf(dados.estado) !== -1 ? dados.estado : "em_breve";
+        return mostrarBitacora();
+      }
+      bit.carregada = true;
+      bit.lidaEm = hojeEmSalvador();
+      bit.consentimento = dados.consentimento && typeof dados.consentimento === "object"
+        ? { versao: String(dados.consentimento.versao || ""), aceito: dados.consentimento.aceito === true }
+        : { versao: "", aceito: false };
+      bit.hoje = typeof dados.hoje === "string" && DIA_ISO.test(dados.hoje) ? dados.hoje : hojeEmSalvador();
+      bit.mes = typeof dados.mes === "string" && MES_ISO.test(dados.mes) ? dados.mes : bit.hoje.slice(0, 7);
+      bit.registros = (Array.isArray(dados.registros) ? dados.registros : []).map(normalizarRegistro).filter(function (r) { return r !== null; });
+      if (bit.mes === bit.hoje.slice(0, 7)) bit.registroDeHoje = registroDoDia(bit.hoje);
+      // Registros que o servidor não conseguiu abrir: só a contagem, para o aviso (sem dia nem detalhe).
+      bit.ilegiveis = numero(dados.ilegiveis) !== null && dados.ilegiveis > 0 ? dados.ilegiveis : 0;
+      bit.confirmarApagar = null;
+      mostrarBitacora();
+    });
+  }
+  bitTentar.addEventListener("click", function () {
+    C.anunciar(bitAviso, "", "");
+    carregarBitacora(bit.mes);
+  });
+
+  // O dia mudou desde a leitura: a bitácora e os relatórios recomeçam (o "hoje", o mês, o contador do mês). O que
+  // estava no formulário da bitácora fica como rascunho e volta a ele, no dia de hoje novo ou no dia em correção.
+  function conferirDia() {
+    var agora = hojeEmSalvador();
+    var mudou = false;
+    if (bit.carregada && bit.lidaEm !== agora) {
+      var dia = bit.diaDoFormulario;
+      var rascunho = dia && !bitAberta.hidden ? lerFormulario() : null;
+      var eraHoje = dia === bit.hoje;
+      bit = bitacoraNova();
+      if (rascunho) {
+        bit.rascunho = rascunho;
+        bit.diaDoRascunho = eraHoje ? null : dia;
+      }
+      mudou = true;
+    }
+    if (rel.carregada && rel.lidaEm !== agora) {
+      rel = relatoriosNovos();
+      relInicio.value = "";
+      relFim.value = "";
+      mudou = true;
+    }
+    return mudou;
+  }
+
+  function mostrarBitacora() {
+    desenharBitacora();
+    atualizarApagarTudo();
+  }
+  function desenharBitacora() {
+    var estado = conta ? conta.bitacora : null;
+    var disponivel = estado === "disponivel";
+    document.getElementById("bit-fora").hidden = estado !== "fora_do_plano";
+    document.getElementById("bit-em-breve").hidden = !(estado !== null && estado !== undefined && !disponivel && estado !== "fora_do_plano");
+    if (!disponivel || !bit.carregada) {
+      bitConsentimento.hidden = true;
+      bitAberta.hidden = true;
+      if (disponivel) carregarBitacora(bit.mes);
+      return;
+    }
+    var aceito = bit.consentimento.aceito === true;
+    bitConsentimento.hidden = aceito;
+    bitAberta.hidden = !aceito;
+    if (!aceito) {
+      // Texto de outra versão no servidor: esta página é antiga e não pede a autorização com o texto velho.
+      var antiga = bit.consentimento.versao !== "" && bit.consentimento.versao !== VERSAO_DO_CONSENTIMENTO;
+      bitConsentimento.querySelector('button[type="submit"]').disabled = antiga;
+      if (antiga) C.anunciar(bitConsentimentoStatus, "O texto da autorização mudou. Recarregue a página para ler o texto novo.", "");
+      return;
+    }
+    document.getElementById("bit-ilegiveis").hidden = !(bit.ilegiveis > 0);
+    if (bit.diaDoFormulario === null) {
+      prepararFormulario(bit.diaDoRascunho || bit.hoje);
+      if (bit.rascunho) {
+        aplicarRascunho(bit.rascunho);
+        C.anunciar(bitStatus, "O dia mudou desde que a bitácora abriu. Confira o registro e guarde de novo.", "");
+      }
+      bit.rascunho = null;
+      bit.diaDoRascunho = null;
+    }
+    desenharMes();
+  }
+
+  bitConsentimento.addEventListener("submit", function (evento) {
+    evento.preventDefault();
+    var botao = bitConsentimento.querySelector('button[type="submit"]');
+    if (!bitCaixa.checked) return C.anunciar(bitConsentimentoStatus, "Para começar, marque a autorização.", "");
+    botao.disabled = true;
+    C.anunciar(bitConsentimentoStatus, "Guardando a autorização.", "");
+    C.pedir("POST", "/api/bitacora/consentimento", { versao: bit.consentimento.versao || VERSAO_DO_CONSENTIMENTO }, token).then(function (resposta) {
+      botao.disabled = false;
+      if (!resposta.ok) {
+        if (resposta.json.erro === "aceite_invalido") {
+          bitCaixa.checked = false;
+          botao.disabled = true;
+          return C.anunciar(bitConsentimentoStatus, "O texto da autorização mudou. Recarregue a página para ler o texto novo.", "");
+        }
+        return recusaDaBitacora(resposta, bitConsentimentoStatus);
+      }
+      bitCaixa.checked = false;
+      bit.consentimento.aceito = true;
+      // Os relatórios dependem da mesma autorização: a aba deles lê de novo na próxima vez.
+      rel.carregada = false;
+      C.anunciar(bitConsentimentoStatus, "", "");
+      mostrarBitacora();
+      C.anunciar(bitAviso, "Pronto: a bitácora está aberta.", "ok");
+      bitFormTitulo.focus();
+    });
+  });
+
+  function atualizarDor() {
+    var valor = Math.max(0, Math.min(10, Math.round(Number(bitDor.value) || 0)));
+    var texto = valor === 0 ? "Sem dor" : "Dor " + nomeDaFaixa(valor);
+    bitDorValor.textContent = String(valor);
+    bitDorFaixa.textContent = texto;
+    bitDor.setAttribute("aria-valuetext", valor + " de 10, " + texto.toLowerCase());
+  }
+  bitDor.addEventListener("input", atualizarDor);
+  bitDor.addEventListener("change", atualizarDor);
+
+  function marcar(nome, codigos) {
+    var caixas = bitForm.querySelectorAll('input[name="' + nome + '"]');
+    for (var i = 0; i < caixas.length; i += 1) caixas[i].checked = codigos.indexOf(caixas[i].value) !== -1;
+  }
+  function marcados(nome) {
+    var caixas = bitForm.querySelectorAll('input[name="' + nome + '"]');
+    var lidos = [];
+    for (var i = 0; i < caixas.length; i += 1) if (caixas[i].checked) lidos.push(caixas[i].value);
+    return lidos;
+  }
+
+  // O que está no formulário, na forma do pedido de gravar (sem o dia).
+  function lerFormulario() {
+    return {
+      dor: Math.max(0, Math.min(10, Math.round(Number(bitDor.value) || 0))), ciclo: bitCiclo.checked === true,
+      onde: marcados("onde"), afetou: marcados("afetou"),
+      remedio: bitRemedio.value.trim().slice(0, 80), fala: bitFala.value.trim().slice(0, 280)
+    };
+  }
+  function aplicarRascunho(rascunho) {
+    bitDor.value = String(rascunho.dor);
+    atualizarDor();
+    bitCiclo.checked = rascunho.ciclo === true;
+    marcar("onde", rascunho.onde);
+    marcar("afetou", rascunho.afetou);
+    bitRemedio.value = rascunho.remedio;
+    bitFala.value = rascunho.fala;
+  }
+
+  // O formulário do dia: o de hoje ou o do dia em correção, já com o que estiver registrado nele. O de hoje vem do
+  // registro guardado à parte, e não do mês na tela (que pode ser outro).
+  function prepararFormulario(dia) {
+    var hoje = dia === bit.hoje;
+    var atual = hoje ? bit.registroDeHoje : registroDoDia(dia);
+    bit.diaDoFormulario = dia;
+    bitFormTitulo.textContent = hoje ? "Como você está hoje" : "Registro de " + porExtenso(dia).charAt(0).toLowerCase() + porExtenso(dia).slice(1);
+    document.getElementById("bit-ciclo-texto").textContent = hoje ? "Estou menstruada hoje" : "Estava menstruada neste dia";
+    bitDor.value = String(atual ? atual.dor : 0);
+    atualizarDor();
+    bitCiclo.checked = Boolean(atual && atual.ciclo);
+    marcar("onde", atual ? atual.onde : []);
+    marcar("afetou", atual ? atual.afetou : []);
+    bitRemedio.value = atual ? atual.remedio : "";
+    bitFala.value = atual ? atual.fala : "";
+    bitCancelar.hidden = hoje;
+    bitAlerta.hidden = true;
+    C.anunciar(bitStatus, "", "");
+  }
+  bitCancelar.addEventListener("click", function () {
+    prepararFormulario(bit.hoje);
+    desenharMes();
+    bitFormTitulo.focus();
+  });
+
+  // Palavras com sinal de risco (o servidor confere com a mesma regra da conversa e não guarda nada disso): junto da
+  // confirmação, a página leva aos canais de ajuda do rodapé.
+  function irAosCanais() {
+    var canais = document.getElementById("titulo-canais");
+    canais.setAttribute("tabindex", "-1");
+    try { canais.scrollIntoView({ block: "start" }); } catch (e) { /* sem rolagem */ }
+    canais.focus();
+  }
+  document.getElementById("bit-ir-canais").addEventListener("click", irAosCanais);
+
+  function guardarNoMes(novo) {
+    if (novo.dia === bit.hoje) bit.registroDeHoje = novo;
+    if (novo.dia.slice(0, 7) !== bit.mes) return;
+    for (var i = 0; i < bit.registros.length; i += 1) {
+      if (bit.registros[i].dia === novo.dia) {
+        bit.registros[i] = novo;
+        return;
+      }
+    }
+    bit.registros.push(novo);
+  }
+
+  bitForm.addEventListener("submit", function (evento) {
+    evento.preventDefault();
+    if (bit.gravando || !bit.diaDoFormulario) return;
+    // O dia mudou com a aba aberta: o "hoje" do formulário é o de ontem. Nada é gravado; a bitácora recomeça, e o que
+    // estava escrito volta ao formulário do dia certo, para a pessoa conferir e guardar.
+    if (conferirDia()) return mostrarBitacora();
+    var dia = bit.diaDoFormulario;
+    var corpo = lerFormulario();
+    corpo = { dia: dia, dor: corpo.dor, ciclo: corpo.ciclo, onde: corpo.onde, afetou: corpo.afetou, remedio: corpo.remedio, fala: corpo.fala };
+    var botao = bitForm.querySelector('button[type="submit"]');
+    var alvo = bit;
+    alvo.gravando = true;
+    botao.disabled = true;
+    bitAlerta.hidden = true;
+    C.anunciar(bitStatus, "Guardando o registro.", "");
+    C.pedir("POST", "/api/bitacora/gravar", corpo, token).then(function (resposta) {
+      alvo.gravando = false;
+      botao.disabled = false;
+      if (!resposta.ok) return recusaDaBitacora(resposta, bitStatus);
+      // Com a bitácora recomeçada no meio, o mês na tela é outro: ele vem de novo do servidor. O alerta vale sempre.
+      if (alvo === bit && bit.carregada) {
+        guardarNoMes(normalizarRegistro(resposta.json.registro) || normalizarRegistro(corpo));
+        desenharMes();
+      }
+      var frase = dia === bit.hoje ? "Registro de hoje guardado." : "Registro de " + curta(dia) + " guardado.";
+      if (resposta.json.alerta === true) {
+        C.anunciar(bitStatus, frase, "ok");
+        bitAlerta.hidden = false;
+        return irAosCanais();
+      }
+      C.anunciar(bitStatus, frase + " Dá para corrigir quando quiser.", "ok");
+    });
+  });
+
+  // O mês num olhar: uma tabela de 7 colunas. O dia dos últimos 60 é um botão que abre o formulário daquele dia.
+  function celulaDoDia(iso, dia, nomeDoMes) {
+    var atual = registroDoDia(iso);
+    var editavel = corrigivel(iso);
+    var classe = "dia" + (iso === bit.hoje ? " dia--hoje" : "") + (editavel ? "" : " dia--fora") + (iso === bit.diaDoFormulario && iso !== bit.hoje ? " dia--escolhido" : "");
+    var caixa = C.no(editavel ? "button" : "span", classe);
+    if (editavel) {
+      caixa.setAttribute("type", "button");
+      caixa.setAttribute("data-dia", iso);
+    }
+    var leitura = [dia + " de " + nomeDoMes];
+    var numeroDoDia = C.no("span", "dia__numero", String(dia));
+    numeroDoDia.setAttribute("aria-hidden", "true");
+    caixa.appendChild(numeroDoDia);
+    if (atual) {
+      var dor = C.no("span", "dia__dor dor--" + faixa(atual.dor), String(atual.dor));
+      dor.setAttribute("aria-hidden", "true");
+      caixa.appendChild(dor);
+      leitura.push("dor " + atual.dor + " de 10");
+      if (atual.ciclo) {
+        var gota = C.no("span", "dia__ciclo");
+        gota.setAttribute("aria-hidden", "true");
+        caixa.appendChild(gota);
+        leitura.push("menstruação");
+      }
+    } else if (iso <= bit.hoje) {
+      leitura.push("sem registro");
+    }
+    if (iso === bit.hoje) leitura.push("hoje");
+    caixa.appendChild(C.no("span", "so-leitor", leitura.join(", ")));
+    return caixa;
+  }
+
+  function desenharMes() {
+    var partes = bit.mes.split("-");
+    var ano = Number(partes[0]);
+    var mes = Number(partes[1]);
+    var nomeDoMes = MESES[mes - 1];
+    // O título é lido pelo leitor de tela quando muda (aria-live): só é trocado quando o mês muda.
+    var tituloDoMes = document.getElementById("bit-mes-titulo");
+    if (tituloDoMes.textContent !== nomeDoMes + " de " + ano) tituloDoMes.textContent = nomeDoMes + " de " + ano;
+    var primeiro = new Date(Date.UTC(ano, mes - 1, 1)).getUTCDay();
+    var dias = new Date(Date.UTC(ano, mes, 0)).getUTCDate();
+    var casas = Math.ceil((primeiro + dias) / 7) * 7;
+    limpar(bitCalendario);
+    var linha = null;
+    for (var i = 0; i < casas; i += 1) {
+      if (i % 7 === 0) {
+        linha = document.createElement("tr");
+        bitCalendario.appendChild(linha);
+      }
+      var celula = document.createElement("td");
+      var dia = i - primeiro + 1;
+      if (dia >= 1 && dia <= dias) celula.appendChild(celulaDoDia(bit.mes + "-" + dois(dia), dia, nomeDoMes));
+      linha.appendChild(celula);
+    }
+    bitSeguinte.disabled = bit.mes >= bit.hoje.slice(0, 7);
+    desenharLista();
+  }
+
+  bitCalendario.addEventListener("click", function (evento) {
+    var alvo = evento.target;
+    while (alvo && alvo !== bitCalendario && !(alvo.getAttribute && alvo.getAttribute("data-dia"))) alvo = alvo.parentNode;
+    if (!alvo || alvo === bitCalendario) return;
+    prepararFormulario(alvo.getAttribute("data-dia"));
+    desenharMes();
+    bitFormTitulo.focus();
+  });
+
+  function mudarMes(passo) {
+    if (!bit.mes) return;
+    var partes = bit.mes.split("-");
+    var data = new Date(Date.UTC(Number(partes[0]), Number(partes[1]) - 1 + passo, 1));
+    var novo = data.getUTCFullYear() + "-" + dois(data.getUTCMonth() + 1);
+    if (novo > bit.hoje.slice(0, 7)) return;
+    carregarBitacora(novo);
+  }
+  bitAnterior.addEventListener("click", function () { mudarMes(-1); });
+  bitSeguinte.addEventListener("click", function () { mudarMes(1); });
+
+  // Cada botão da lista diz no nome o dia de que trata ("Corrigir o registro de 24/11"), para quem navega pelos botões.
+  function botaoDaLista(texto, acao, dia, contorno, nome) {
+    var botao = C.no("button", "btn btn--pequeno" + (contorno ? " btn--contorno" : ""), texto);
+    botao.setAttribute("type", "button");
+    botao.setAttribute("data-acao", acao);
+    botao.setAttribute("data-dia", dia);
+    if (nome) botao.setAttribute("aria-label", nome);
+    return botao;
+  }
+  function desenharLista() {
+    limpar(bitLista);
+    var ordenados = bit.registros.slice().sort(function (a, b) { return a.dia < b.dia ? 1 : -1; });
+    document.getElementById("bit-sem-registros").hidden = ordenados.length > 0;
+    ordenados.forEach(function (atual) {
+      var item = C.no("li", "registro-dia");
+      item.appendChild(C.no("h3", null, porExtenso(atual.dia)));
+      item.appendChild(C.no("p", null, "Dor " + atual.dor + " de 10 (" + (atual.dor === 0 ? "sem dor" : nomeDaFaixa(atual.dor)) + ")." + (atual.ciclo ? " Menstruação." : "")));
+      if (atual.onde.length > 0) item.appendChild(C.no("p", null, "Onde ou quando: " + rotulosDe(atual.onde, ONDE) + "."));
+      if (atual.afetou.length > 0) item.appendChild(C.no("p", null, "Afetou: " + rotulosDe(atual.afetou, AFETOU) + "."));
+      if (atual.remedio !== "") item.appendChild(C.no("p", null, "Remédio: " + atual.remedio));
+      if (atual.fala !== "") item.appendChild(C.no("p", "registro-dia__fala", atual.fala));
+      var acoes = C.no("p", "acoes");
+      if (bit.confirmarApagar === atual.dia) {
+        var confirmar = botaoDaLista("Confirmar: apagar " + curta(atual.dia), "confirmar", atual.dia, false, "Confirmar: apagar o registro de " + curta(atual.dia));
+        // Enquanto o pedido vai, o botão fica travado: dois toques não mandam dois pedidos.
+        confirmar.disabled = bit.apagandoDia === true;
+        acoes.appendChild(confirmar);
+        acoes.appendChild(botaoDaLista("Não apagar", "manter", atual.dia, true, "Não apagar o registro de " + curta(atual.dia)));
+      } else {
+        if (corrigivel(atual.dia)) acoes.appendChild(botaoDaLista("Corrigir", "corrigir", atual.dia, true, "Corrigir o registro de " + curta(atual.dia)));
+        acoes.appendChild(botaoDaLista("Apagar", "apagar", atual.dia, true, "Apagar o registro de " + curta(atual.dia)));
+      }
+      item.appendChild(acoes);
+      bitLista.appendChild(item);
+    });
+  }
+
+  function focarNaLista(acao, dia) {
+    var botoes = bitLista.querySelectorAll("button[data-acao]");
+    for (var i = 0; i < botoes.length; i += 1) {
+      if (botoes[i].getAttribute("data-acao") === acao && botoes[i].getAttribute("data-dia") === dia) return botoes[i].focus();
+    }
+  }
+  function apagarDia(dia, botao) {
+    if (bit.apagandoDia) return;
+    var alvo = bit;
+    alvo.apagandoDia = true;
+    if (botao) botao.disabled = true;
+    C.anunciar(bitAviso, "Apagando o registro de " + curta(dia) + ".", "");
+    C.pedir("POST", "/api/bitacora/apagar", { dia: dia }, token).then(function (resposta) {
+      alvo.apagandoDia = false;
+      // Se a bitácora recomeçou no meio (apagar tudo, outro dia), esta resposta é de antes: a tela já é outra.
+      if (alvo !== bit) return;
+      bit.confirmarApagar = null;
+      if (!resposta.ok) {
+        desenharLista();
+        return recusaDaBitacora(resposta, bitAviso);
+      }
+      bit.registros = bit.registros.filter(function (r) { return r.dia !== dia; });
+      if (dia === bit.hoje) bit.registroDeHoje = null;
+      if (bit.diaDoFormulario === dia) prepararFormulario(dia);
+      desenharMes();
+      C.anunciar(bitAviso, "Registro de " + curta(dia) + " apagado.", "ok");
+      titulos.bitacora.focus();
+    });
+  }
+  bitLista.addEventListener("click", function (evento) {
+    var alvo = evento.target;
+    while (alvo && alvo !== bitLista && !(alvo.getAttribute && alvo.getAttribute("data-acao"))) alvo = alvo.parentNode;
+    if (!alvo || alvo === bitLista) return;
+    var acao = alvo.getAttribute("data-acao");
+    var dia = alvo.getAttribute("data-dia");
+    if (acao === "corrigir") {
+      prepararFormulario(dia);
+      desenharMes();
+      return bitFormTitulo.focus();
+    }
+    if (acao === "apagar") {
+      bit.confirmarApagar = dia;
+      desenharLista();
+      return focarNaLista("confirmar", dia);
+    }
+    if (acao === "manter") {
+      bit.confirmarApagar = null;
+      desenharLista();
+      return focarNaLista("apagar", dia);
+    }
+    if (acao === "confirmar") apagarDia(dia, alvo);
+  });
+
+  // Apagar toda a bitácora: dois passos. Vão juntos os registros, os relatórios e a autorização. O cartão fica fora
+  // das telas e aparece em três situações: a bitácora aberta; a tela da autorização (quem já usou a bitácora e não quer
+  // autorizar o texto novo apaga sem autorizar); e o aceite dos documentos pendente, com a bitácora aberta na conta
+  // (o servidor aceita o apagar só com a entrada da conta). A resposta do apagar vale em qualquer uma delas.
+  var TEXTOS_DO_APAGAR = {
+    aberta: "Apaga todos os registros, os relatórios e a sua autorização. Não dá para desfazer.",
+    semAutorizacao: "Já usou a bitácora antes e não quer autorizar de novo? Você pode apagar tudo o que registrou e os relatórios, sem autorizar. Não dá para desfazer.",
+    semAceite: "Mesmo sem aceitar os documentos em vigor, você pode apagar tudo o que registrou na bitácora e os relatórios. Não dá para desfazer."
+  };
+  var apagouSemAceite = false;
+  function atualizarApagarTudo() {
+    var cartao = document.getElementById("apagar-bitacora");
+    var aberta = Boolean(conta) && conta.bitacora === "disponivel";
+    var mostrar = bloqueado
+      ? semAceite && (aberta || bit.carregada || apagouSemAceite)
+      : liberado && telaAtual === "bitacora" && aberta && bit.carregada;
+    cartao.hidden = !mostrar;
+    if (!mostrar) {
+      bitConfirmarTudo.hidden = true;
+      bitApagarTudo.hidden = false;
+      return;
+    }
+    document.getElementById("apagar-bitacora-texto").textContent = bloqueado ? TEXTOS_DO_APAGAR.semAceite
+      : bit.consentimento && bit.consentimento.aceito === true ? TEXTOS_DO_APAGAR.aberta : TEXTOS_DO_APAGAR.semAutorizacao;
+    // Sem o aceite, depois de apagar não há mais o que fazer aqui: fica só a confirmação.
+    if (bloqueado && apagouSemAceite) {
+      bitApagarTudo.hidden = true;
+      bitConfirmarTudo.hidden = true;
+    }
+  }
+
+  bitApagarTudo.addEventListener("click", function () {
+    bitApagarTudo.hidden = true;
+    bitConfirmarTudo.hidden = false;
+    bitConfirmarTudo.focus();
+  });
+  document.getElementById("bit-nao-apagar-tudo").addEventListener("click", function () {
+    bitConfirmarTudo.hidden = true;
+    bitApagarTudo.hidden = false;
+    bitApagarTudo.focus();
+  });
+  bitSimApagarTudo.addEventListener("click", function () {
+    bitSimApagarTudo.disabled = true;
+    C.anunciar(bitTudoStatus, "Apagando a bitácora.", "");
+    C.pedir("POST", "/api/bitacora/apagar", { tudo: true }, token).then(function (resposta) {
+      bitSimApagarTudo.disabled = false;
+      bitConfirmarTudo.hidden = true;
+      bitApagarTudo.hidden = false;
+      if (!resposta.ok) {
+        // Com a página bloqueada (aceite pendente), só a entrada vencida muda a tela; o resto vira a frase.
+        if (bloqueado && resposta.json.erro !== "token_invalido") return C.anunciar(bitTudoStatus, C.frase(resposta.json.erro), "");
+        return recusaDaBitacora(resposta, bitTudoStatus);
+      }
+      var registros = numero(resposta.json.registros);
+      var relatorios = numero(resposta.json.relatorios);
+      var frase = "A bitácora foi apagada" + (registros !== null && relatorios !== null ? ": " + plural(registros, "registro", "registros") + " e " + plural(relatorios, "relatório", "relatórios") : "") + ".";
+      bit = bitacoraNova();
+      rel = relatoriosNovos();
+      fecharVista();
+      if (bloqueado) {
+        apagouSemAceite = true;
+        C.anunciar(bitTudoStatus, frase, "ok");
+        atualizarApagarTudo();
+        return document.getElementById("apagar-bitacora-titulo").focus();
+      }
+      C.anunciar(bitTudoStatus, frase + " Para usar de novo, é preciso autorizar outra vez.", "ok");
+      titulos.bitacora.focus();
+      carregarBitacora(null);
+    });
+  });
+
+  // ----- Relatório (plano Completo): até 2 por mês, pelas rotas de /api/relatorios
+
+  var relAberto = document.getElementById("rel-aberto");
+  var relAviso = document.getElementById("rel-aviso");
+  var relForm = document.getElementById("rel-form");
+  var relInicio = document.getElementById("rel-inicio");
+  var relFim = document.getElementById("rel-fim");
+  var relNome = document.getElementById("rel-nome");
+  var relGerar = document.getElementById("rel-gerar");
+  var relStatus = document.getElementById("rel-status");
+  var relLista = document.getElementById("rel-lista");
+  var relVista = document.getElementById("rel-vista");
+  var PERGUNTAS = [
+    document.getElementById("rel-pergunta-1"), document.getElementById("rel-pergunta-2"), document.getElementById("rel-pergunta-3"),
+    document.getElementById("rel-pergunta-4"), document.getElementById("rel-pergunta-5")
+  ];
+
+  // Como a bitácora: `lidaEm` é o dia do aparelho em que a lista foi lida (o contador é do mês), e cada leitura leva
+  // um número, para a resposta velha não sobrescrever a nova.
+  function relatoriosNovos() {
+    return { carregada: false, carregando: false, lidaEm: null, consentido: true, porMes: 2, usados: 0, restantes: 2, lista: [], gerando: false };
+  }
+  var rel = relatoriosNovos();
+  var leiturasDosRelatorios = 0;
+  var relTentar = document.getElementById("rel-tentar");
+
+  function abrirRelatorio() {
+    var estado = conta ? conta.relatorio : null;
+    var disponivel = estado === "disponivel";
+    var semAutorizacao = document.getElementById("rel-sem-autorizacao");
+    document.getElementById("rel-fora").hidden = estado !== "fora_do_plano";
+    document.getElementById("rel-em-breve").hidden = !(estado !== null && estado !== undefined && !disponivel && estado !== "fora_do_plano");
+    semAutorizacao.hidden = true;
+    if (!disponivel) {
+      relAberto.hidden = true;
+      fecharVista();
+      return;
+    }
+    if (!rel.carregada) {
+      relAberto.hidden = true;
+      return carregarRelatorios();
+    }
+    // Sem a autorização da bitácora, não há o que gerar nem abrir: a aba leva à bitácora, sem o botão de gerar.
+    if (!rel.consentido) {
+      relAberto.hidden = true;
+      semAutorizacao.hidden = false;
+      fecharVista();
+      return;
+    }
+    relAberto.hidden = false;
+    desenharRelatorios();
+  }
+
+  function carregarRelatorios() {
+    if (rel.carregando) return;
+    var alvo = rel;
+    var numeroDaLeitura = ++leiturasDosRelatorios;
+    alvo.carregando = true;
+    document.getElementById("rel-carregando").hidden = false;
+    relTentar.hidden = true;
+    C.pedir("GET", "/api/relatorios", undefined, token).then(function (resposta) {
+      alvo.carregando = false;
+      if (numeroDaLeitura !== leiturasDosRelatorios || alvo !== rel) return;
+      document.getElementById("rel-carregando").hidden = true;
+      if (!resposta.ok) {
+        if (!recusaDaBitacora(resposta, relAviso)) relTentar.hidden = false;
+        return;
+      }
+      C.anunciar(relAviso, "", "");
+      var dados = resposta.json;
+      rel.lidaEm = hojeEmSalvador();
+      if (dados.estado && dados.estado !== "disponivel") {
+        if (conta) conta.relatorio = ESTADOS.indexOf(dados.estado) !== -1 ? dados.estado : "em_breve";
+        return abrirRelatorio();
+      }
+      rel.carregada = true;
+      rel.porMes = numero(dados.por_mes) !== null ? dados.por_mes : 2;
+      rel.usados = numero(dados.usados_no_mes) !== null ? dados.usados_no_mes : 0;
+      rel.restantes = numero(dados.restantes_no_mes) !== null ? dados.restantes_no_mes : Math.max(0, rel.porMes - rel.usados);
+      rel.lista = (Array.isArray(dados.lista) ? dados.lista : []).filter(function (item) { return item && typeof item.id === "string"; });
+      // A resposta traz a autorização da bitácora; sem ela (aceito: false), a lista vem vazia e os contadores, zerados.
+      rel.consentido = !(dados.consentimento && typeof dados.consentimento === "object" && dados.consentimento.aceito === false);
+      abrirRelatorio();
+    });
+  }
+  relTentar.addEventListener("click", function () {
+    C.anunciar(relAviso, "", "");
+    carregarRelatorios();
+  });
+
+  function desenharRelatorios() {
+    var contagem = "Relatórios deste mês: " + rel.usados + " de " + rel.porMes + ".";
+    if (rel.restantes <= 0) contagem += " Os deste mês já foram usados; no mês que vem, entram mais " + rel.porMes + ".";
+    document.getElementById("rel-contagem").textContent = contagem;
+    relGerar.disabled = rel.restantes <= 0 || rel.gerando;
+    var hoje = bit.hoje || hojeEmSalvador();
+    relFim.setAttribute("max", hoje);
+    relInicio.setAttribute("max", hoje);
+    if (relFim.value === "") relFim.value = hoje;
+    if (relInicio.value === "") relInicio.value = somarDias(hoje, -29);
+    limpar(relLista);
+    document.getElementById("rel-sem-lista").hidden = rel.lista.length > 0;
+    rel.lista.forEach(function (item) {
+      var linha = C.no("li", "registro-dia");
+      var periodo = typeof item.inicio === "string" && DIA_ISO.test(item.inicio) && typeof item.fim === "string" && DIA_ISO.test(item.fim)
+        ? "De " + comAno(item.inicio) + " a " + comAno(item.fim) : "Relatório";
+      linha.appendChild(C.no("h3", null, periodo));
+      if (item.criado_em) linha.appendChild(C.no("p", null, "Gerado em " + C.data(item.criado_em) + "."));
+      var acoes = C.no("p", "acoes");
+      var abrir = C.no("button", "btn btn--pequeno btn--contorno", "Abrir");
+      abrir.setAttribute("type", "button");
+      abrir.setAttribute("data-abrir", item.id);
+      abrir.setAttribute("aria-label", "Abrir o relatório: " + periodo.charAt(0).toLowerCase() + periodo.slice(1));
+      acoes.appendChild(abrir);
+      linha.appendChild(acoes);
+      relLista.appendChild(linha);
+    });
+  }
+
+  relForm.addEventListener("submit", function (evento) {
+    evento.preventDefault();
+    if (rel.gerando) return;
+    var hoje = bit.hoje || hojeEmSalvador();
+    var inicio = relInicio.value;
+    var fim = relFim.value;
+    if (!DIA_ISO.test(inicio) || !DIA_ISO.test(fim)) return C.anunciar(relStatus, "Escolha o primeiro e o último dia do período.", "");
+    if (inicio > fim) return C.anunciar(relStatus, "O primeiro dia precisa vir antes do último.", "");
+    if (fim > hoje) return C.anunciar(relStatus, "O período termina hoje, no máximo.", "");
+    if (diasEntre(inicio, fim) + 1 > MAXIMO_DO_PERIODO) return C.anunciar(relStatus, "O período vai até " + MAXIMO_DO_PERIODO + " dias. Encurte para gerar.", "");
+    if (rel.restantes <= 0) return C.anunciar(relStatus, C.frase("limite_de_relatorios"), "");
+    var perguntas = [];
+    PERGUNTAS.forEach(function (caixa) {
+      var texto = caixa.value.trim().slice(0, 200);
+      if (texto !== "") perguntas.push(texto);
+    });
+    rel.gerando = true;
+    relGerar.disabled = true;
+    C.anunciar(relStatus, "Montando o relatório.", "");
+    C.pedir("POST", "/api/relatorios/gerar", { inicio: inicio, fim: fim, perguntas: perguntas }, token).then(function (resposta) {
+      rel.gerando = false;
+      if (!resposta.ok) {
+        if (resposta.json.erro === "limite_de_relatorios") {
+          rel.restantes = 0;
+          rel.usados = rel.porMes;
+          desenharRelatorios();
+        }
+        relGerar.disabled = rel.restantes <= 0;
+        return recusaDaBitacora(resposta, relStatus);
+      }
+      rel.restantes = numero(resposta.json.restantes_no_mes) !== null ? resposta.json.restantes_no_mes : Math.max(0, rel.restantes - 1);
+      rel.usados = Math.max(0, rel.porMes - rel.restantes);
+      var relatorio = resposta.json.relatorio;
+      if (relatorio && typeof relatorio.id === "string") rel.lista.unshift({ id: relatorio.id, criado_em: relatorio.gerado_em, inicio: relatorio.inicio, fim: relatorio.fim });
+      desenharRelatorios();
+      C.anunciar(relStatus, "Relatório gerado.", "ok");
+      mostrarVista(relatorio);
+    });
+  });
+
+  relLista.addEventListener("click", function (evento) {
+    var alvo = evento.target;
+    while (alvo && alvo !== relLista && !(alvo.getAttribute && alvo.getAttribute("data-abrir"))) alvo = alvo.parentNode;
+    if (!alvo || alvo === relLista) return;
+    var id = alvo.getAttribute("data-abrir");
+    C.anunciar(relAviso, "Abrindo o relatório.", "");
+    C.pedir("POST", "/api/relatorios/abrir", { id: id }, token).then(function (resposta) {
+      if (!resposta.ok) return recusaDaBitacora(resposta, relAviso);
+      C.anunciar(relAviso, "", "");
+      mostrarVista(resposta.json.relatorio);
+    });
+  });
+
+  // A vista do relatório. O nome no papel é só desta página: nunca vai ao servidor.
+  function dado(lista, rotulo, valor) {
+    var grupo = C.no("div");
+    grupo.appendChild(C.no("dt", null, rotulo));
+    grupo.appendChild(C.no("dd", null, valor));
+    lista.appendChild(grupo);
+  }
+  function celulas(linha, valores) {
+    var tr = document.createElement("tr");
+    valores.forEach(function (valor, i) {
+      var celula = C.no(i === 0 ? "th" : "td", null, valor);
+      if (i === 0) celula.setAttribute("scope", "row");
+      tr.appendChild(celula);
+    });
+    linha.appendChild(tr);
+  }
+  function texto(valor) { return typeof valor === "string" ? valor : typeof valor === "number" ? String(valor) : ""; }
+  function decimal(valor) { return String(Math.round(valor * 10) / 10).replace(".", ","); }
+  function atualizarNomeNoPapel() {
+    var nome = relNome.value.trim();
+    var linha = document.getElementById("rel-vista-nome");
+    linha.textContent = nome === "" ? "" : "Nome: " + nome;
+    linha.hidden = nome === "";
+  }
+  relNome.addEventListener("input", atualizarNomeNoPapel);
+
+  function mostrarVista(r) {
+    if (!r || typeof r !== "object") return;
+    var resumo = r.resumo && typeof r.resumo === "object" ? r.resumo : {};
+    var inicio = typeof r.inicio === "string" && DIA_ISO.test(r.inicio) ? r.inicio : "";
+    var fim = typeof r.fim === "string" && DIA_ISO.test(r.fim) ? r.fim : "";
+    var periodo = texto(r.periodo) || (inicio && fim ? comAno(inicio) + " a " + comAno(fim) : "");
+    var diasNoPeriodo = numero(r.dias_no_periodo);
+    document.getElementById("rel-vista-periodo").textContent = periodo ? "Período: " + periodo + (diasNoPeriodo !== null ? " (" + plural(diasNoPeriodo, "dia", "dias") + ")" : "") : "";
+    atualizarNomeNoPapel();
+    document.getElementById("rel-assinatura").textContent = "Preparado com apoio da " + AUTOR_DA_ASSISTENTE + " · EndoAfetos";
+    document.getElementById("rel-vista-gerado").textContent = r.gerado_em ? "Gerado em " + C.data(r.gerado_em) + "." : "";
+
+    var dados = document.getElementById("rel-resumo");
+    limpar(dados);
+    var registros = Array.isArray(r.registros) ? r.registros.length : numero(r.registros);
+    if (registros !== null) dado(dados, "Dias com registro", String(registros) + (diasNoPeriodo !== null ? " de " + diasNoPeriodo : ""));
+    if (numero(resumo.dias_de_dor_forte) !== null) dado(dados, "Dias de dor forte (7 a 10)", String(resumo.dias_de_dor_forte) + (texto(resumo.datas_de_dor_forte) ? ": " + texto(resumo.datas_de_dor_forte) : ""));
+    if (numero(resumo.dias_de_ciclo) !== null) dado(dados, "Dias de menstruação", String(resumo.dias_de_ciclo) + (texto(resumo.periodo_do_ciclo) ? ": " + texto(resumo.periodo_do_ciclo) : ""));
+    var maior = resumo.maior_dor && typeof resumo.maior_dor === "object" && numero(resumo.maior_dor.valor) !== null ? resumo.maior_dor : null;
+    dado(dados, "Maior dor", maior ? maior.valor + " de 10" + (texto(maior.data) ? ", em " + texto(maior.data) : "") : "Sem registro de dor");
+    if (numero(resumo.media_da_dor) !== null) dado(dados, "Média da dor", decimal(resumo.media_da_dor) + " de 10");
+
+    var relevantes = document.getElementById("rel-relevantes");
+    limpar(relevantes);
+    var fatos = Array.isArray(r.relevantes) ? r.relevantes : [];
+    fatos.forEach(function (fato) {
+      if (!fato || typeof fato !== "object") return;
+      var item = C.no("li");
+      item.appendChild(C.no("p", null, [texto(fato.data), texto(fato.titulo)].filter(Boolean).join(": ")));
+      if (texto(fato.texto)) item.appendChild(C.no("p", null, texto(fato.texto)));
+      if (texto(fato.fala)) item.appendChild(C.no("p", "rel-fala", "“" + texto(fato.fala) + "”"));
+      relevantes.appendChild(item);
+    });
+    document.getElementById("rel-sem-relevantes").hidden = relevantes.firstChild !== null;
+
+    var barras = document.getElementById("rel-barras");
+    var leitor = document.getElementById("rel-dias-leitor");
+    limpar(barras);
+    limpar(leitor);
+    var porDia = (Array.isArray(r.dor_por_dia) ? r.dor_por_dia : []).filter(function (item) { return item && typeof item.dia === "string" && DIA_ISO.test(item.dia); });
+    porDia.forEach(function (item) {
+      var dor = numero(item.dor);
+      var barra = C.no("span", "barra" + (dor === null ? " barra--vazia" : dor >= 7 ? " barra--forte" : "") + (item.ciclo === true ? " barra--ciclo" : ""));
+      var coluna = C.no("span", "barra__coluna");
+      if (dor !== null) coluna.style.height = Math.max(0, Math.min(10, dor)) * 10 + "%";
+      barra.appendChild(coluna);
+      barras.appendChild(barra);
+      if (dor !== null) leitor.appendChild(C.no("li", null, curta(item.dia) + ": dor " + dor + " de 10" + (item.ciclo === true ? ", menstruação" : "")));
+    });
+    document.getElementById("rel-barras-inicio").textContent = porDia.length ? curta(porDia[0].dia) : "";
+    document.getElementById("rel-barras-fim").textContent = porDia.length ? curta(porDia[porDia.length - 1].dia) : "";
+
+    var sintomas = document.getElementById("rel-sintomas");
+    limpar(sintomas);
+    (Array.isArray(r.sintomas) ? r.sintomas : []).forEach(function (item) {
+      if (!item || typeof item !== "object") return;
+      var onde = Object.prototype.hasOwnProperty.call(ONDE, item.onde) ? ONDE[item.onde] : texto(item.onde);
+      celulas(sintomas, [onde, texto(item.dias), numero(item.maior) !== null ? item.maior + " de 10" : "", texto(item.quando)]);
+    });
+    document.getElementById("rel-bloco-sintomas").hidden = sintomas.firstChild === null;
+
+    var impacto = document.getElementById("rel-impacto");
+    limpar(impacto);
+    (Array.isArray(r.impacto) ? r.impacto : []).forEach(function (item) {
+      if (!item || typeof item !== "object") return;
+      var area = Object.prototype.hasOwnProperty.call(AFETOU, item.area) ? AFETOU[item.area] : texto(item.area);
+      celulas(impacto, [area, texto(item.dias), texto(item.quando)]);
+    });
+    document.getElementById("rel-bloco-impacto").hidden = impacto.firstChild === null;
+
+    var remedios = document.getElementById("rel-remedios");
+    limpar(remedios);
+    (Array.isArray(r.remedios) ? r.remedios : []).forEach(function (item) {
+      if (!item || typeof item !== "object" || !texto(item.nome)) return;
+      var dias = numero(item.dias);
+      remedios.appendChild(C.no("li", null, texto(item.nome) + (dias !== null ? ": " + plural(dias, "dia", "dias") : "") + (texto(item.quando) ? " (" + texto(item.quando) + ")" : "")));
+    });
+    document.getElementById("rel-bloco-remedios").hidden = remedios.firstChild === null;
+
+    var perguntas = document.getElementById("rel-perguntas");
+    limpar(perguntas);
+    (Array.isArray(r.perguntas) ? r.perguntas : []).forEach(function (pergunta) {
+      if (texto(pergunta)) perguntas.appendChild(C.no("li", null, texto(pergunta)));
+    });
+    document.getElementById("rel-bloco-perguntas").hidden = perguntas.firstChild === null;
+
+    relVista.hidden = false;
+    atualizarImpressao();
+    relVista.focus();
+  }
+
+  function fecharVista() {
+    relVista.hidden = true;
+    atualizarImpressao();
+  }
+  // No papel, com o relatório aberto na aba dele, só o relatório (o @media print da página lê este atributo).
+  function atualizarImpressao() {
+    if (!relVista.hidden && telaAtual === "relatorio") document.documentElement.setAttribute("data-imprime", "relatorio");
+    else document.documentElement.removeAttribute("data-imprime");
+  }
+  document.getElementById("rel-imprimir").addEventListener("click", function () { window.print(); });
+  document.getElementById("rel-fechar").addEventListener("click", function () {
+    fecharVista();
+    titulos.relatorio.focus();
+  });
+
+  lerConta();
 })();
 </script>
 </body>

@@ -50,10 +50,13 @@
     // Passado este tempo sem a ficha, a página diz que a verificação está demorando, para não parecer parada.
     aviso_turnstile_ms: 8000,
     // Planos e preços para mostrar (os que valem são os do servidor, src/planos.mjs). O anual vale 10 mensalidades.
+    // 27/11 (painel da usuária): nos pagos, as perguntas do dia acumulam na semana, que renova na sexta às 00h01; a
+    // bitácora e os relatórios são só do Completo. O gratuito tem 3 perguntas por semana, na mesma renovação.
     planos: {
-      essencial: { nome: "Essencial", mensal: 1490, anual: 14900, limite_diario: 10, relatorios: 0 },
-      completo: { nome: "Completo", mensal: 2490, anual: 24900, limite_diario: 20, relatorios: 2 }
-    }
+      essencial: { nome: "Essencial", mensal: 1490, anual: 14900, limite_diario: 10, acumula: true, bitacora: false, relatorios: 0 },
+      completo: { nome: "Completo", mensal: 2490, anual: 24900, limite_diario: 15, acumula: true, bitacora: true, relatorios: 2 }
+    },
+    gratuito: { nome: "Gratuito", limite_semanal: 3 }
   };
 
   // Frases dos códigos de erro das rotas de conta e pagamento. O Worker não manda frase para esses códigos.
@@ -71,6 +74,10 @@
     token_invalido: "Seu acesso terminou. Entre de novo para continuar.",
     senha_fraca: "A senha precisa ter pelo menos 10 caracteres, sem espaço no começo nem no fim.",
     link_vencido: "O link venceu ou já foi usado. Peça um link novo: ele chega no seu e-mail em alguns minutos.",
+    // Bitácora e relatórios do painel (27/11).
+    limite_de_relatorios: "Você já gerou os 2 relatórios deste mês. No mês que vem, entram mais 2.",
+    sem_registros: "Não há registros da bitácora neste período. Escolha outro período ou registre alguns dias antes.",
+    bitacora_indisponivel: "A bitácora não está disponível nesta conta agora.",
     indisponivel: "O serviço está indisponível agora. Tente de novo daqui a pouco.",
     rede: "Não foi possível falar com o servidor. Confira a internet e tente de novo."
   };
@@ -139,6 +146,30 @@
     var d = new Date(ms - 3 * 60 * 60 * 1000);
     var dois = function (n) { return n < 10 ? "0" + n : String(n); };
     return dois(d.getUTCDate()) + "/" + dois(d.getUTCMonth() + 1) + "/" + d.getUTCFullYear();
+  }
+
+  // Contador das perguntas escritas (27/11), o mesmo no painel e em Minha conta. A semana vai da sexta às 00h01 até a
+  // quinta. Nos planos pagos (uso.acumula), a cada dia entram mais uso.por_dia, e o que sobra passa para o dia
+  // seguinte; na quinta, a próxima liberação já é a renovação (proxima_liberacao_em igual a renova_em). No gratuito, o
+  // limite é o da semana. `restantes` (opcional) é o da última resposta da conversa; sem ele, vale o de `uso`.
+  function textoDoUso(uso, restantes) {
+    var resto = typeof restantes === "number" ? restantes
+      : uso && typeof uso.restantes === "number" ? uso.restantes
+        : uso && typeof uso.limite === "number" && typeof uso.usadas === "number" ? Math.max(0, uso.limite - uso.usadas) : null;
+    if (typeof resto !== "number" || !isFinite(resto)) return "";
+    var dia = uso && uso.renova_em ? data(uso.renova_em).slice(0, 5) : "";
+    var renovacao = "na sexta-feira" + (dia ? ", " + dia : "") + ", às 00h01";
+    if (uso && uso.acumula === true) {
+      var frases = [resto === 1 ? "Resta 1 pergunta escrita." : "Restam " + resto + " perguntas escritas."];
+      var naQuinta = !uso.proxima_liberacao_em || !uso.renova_em || Date.parse(uso.proxima_liberacao_em) === Date.parse(uso.renova_em);
+      if (!naQuinta && typeof uso.por_dia === "number") frases.push("Amanhã, às 00h01, entram mais " + uso.por_dia + ".");
+      frases.push("A semana renova " + renovacao + ".");
+      return frases.join(" ");
+    }
+    var total = uso && typeof uso.limite === "number" ? " de " + uso.limite : "";
+    // Resposta do servidor de antes (janela do dia), enquanto a página nova e o servidor novo não estão os dois no ar.
+    if (uso && uso.janela === "dia") return (resto === 1 ? "Resta 1" : "Restam " + resto) + total + " hoje.";
+    return (resto === 1 ? "Resta 1" : "Restam " + resto) + total + " nesta semana. Elas renovam " + renovacao + ".";
   }
 
   function no(etiqueta, classe, texto) {
@@ -257,10 +288,38 @@
     return achado ? decodeURIComponent(achado[1].replace(/\+/g, " ")) : "";
   }
 
+  // Páginas públicas da jornada (planos, inscrição, pagamento e termos), com a conta aberta nesta aba (27/11, pedido
+  // do Carlos de não sair do app para o site por acaso): o "voltar" do topo leva ao painel, e a marca deixa de levar ao
+  // site. O caminho até o painel vem do próprio topo (data-painel, gravado pelo gerador das páginas). As páginas de
+  // dentro da conta têm a barra do painel e não têm "voltar": nelas nada muda.
+  function voltarAoPainel(documento) {
+    if (!documento || typeof documento.querySelector !== "function" || !tokenGuardado()) return false;
+    var ligacoes = documento.querySelector(".topo__ligacoes[data-painel]");
+    var voltar = documento.querySelector(".topo__voltar");
+    if (!ligacoes || !voltar) return false;
+    var painel = ligacoes.getAttribute("data-painel");
+    if (typeof painel !== "string" || !/^(?:\.\.\/)+conta\/conversa\/$/.test(painel)) return false;
+    voltar.setAttribute("href", painel);
+    while (voltar.firstChild) voltar.removeChild(voltar.firstChild);
+    var seta = documento.createElement("span");
+    seta.setAttribute("aria-hidden", "true");
+    seta.textContent = "‹ ";
+    voltar.appendChild(seta);
+    voltar.appendChild(documento.createTextNode("Voltar ao painel"));
+    var marca = documento.querySelector("a.topo__marca");
+    if (marca) marca.removeAttribute("href");
+    // As outras ligações para o site, marcadas com data-site (o "Fale com a equipe"), viram texto: com a conta aberta,
+    // a pessoa não sai do app por acaso.
+    var doSite = typeof documento.querySelectorAll === "function" ? documento.querySelectorAll("a[data-site]") : [];
+    for (var i = 0; i < doSite.length; i += 1) doSite[i].removeAttribute("href");
+    return true;
+  }
+  if (typeof document !== "undefined") voltarAoPainel(document);
+
   raiz.EndoConta = {
     CONFIG: CONFIG, ERROS: ERROS, frase: frase, apiLigada: apiLigada, pedir: pedir, saude: saude, consultarSaude: consultarSaude,
-    dinheiro: dinheiro, data: data,
+    dinheiro: dinheiro, data: data, textoDoUso: textoDoUso,
     no: no, anunciar: anunciar, fichaDoTurnstile: fichaDoTurnstile, guardarToken: guardarToken, tokenGuardado: tokenGuardado,
-    planoGuardado: planoGuardado, esquecerToken: esquecerToken, parametro: parametro
+    planoGuardado: planoGuardado, esquecerToken: esquecerToken, parametro: parametro, voltarAoPainel: voltarAoPainel
   };
 })(typeof window !== "undefined" ? window : globalThis);
